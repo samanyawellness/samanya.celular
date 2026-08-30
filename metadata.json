@@ -1,0 +1,10 @@
+{
+  "name": "Samanya - App Trabajador",
+  "description": "Aplicación móvil asistencial de Samanya con doble perfil (Trabajador y Familiar Responsable), gestión de tareas, bitácora en tiempo real, signos vitales, consentimientos digitales y mensajería con el centro.",
+  "requestFramePermissions": [
+    "microphone"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

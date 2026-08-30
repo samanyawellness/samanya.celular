@@ -1,0 +1,1243 @@
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import {
+  Resident,
+  ResidentMedication,
+  TaskItem,
+  ActivityEvent,
+  BitacoraEntry,
+  VitalSigns,
+  IncidentReport,
+  ConsentRecord,
+  AdmissionRequest,
+  AppNotification,
+  UserRole,
+  ConsentType,
+  FamiliarTab,
+  ChatConversation,
+  ChatMessage,
+  ClinicalRecord,
+  DeletedClinicalRecord,
+  SupplyEntry,
+  StaffWorker
+} from '../types';
+import {
+  INITIAL_RESIDENTS,
+  INITIAL_TASKS,
+  INITIAL_ACTIVITY_TIMELINE,
+  INITIAL_BITACORA,
+  INITIAL_VITALS,
+  INITIAL_INCIDENTS,
+  INITIAL_CONSENTS,
+  INITIAL_NOTIFICATIONS,
+  INITIAL_CONVERSATIONS,
+  INITIAL_CLINICAL_RECORDS,
+  INITIAL_DELETED_CLINICAL_RECORDS,
+  INITIAL_SUPPLIES,
+  STAFF_WORKERS
+} from '../data/mockData';
+
+interface AppContextType {
+  // Authentication & Role
+  isLoggedIn: boolean;
+  currentUser: {
+    name: string;
+    email: string;
+    role: UserRole;
+    shift: string;
+    unit: string;
+    avatar: string;
+  };
+  user: {
+    name: string;
+    email: string;
+    role: UserRole;
+    shift: string;
+    unit: string;
+    avatar: string;
+  };
+  login: (email: string, pass: string) => boolean;
+  logout: () => void;
+  switchRole: (newRole: UserRole) => void;
+
+  // Navigation (Cuidador)
+  activeTab: 'inicio' | 'tareas' | 'residentes' | 'consentimientos' | 'perfil';
+  setActiveTab: (tab: 'inicio' | 'tareas' | 'residentes' | 'consentimientos' | 'perfil') => void;
+  currentScreen: string;
+  setCurrentScreen: (screen: string) => void;
+
+  // Navigation (Familiar / Responsable)
+  activeFamiliarTab: FamiliarTab;
+  setActiveFamiliarTab: (tab: FamiliarTab) => void;
+  selectedFamiliarResidentId: string;
+  setSelectedFamiliarResidentId: (id: string) => void;
+  selectedFamiliarResident: Resident;
+  familiarResidents: Resident[];
+
+  // Core Data
+  residents: Resident[];
+  tasks: TaskItem[];
+  timelineEvents: ActivityEvent[];
+  bitacoraEntries: BitacoraEntry[];
+  supplies: SupplyEntry[];
+  staffWorkers: StaffWorker[];
+  vitalSigns: VitalSigns[];
+  incidents: IncidentReport[];
+  consents: ConsentRecord[];
+  clinicalRecords: ClinicalRecord[];
+  deletedClinicalRecords: DeletedClinicalRecord[];
+  notifications: AppNotification[];
+  conversations: ChatConversation[];
+  selectedDate: string;
+  setSelectedDate: (date: string) => void;
+
+  // Active Item selections
+  selectedResident: Resident | null;
+  setSelectedResident: (resident: Resident | null) => void;
+  selectedEvent: ActivityEvent | null;
+  setSelectedEvent: (event: ActivityEvent | null) => void;
+  selectedTaskForMassRegistration: TaskItem | null;
+  setSelectedTaskForMassRegistration: (task: TaskItem | null) => void;
+
+  // Modals & Panels State
+  isTimelineDrawerOpen: boolean;
+  setIsTimelineDrawerOpen: (open: boolean) => void;
+  isEventDetailModalOpen: boolean;
+  setIsEventDetailModalOpen: (open: boolean) => void;
+  isMassRegistrationModalOpen: boolean;
+  setIsMassRegistrationModalOpen: (open: boolean) => void;
+  isResidentDetailModalOpen: boolean;
+  setIsResidentDetailModalOpen: (open: boolean) => void;
+  isResidentDetailFullScreen: boolean;
+  setIsResidentDetailFullScreen: (full: boolean) => void;
+  isAdmissionModalOpen: boolean;
+  setIsAdmissionModalOpen: (open: boolean) => void;
+  isBitacoraModalOpen: boolean;
+  setIsBitacoraModalOpen: (open: boolean) => void;
+  isVitalSignsModalOpen: boolean;
+  setIsVitalSignsModalOpen: (open: boolean) => void;
+  isIncidentReportOpen: boolean;
+  setIsIncidentReportOpen: (open: boolean) => void;
+  isNewConsentModalOpen: boolean;
+  setIsNewConsentModalOpen: (open: boolean) => void;
+  isNotificationsOpen: boolean;
+  setIsNotificationsOpen: (open: boolean) => void;
+  isRoleMenuOpen: boolean;
+  setIsRoleMenuOpen: (open: boolean) => void;
+  isMessagesOpen: boolean;
+  setIsMessagesOpen: (open: boolean) => void;
+
+  // Familiar Modals & Actions
+  isConsentSignModalOpen: boolean;
+  setIsConsentSignModalOpen: (open: boolean) => void;
+  consentToSign: ConsentRecord | null;
+  setConsentToSign: (consent: ConsentRecord | null) => void;
+  openConsentSignModal: (consent: ConsentRecord) => void;
+  signConsent: (consentId: string, approved: boolean, note?: string) => void;
+  isFamiliarVitalsModalOpen: boolean;
+  setIsFamiliarVitalsModalOpen: (open: boolean) => void;
+  isResidentPickerModalOpen: boolean;
+  setIsResidentPickerModalOpen: (open: boolean) => void;
+  sendMessage: (conversationId: string, text: string) => void;
+
+  // Actions
+  markMedicationAdministered: (taskId: string, photoProofUrl?: string) => void;
+  markTaskCompleted: (taskId: string) => void;
+  unmarkTaskCompleted: (taskId: string) => void;
+  completeMassRegistration: (
+    taskId: string,
+    normalCount: number,
+    exceptions: { residentId: string; residentName: string; note: string; reason: string }[],
+    pendingResidents?: string[]
+  ) => void;
+  addBitacoraEntry: (entry: Omit<BitacoraEntry, 'id' | 'author' | 'time'>) => void;
+  addSupplyEntry: (supply: Omit<SupplyEntry, 'id' | 'time' | 'recordedByName' | 'recordedByRole'>) => void;
+  updateSupplyPaymentStatus: (supplyId: string, status: 'pendiente' | 'pagado') => void;
+  deleteSupplyEntry: (supplyId: string) => void;
+  addVitalSigns: (vitals: Omit<VitalSigns, 'id' | 'takenBy' | 'time'>) => void;
+  createIncidentReport: (incident: Omit<IncidentReport, 'id' | 'reportedBy' | 'status'>) => void;
+  createConsent: (data: {
+    residentId: string;
+    type: ConsentType;
+    description: string;
+    documentName?: string;
+    recipients: { name: string; relationship: string; email: string }[];
+  }) => void;
+  addClinicalRecord: (record: Omit<ClinicalRecord, 'id' | 'createdAt' | 'uploadedByRole' | 'uploadedByName'> & {
+    uploadedByRole?: 'familiar' | 'cuidador';
+    uploadedByName?: string;
+    createdAt?: string;
+  }) => void;
+  updateClinicalRecord: (id: string, updates: Partial<ClinicalRecord>) => boolean;
+  deleteClinicalRecord: (id: string) => boolean;
+  canEditOrDeleteClinicalRecord: (record: ClinicalRecord) => boolean;
+  requestResidentAdmission: (req: Omit<AdmissionRequest, 'id' | 'requestedDate' | 'status'>) => void;
+  addResidentMedication: (residentId: string, med: Omit<ResidentMedication, 'id' | 'status'>) => void;
+  toggleResidentMedicationStatus: (residentId: string, medId: string) => void;
+  deleteResidentMedication: (residentId: string, medId: string) => void;
+  markNotificationAsRead: (id: string) => void;
+  markAllNotificationsAsRead: () => void;
+  unreadNotificationsCount: number;
+  unreadMessagesCount: number;
+
+  // Toast / Feedback
+  toastMessage: string | null;
+  toastType: 'success' | 'info' | 'alert';
+  showToast: (message: string, type?: 'success' | 'info' | 'alert') => void;
+  openResidentHub: (resident: Resident, asModal?: boolean) => void;
+}
+
+const AppContext = createContext<AppContextType | undefined>(undefined);
+
+export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(() => {
+    const saved = localStorage.getItem('samanya_logged_in');
+    return saved !== null ? JSON.parse(saved) : true;
+  });
+
+  const [currentUser, setCurrentUser] = useState({
+    name: 'Elena Morales',
+    email: 'elena.morales@samanya.es',
+    role: 'cuidador' as UserRole,
+    shift: 'Turno Mañana (07:00 - 15:00)',
+    unit: 'Planta 1 — Cuidados Asistenciales',
+    avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=250'
+  });
+
+  const [activeTab, setActiveTab] = useState<'inicio' | 'tareas' | 'residentes' | 'consentimientos' | 'perfil'>('inicio');
+  const [activeFamiliarTab, setActiveFamiliarTab] = useState<FamiliarTab>('inicio');
+  const [selectedFamiliarResidentId, setSelectedFamiliarResidentId] = useState<string>('res-1');
+  const [currentScreen, setCurrentScreen] = useState<string>('app');
+  const [selectedDate, setSelectedDate] = useState<string>('2026-08-19');
+
+  // Persistence keys
+  const [residents, setResidents] = useState<Resident[]>(() => {
+    const saved = localStorage.getItem('samanya_residents');
+    return saved ? JSON.parse(saved) : INITIAL_RESIDENTS;
+  });
+
+  const [tasks, setTasks] = useState<TaskItem[]>(() => {
+    const saved = localStorage.getItem('samanya_tasks');
+    return saved ? JSON.parse(saved) : INITIAL_TASKS;
+  });
+
+  const [timelineEvents, setTimelineEvents] = useState<ActivityEvent[]>(() => {
+    const saved = localStorage.getItem('samanya_timeline');
+    return saved ? JSON.parse(saved) : INITIAL_ACTIVITY_TIMELINE;
+  });
+
+  const [bitacoraEntries, setBitacoraEntries] = useState<BitacoraEntry[]>(() => {
+    const saved = localStorage.getItem('samanya_bitacora');
+    return saved ? JSON.parse(saved) : INITIAL_BITACORA;
+  });
+
+  const [vitalSigns, setVitalSigns] = useState<VitalSigns[]>(() => {
+    const saved = localStorage.getItem('samanya_vitals');
+    return saved ? JSON.parse(saved) : INITIAL_VITALS;
+  });
+
+  const [incidents, setIncidents] = useState<IncidentReport[]>(() => {
+    const saved = localStorage.getItem('samanya_incidents');
+    return saved ? JSON.parse(saved) : INITIAL_INCIDENTS;
+  });
+
+  const [consents, setConsents] = useState<ConsentRecord[]>(() => {
+    const saved = localStorage.getItem('samanya_consents');
+    return saved ? JSON.parse(saved) : INITIAL_CONSENTS;
+  });
+
+  const [clinicalRecords, setClinicalRecords] = useState<ClinicalRecord[]>(() => {
+    const saved = localStorage.getItem('samanya_clinical_records');
+    return saved ? JSON.parse(saved) : INITIAL_CLINICAL_RECORDS;
+  });
+
+  const [deletedClinicalRecords, setDeletedClinicalRecords] = useState<DeletedClinicalRecord[]>(() => {
+    const saved = localStorage.getItem('samanya_deleted_clinical_records');
+    return saved ? JSON.parse(saved) : INITIAL_DELETED_CLINICAL_RECORDS;
+  });
+
+  const [notifications, setNotifications] = useState<AppNotification[]>(() => {
+    const saved = localStorage.getItem('samanya_notifications');
+    return saved ? JSON.parse(saved) : INITIAL_NOTIFICATIONS;
+  });
+
+  const [conversations, setConversations] = useState<ChatConversation[]>(() => {
+    const saved = localStorage.getItem('samanya_conversations');
+    return saved ? JSON.parse(saved) : INITIAL_CONVERSATIONS;
+  });
+
+  const [supplies, setSupplies] = useState<SupplyEntry[]>(() => {
+    const saved = localStorage.getItem('samanya_supplies');
+    return saved ? JSON.parse(saved) : INITIAL_SUPPLIES;
+  });
+
+  // Modals & Selectors
+  const [selectedResident, setSelectedResident] = useState<Resident | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState<ActivityEvent | null>(null);
+  const [selectedTaskForMassRegistration, setSelectedTaskForMassRegistration] = useState<TaskItem | null>(null);
+
+  const [isTimelineDrawerOpen, setIsTimelineDrawerOpen] = useState(false);
+  const [isEventDetailModalOpen, setIsEventDetailModalOpen] = useState(false);
+  const [isMassRegistrationModalOpen, setIsMassRegistrationModalOpen] = useState(false);
+  const [isResidentDetailModalOpen, setIsResidentDetailModalOpen] = useState(false);
+  const [isResidentDetailFullScreen, setIsResidentDetailFullScreen] = useState(false);
+  const [isAdmissionModalOpen, setIsAdmissionModalOpen] = useState(false);
+  const [isBitacoraModalOpen, setIsBitacoraModalOpen] = useState(false);
+  const [isVitalSignsModalOpen, setIsVitalSignsModalOpen] = useState(false);
+  const [isIncidentReportOpen, setIsIncidentReportOpen] = useState(false);
+  const [isNewConsentModalOpen, setIsNewConsentModalOpen] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [isRoleMenuOpen, setIsRoleMenuOpen] = useState(false);
+  const [isMessagesOpen, setIsMessagesOpen] = useState(false);
+
+  // Familiar specific modals
+  const [isConsentSignModalOpen, setIsConsentSignModalOpen] = useState(false);
+  const [consentToSign, setConsentToSign] = useState<ConsentRecord | null>(null);
+  const [isFamiliarVitalsModalOpen, setIsFamiliarVitalsModalOpen] = useState(false);
+  const [isResidentPickerModalOpen, setIsResidentPickerModalOpen] = useState(false);
+
+  // Familiar residents list: primary and secondary for testing multi-resident switching
+  const familiarResidents = residents.filter(r => r.id === 'res-1' || r.id === 'res-2');
+  const selectedFamiliarResident =
+    residents.find(r => r.id === selectedFamiliarResidentId) || familiarResidents[0] || residents[0];
+
+  // Toast
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [toastType, setToastType] = useState<'success' | 'info' | 'alert'>('success');
+
+  const showToast = (message: string, type: 'success' | 'info' | 'alert' = 'success') => {
+    setToastMessage(message);
+    setToastType(type);
+    setTimeout(() => {
+      setToastMessage(null);
+    }, 3500);
+  };
+
+  // Sync to LocalStorage
+  useEffect(() => {
+    localStorage.setItem('samanya_logged_in', JSON.stringify(isLoggedIn));
+  }, [isLoggedIn]);
+
+  useEffect(() => {
+    localStorage.setItem('samanya_residents', JSON.stringify(residents));
+  }, [residents]);
+
+  useEffect(() => {
+    localStorage.setItem('samanya_tasks', JSON.stringify(tasks));
+  }, [tasks]);
+
+  useEffect(() => {
+    localStorage.setItem('samanya_timeline', JSON.stringify(timelineEvents));
+  }, [timelineEvents]);
+
+  useEffect(() => {
+    localStorage.setItem('samanya_bitacora', JSON.stringify(bitacoraEntries));
+  }, [bitacoraEntries]);
+
+  useEffect(() => {
+    localStorage.setItem('samanya_vitals', JSON.stringify(vitalSigns));
+  }, [vitalSigns]);
+
+  useEffect(() => {
+    localStorage.setItem('samanya_incidents', JSON.stringify(incidents));
+  }, [incidents]);
+
+  useEffect(() => {
+    localStorage.setItem('samanya_consents', JSON.stringify(consents));
+  }, [consents]);
+
+  useEffect(() => {
+    localStorage.setItem('samanya_notifications', JSON.stringify(notifications));
+  }, [notifications]);
+
+  useEffect(() => {
+    localStorage.setItem('samanya_conversations', JSON.stringify(conversations));
+  }, [conversations]);
+
+  useEffect(() => {
+    localStorage.setItem('samanya_vitals', JSON.stringify(vitalSigns));
+  }, [vitalSigns]);
+
+  useEffect(() => {
+    localStorage.setItem('samanya_supplies', JSON.stringify(supplies));
+  }, [supplies]);
+
+  useEffect(() => {
+    localStorage.setItem('samanya_clinical_records', JSON.stringify(clinicalRecords));
+  }, [clinicalRecords]);
+
+  useEffect(() => {
+    localStorage.setItem('samanya_deleted_clinical_records', JSON.stringify(deletedClinicalRecords));
+  }, [deletedClinicalRecords]);
+
+  const login = (email: string) => {
+    setIsLoggedIn(true);
+    setCurrentUser(prev => ({
+      ...prev,
+      name: email.includes('familiar') ? 'Javier Pérez (Familiar)' : 'Elena Morales',
+      role: email.includes('familiar') ? 'familiar' : 'cuidador'
+    }));
+    showToast('Sesión iniciada correctamente', 'success');
+    return true;
+  };
+
+  const logout = () => {
+    setIsLoggedIn(false);
+    showToast('Sesión cerrada', 'info');
+  };
+
+  const switchRole = (newRole: UserRole) => {
+    setCurrentUser(prev => ({
+      ...prev,
+      role: newRole,
+      name: newRole === 'cuidador' ? 'Elena Morales' : 'Javier Pérez',
+      shift: newRole === 'cuidador' ? 'Turno Mañana (07:00 - 15:00)' : 'Familiar asignado a Manuel Pérez'
+    }));
+    setIsRoleMenuOpen(false);
+    showToast(`Cambiado al perfil de ${newRole === 'cuidador' ? 'Trabajador / Cuidador' : 'Responsable / Familiar'}`, 'info');
+  };
+
+  const openResidentHub = (resident: Resident, asModal = false) => {
+    setSelectedResident(resident);
+    setIsResidentDetailFullScreen(!asModal);
+    setIsResidentDetailModalOpen(true);
+  };
+
+  const markMedicationAdministered = (taskId: string, photoProofUrl?: string) => {
+    const task = tasks.find(t => t.id === taskId);
+    if (!task) return;
+
+    setTasks(prev =>
+      prev.map(t =>
+        t.id === taskId
+          ? {
+              ...t,
+              status: 'completada',
+              medicationDetails: t.medicationDetails
+                ? { ...t.medicationDetails, photoProofUrl: photoProofUrl || t.medicationDetails.photoProofUrl }
+                : undefined
+            }
+          : t
+      )
+    );
+
+    // Add to timeline
+    const now = new Date();
+    const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    const newEvent: ActivityEvent = {
+      id: `act-${Date.now()}`,
+      date: selectedDate,
+      time: timeStr,
+      type: 'medicacion',
+      title: `${task.title} administrada`,
+      summary: `${task.residentName || 'Residente'} — Medicación suministrada según prescripción.`,
+      residentNames: [task.residentName || 'Residente'],
+      fullDetails: {
+        overview: `Pauta de medicación suministrada por ${currentUser.name}.`,
+        author: `${currentUser.name} (${currentUser.role === 'cuidador' ? 'Cuidadora' : 'Enfermería'})`,
+        notes: photoProofUrl ? 'Se adjuntó comprobante fotográfico de la administración.' : undefined,
+        attachments: photoProofUrl ? [photoProofUrl] : []
+      }
+    };
+    setTimelineEvents(prev => [newEvent, ...prev]);
+
+    showToast('Medicación marcada como Administrada', 'success');
+  };
+
+  const markTaskCompleted = (taskId: string) => {
+    const task = tasks.find(t => t.id === taskId);
+    if (!task) return;
+
+    setTasks(prev =>
+      prev.map(t =>
+        t.id === taskId
+          ? {
+              ...t,
+              status: 'completada'
+            }
+          : t
+      )
+    );
+
+    // Add to timeline
+    const now = new Date();
+    const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    const newEvent: ActivityEvent = {
+      id: `act-${Date.now()}`,
+      date: selectedDate,
+      time: timeStr,
+      type: (task.type === 'medicacion' ? 'medicacion' : task.type === 'alimentacion' ? 'alimentacion' : 'bitacora') as any,
+      title: `${task.title} completada`,
+      summary: `${task.residentName || 'Residente'} — Tarea completada con éxito.`,
+      residentNames: task.residentName ? [task.residentName] : [],
+      fullDetails: {
+        overview: `Actividad registrada por ${currentUser.name}.`,
+        author: `${currentUser.name} (${currentUser.role === 'cuidador' ? 'Cuidadora' : 'Enfermería'})`,
+        notes: task.description || undefined
+      }
+    };
+    setTimelineEvents(prev => [newEvent, ...prev]);
+
+    showToast(`"${task.title}" marcada como completada`, 'success');
+  };
+
+  const unmarkTaskCompleted = (taskId: string) => {
+    setTasks(prev =>
+      prev.map(t =>
+        t.id === taskId
+          ? {
+              ...t,
+              status: 'pendiente'
+            }
+          : t
+      )
+    );
+    showToast('Tarea restablecida como pendiente', 'info');
+  };
+
+  const completeMassRegistration = (
+    taskId: string,
+    normalCount: number,
+    exceptions: { residentId: string; residentName: string; note: string; reason: string }[],
+    pendingResidents?: string[]
+  ) => {
+    const task = tasks.find(t => t.id === taskId);
+    if (!task) return;
+
+    const hasPending = pendingResidents && pendingResidents.length > 0;
+
+    setTasks(prev =>
+      prev.map(t =>
+        t.id === taskId
+          ? {
+              ...t,
+              status: hasPending ? 'pendiente' : 'completada',
+              mealDetails: t.mealDetails
+                ? {
+                    ...t.mealDetails,
+                    normalCount,
+                    exceptions,
+                    pendingResidents: pendingResidents || []
+                  }
+                : {
+                    mealType: 'Alimentación del día',
+                    totalExpected: normalCount + exceptions.length + (pendingResidents?.length || 0),
+                    normalCount,
+                    exceptions,
+                    pendingResidents: pendingResidents || []
+                  }
+            }
+          : t
+      )
+    );
+
+    const now = new Date();
+    const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    const newEvent: ActivityEvent = {
+      id: `act-${Date.now()}`,
+      date: selectedDate,
+      time: timeStr,
+      type: task.type === 'alimentacion' ? 'alimentacion' : 'bitacora',
+      title: hasPending ? `${task.title} (Parcial)` : `${task.title} completado`,
+      summary: `${normalCount} normales · ${exceptions.length} excepciones${hasPending ? ` · ${pendingResidents.length} pendientes` : ''}`,
+      residentNames: exceptions.length > 0 ? exceptions.map(e => e.residentName) : ['Grupo general'],
+      fullDetails: {
+        overview: hasPending
+          ? `Registro parcial con ${normalCount} ingestas normales, ${exceptions.length} excepciones y ${pendingResidents.length} residentes pendientes.`
+          : `Registro completado con ${normalCount} ingestas normales y ${exceptions.length} excepciones.`,
+        stats: [
+          { label: 'Normales', value: normalCount },
+          { label: 'Excepciones', value: exceptions.length }
+        ],
+        exceptions: exceptions.map(e => ({ residentName: e.residentName, note: `${e.reason ? `[${e.reason}] ` : ''}${e.note}` })),
+        author: currentUser.name
+      }
+    };
+    setTimelineEvents(prev => [newEvent, ...prev]);
+
+    if (hasPending) {
+      showToast(`Registro guardado: quedan ${pendingResidents.length} pendientes`, 'info');
+    } else {
+      showToast('Registro de alimentación completado', 'success');
+    }
+    setIsMassRegistrationModalOpen(false);
+  };
+
+  const addBitacoraEntry = (entryData: Omit<BitacoraEntry, 'id' | 'author' | 'time'>) => {
+    const now = new Date();
+    const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    const newEntry: BitacoraEntry = {
+      ...entryData,
+      id: `bit-${Date.now()}`,
+      time: timeStr,
+      author: `${currentUser.name} (${currentUser.role})`
+    };
+
+    setBitacoraEntries(prev => [newEntry, ...prev]);
+
+    // Timeline event
+    const newEvent: ActivityEvent = {
+      id: `act-${Date.now()}`,
+      date: entryData.date,
+      time: timeStr,
+      type: 'bitacora',
+      title: `Bitácora: ${entryData.category}`,
+      summary: `${entryData.residentName} — ${entryData.text.slice(0, 75)}...`,
+      residentNames: [entryData.residentName],
+      fullDetails: {
+        overview: entryData.text,
+        author: currentUser.name,
+        notes: entryData.recordedByVoice ? 'Entrada dictada por voz y confirmada.' : undefined
+      }
+    };
+    setTimelineEvents(prev => [newEvent, ...prev]);
+
+    showToast('Entrada de bitácora registrada', 'success');
+    setIsBitacoraModalOpen(false);
+  };
+
+  const addSupplyEntry = (supplyData: Omit<SupplyEntry, 'id' | 'time' | 'recordedByName' | 'recordedByRole'>) => {
+    const now = new Date();
+    const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    const newSupply: SupplyEntry = {
+      ...supplyData,
+      id: `sup-${Date.now()}`,
+      time: timeStr,
+      recordedByName: currentUser.name,
+      recordedByRole: currentUser.role
+    };
+
+    setSupplies(prev => [newSupply, ...prev]);
+
+    // If registered by familiar (entrega_familiar), generate notification to that worker
+    if (supplyData.type === 'entrega_familiar' && supplyData.workerName) {
+      const workerNotification: AppNotification = {
+        id: `notif-${Date.now()}`,
+        title: 'Nueva entrega de suministros recibida',
+        message: `${supplyData.deliveredBy || currentUser.name} entregó "${supplyData.description}" (${supplyData.quantity}) para ${supplyData.residentName}. Recibido por: ${supplyData.workerName}.`,
+        timestamp: `${timeStr} · Hoy`,
+        isRead: false,
+        type: 'suministros',
+        targetScreen: 'bitacora'
+      };
+      setNotifications(prev => [workerNotification, ...prev]);
+    }
+
+    // Add to timeline
+    const newEvent: ActivityEvent = {
+      id: `act-${Date.now()}`,
+      date: supplyData.date,
+      time: timeStr,
+      type: 'bitacora',
+      title: supplyData.type === 'gasto_adicional' ? 'Suministros: Gasto adicional' : 'Suministros: Entrega de familiar',
+      summary: `${supplyData.residentName} — ${supplyData.description} (${supplyData.quantity})${supplyData.cost ? ` · ${supplyData.cost.toFixed(2)}€` : ''}`,
+      residentNames: [supplyData.residentName],
+      fullDetails: {
+        overview: supplyData.type === 'gasto_adicional'
+          ? `Gasto adicional registrado por ${currentUser.name}: ${supplyData.description}. Cantidad: ${supplyData.quantity}. Costo: ${supplyData.cost?.toFixed(2)}€. Estado: ${supplyData.paymentStatus || 'pendiente'}.`
+          : `Entrega de suministros por familiar (${supplyData.deliveredBy || currentUser.name}) a ${supplyData.workerName || 'Personal'}: ${supplyData.description}. Cantidad: ${supplyData.quantity}.`,
+        author: currentUser.name
+      }
+    };
+    setTimelineEvents(prev => [newEvent, ...prev]);
+
+    showToast(
+      supplyData.type === 'gasto_adicional'
+        ? 'Gasto adicional registrado correctamente'
+        : `Entrega registrada y notificada a ${supplyData.workerName || 'el trabajador'}`,
+      'success'
+    );
+  };
+
+  const updateSupplyPaymentStatus = (supplyId: string, status: 'pendiente' | 'pagado') => {
+    setSupplies(prev =>
+      prev.map(s => {
+        if (s.id === supplyId) {
+          const now = new Date();
+          const paidTime = `${now.toISOString().split('T')[0]} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+          return {
+            ...s,
+            paymentStatus: status,
+            paidBy: status === 'pagado' ? currentUser.name : undefined,
+            paidAt: status === 'pagado' ? paidTime : undefined
+          };
+        }
+        return s;
+      })
+    );
+    showToast(
+      status === 'pagado' ? 'Gasto marcado como pagado' : 'Gasto marcado como pendiente',
+      'info'
+    );
+  };
+
+  const deleteSupplyEntry = (supplyId: string) => {
+    setSupplies(prev => prev.filter(s => s.id !== supplyId));
+    showToast('Registro de suministro eliminado', 'info');
+  };
+
+  const addVitalSigns = (vitalsData: Omit<VitalSigns, 'id' | 'takenBy' | 'time'>) => {
+    const now = new Date();
+    const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    const newVitals: VitalSigns = {
+      ...vitalsData,
+      id: `vit-${Date.now()}`,
+      time: timeStr,
+      takenBy: currentUser.name
+    };
+
+    setVitalSigns(prev => [newVitals, ...prev]);
+
+    const newEvent: ActivityEvent = {
+      id: `act-${Date.now()}`,
+      date: vitalsData.date,
+      time: timeStr,
+      type: 'signos_vitales',
+      title: 'Signos vitales registrados',
+      summary: `${vitalsData.residentName} — TA: ${vitalsData.systolic}/${vitalsData.diastolic} mmHg, FC: ${vitalsData.heartRate} lpm, SpO2: ${vitalsData.spO2}%`,
+      residentNames: [vitalsData.residentName],
+      fullDetails: {
+        overview: `Control de constantes vitales tomado por ${currentUser.name}.`,
+        stats: [
+          { label: 'Tensión Arterial', value: `${vitalsData.systolic}/${vitalsData.diastolic} mmHg` },
+          { label: 'Frecuencia Cardíaca', value: `${vitalsData.heartRate} lpm` },
+          { label: 'Saturación O2', value: `${vitalsData.spO2}%` },
+          { label: 'Temperatura', value: `${vitalsData.temperature} °C` },
+          ...(vitalsData.glucose ? [{ label: 'Glucemia', value: `${vitalsData.glucose} mg/dL` }] : [])
+        ],
+        notes: vitalsData.notes,
+        author: currentUser.name
+      }
+    };
+    setTimelineEvents(prev => [newEvent, ...prev]);
+
+    showToast('Signos vitales guardados con éxito', 'success');
+    setIsVitalSignsModalOpen(false);
+  };
+
+  const createIncidentReport = (incidentData: Omit<IncidentReport, 'id' | 'reportedBy' | 'status'>) => {
+    const newIncident: IncidentReport = {
+      ...incidentData,
+      id: `inc-${Date.now()}`,
+      reportedBy: currentUser.name,
+      status: 'recibido'
+    };
+
+    setIncidents(prev => [newIncident, ...prev]);
+
+    // Timeline event
+    const newEvent: ActivityEvent = {
+      id: `act-${Date.now()}`,
+      date: selectedDate,
+      time: incidentData.dateTime.split(' ')[1] || '10:00',
+      type: 'incidente',
+      title: `Incidente reportado: ${incidentData.incidentType.toUpperCase()} (${incidentData.severity})`,
+      summary: `${incidentData.residentNames.join(', ')} — ${incidentData.description.slice(0, 80)}...`,
+      residentNames: incidentData.residentNames,
+      fullDetails: {
+        overview: incidentData.description,
+        stats: [
+          { label: 'Tipo', value: incidentData.incidentType },
+          { label: 'Severidad', value: incidentData.severity }
+        ],
+        author: currentUser.name,
+        attachments: incidentData.photoUrl ? [incidentData.photoUrl] : []
+      }
+    };
+    setTimelineEvents(prev => [newEvent, ...prev]);
+
+    // Create an in-app notification for the incident
+    const newNotif: AppNotification = {
+      id: `notif-${Date.now()}`,
+      title: 'Incidente reportado',
+      message: `Se ha registrado un reporte de incidente para ${incidentData.residentNames.join(', ')} (${incidentData.incidentType.toUpperCase()}, severidad ${incidentData.severity}). Reportado por: ${currentUser.name}.`,
+      timestamp: 'Ahora mismo',
+      isRead: false,
+      type: 'incidente',
+      targetScreen: 'timeline',
+      targetId: incidentData.residentIds?.[0]
+    };
+    setNotifications(prev => [newNotif, ...prev]);
+
+    showToast('Incidente reportado y notificado en la app', 'success');
+    setIsIncidentReportOpen(false);
+  };
+
+  const createConsent = (data: {
+    residentId: string;
+    type: ConsentType;
+    description: string;
+    documentName?: string;
+    recipients: { name: string; relationship: string; email: string }[];
+  }) => {
+    const resident = residents.find(r => r.id === data.residentId);
+    const now = new Date();
+    const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+    const newConsent: ConsentRecord = {
+      id: `cons-${Date.now()}`,
+      residentId: data.residentId,
+      residentName: resident?.name || 'Residente',
+      room: resident?.room || 'Habitación no asignada',
+      type: data.type,
+      status: 'pendiente',
+      sentDate: dateStr,
+      description: data.description,
+      documentName: data.documentName || 'Documento_Consentimiento.pdf',
+      documentSize: '780 KB',
+      recipients: data.recipients.map(r => ({
+        ...r,
+        status: 'enviado'
+      }))
+    };
+
+    setConsents(prev => [newConsent, ...prev]);
+
+    // Timeline event
+    const newEvent: ActivityEvent = {
+      id: `act-${Date.now()}`,
+      date: selectedDate,
+      time: dateStr.split(' ')[1] || '11:00',
+      type: 'consentimiento',
+      title: `Consentimiento enviado: ${data.type}`,
+      summary: `Enviado a ${data.recipients.map(r => r.name).join(', ')} para ${resident?.name}.`,
+      residentNames: [resident?.name || 'Residente'],
+      fullDetails: {
+        overview: data.description,
+        author: currentUser.name,
+        stats: [{ label: 'Destinatarios', value: data.recipients.length }]
+      }
+    };
+    setTimelineEvents(prev => [newEvent, ...prev]);
+
+    showToast('Consentimiento enviado al familiar responsable', 'success');
+    setIsNewConsentModalOpen(false);
+  };
+
+  const requestResidentAdmission = (req: Omit<AdmissionRequest, 'id' | 'requestedDate' | 'status'>) => {
+    const now = new Date();
+    const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+
+    // Add a notification about the submission
+    const newNotif: AppNotification = {
+      id: `notif-${Date.now()}`,
+      title: 'Solicitud de alta enviada a Administración',
+      message: `La solicitud para ${req.fullName} ha sido enviada al Administrador/Dueño para su revisión en la plataforma Web.`,
+      timestamp: 'Ahora mismo',
+      isRead: false,
+      type: 'alta',
+      targetScreen: 'residents'
+    };
+    setNotifications(prev => [newNotif, ...prev]);
+
+    showToast('Solicitud de alta enviada a Administración', 'success');
+    setIsAdmissionModalOpen(false);
+  };
+
+  const addResidentMedication = (residentId: string, med: Omit<ResidentMedication, 'id' | 'status'>) => {
+    const newMed: ResidentMedication = {
+      ...med,
+      id: `med-${Date.now()}`,
+      status: 'pendiente'
+    };
+
+    setResidents(prev =>
+      prev.map(r => {
+        if (r.id === residentId) {
+          const currentMeds = r.medications || [];
+          return { ...r, medications: [...currentMeds, newMed] };
+        }
+        return r;
+      })
+    );
+
+    if (selectedResident && selectedResident.id === residentId) {
+      setSelectedResident(prev => (prev ? { ...prev, medications: [...(prev.medications || []), newMed] } : null));
+    }
+
+    showToast(`Medicación ${med.drugName} agregada`, 'success');
+  };
+
+  const toggleResidentMedicationStatus = (residentId: string, medId: string) => {
+    setResidents(prev =>
+      prev.map(r => {
+        if (r.id === residentId) {
+          const updatedMeds = (r.medications || []).map(m =>
+            m.id === medId ? { ...m, status: (m.status === 'pendiente' ? 'administrado' : 'pendiente') as 'pendiente' | 'administrado' } : m
+          );
+          return { ...r, medications: updatedMeds };
+        }
+        return r;
+      })
+    );
+
+    if (selectedResident && selectedResident.id === residentId) {
+      setSelectedResident(prev => {
+        if (!prev) return null;
+        const updatedMeds = (prev.medications || []).map(m =>
+          m.id === medId ? { ...m, status: (m.status === 'pendiente' ? 'administrado' : 'pendiente') as 'pendiente' | 'administrado' } : m
+        );
+        return { ...prev, medications: updatedMeds };
+      });
+    }
+
+    showToast('Estado de medicación actualizado', 'success');
+  };
+
+  const deleteResidentMedication = (residentId: string, medId: string) => {
+    setResidents(prev =>
+      prev.map(r => {
+        if (r.id === residentId) {
+          return { ...r, medications: (r.medications || []).filter(m => m.id !== medId) };
+        }
+        return r;
+      })
+    );
+
+    if (selectedResident && selectedResident.id === residentId) {
+      setSelectedResident(prev => (prev ? { ...prev, medications: (prev.medications || []).filter(m => m.id !== medId) } : null));
+    }
+
+    showToast('Medicación eliminada', 'info');
+  };
+
+  const openConsentSignModal = (consent: ConsentRecord) => {
+    setConsentToSign(consent);
+    setIsConsentSignModalOpen(true);
+  };
+
+  const signConsent = (consentId: string, approved: boolean, note?: string) => {
+    const now = new Date();
+    const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+    setConsents(prev =>
+      prev.map(c => {
+        if (c.id === consentId) {
+          return {
+            ...c,
+            status: approved ? 'aprobado' : 'rechazado',
+            responseDate: dateStr,
+            recipients: c.recipients.map(r => ({
+              ...r,
+              status: approved ? 'firmado' : 'rechazado'
+            }))
+          };
+        }
+        return c;
+      })
+    );
+
+    const targetConsent = consents.find(c => c.id === consentId);
+    if (targetConsent) {
+      const newEvent: ActivityEvent = {
+        id: `act-${Date.now()}`,
+        date: selectedDate,
+        time: timeStr,
+        type: 'consentimiento',
+        title: approved ? `Consentimiento APROBADO y firmado: ${targetConsent.type}` : `Consentimiento RECHAZADO: ${targetConsent.type}`,
+        summary: `${targetConsent.residentName} — ${approved ? 'Firmado digitalmente por el familiar responsable.' : 'Rechazado por el familiar.'}`,
+        residentNames: [targetConsent.residentName],
+        fullDetails: {
+          overview: targetConsent.description,
+          author: `${currentUser.name} (Familiar / Responsable)`,
+          notes: note ? `Nota del familiar: ${note}` : undefined,
+          stats: [{ label: 'Resolución', value: approved ? 'Aprobado y Firmado' : 'Rechazado' }]
+        }
+      };
+      setTimelineEvents(prev => [newEvent, ...prev]);
+
+      // Update related notifications
+      setNotifications(prev =>
+        prev.map(n =>
+          n.targetId === consentId || (n.type === 'consentimiento' && !n.isRead)
+            ? { ...n, isRead: true }
+            : n
+        )
+      );
+    }
+
+    setIsConsentSignModalOpen(false);
+    showToast(
+      approved ? 'Consentimiento firmado y remitido al centro médico' : 'Consentimiento rechazado',
+      approved ? 'success' : 'alert'
+    );
+  };
+
+  const sendMessage = (conversationId: string, text: string) => {
+    if (!text.trim()) return;
+    const now = new Date();
+    const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+    const newMsg: ChatMessage = {
+      id: `msg-${Date.now()}`,
+      conversationId,
+      senderId: 'me-familiar',
+      senderName: currentUser.name,
+      senderRole: 'Familiar',
+      text: text.trim(),
+      timestamp: timeStr,
+      isFromMe: true,
+      isRead: true
+    };
+
+    setConversations(prev =>
+      prev.map(conv => {
+        if (conv.id === conversationId) {
+          return {
+            ...conv,
+            hasHistory: true,
+            lastMessage: text.trim(),
+            lastMessageTime: timeStr,
+            messages: [...conv.messages, newMsg]
+          };
+        }
+        return conv;
+      })
+    );
+    showToast('Mensaje enviado', 'info');
+  };
+
+  const markNotificationAsRead = (id: string) => {
+    setNotifications(prev => prev.map(n => (n.id === id ? { ...n, isRead: true } : n)));
+  };
+
+  const markAllNotificationsAsRead = () => {
+    setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+    showToast('Todas las notificaciones marcadas como leídas', 'info');
+  };
+
+  const canEditOrDeleteClinicalRecord = (record: ClinicalRecord) => {
+    const createdTimestamp = new Date(record.createdAt).getTime();
+    // Valid for 24 hours: 24 * 60 * 60 * 1000 ms
+    const isWithin24Hours = (Date.now() - createdTimestamp) <= 24 * 60 * 60 * 1000;
+    const isOwner = currentUser.role === record.uploadedByRole;
+    return isWithin24Hours && isOwner;
+  };
+
+  const addClinicalRecord = (recordData: Omit<ClinicalRecord, 'id' | 'createdAt' | 'uploadedByRole' | 'uploadedByName'> & {
+    uploadedByRole?: 'familiar' | 'cuidador';
+    uploadedByName?: string;
+    createdAt?: string;
+  }) => {
+    const now = new Date();
+    const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    const dateStr = recordData.date || selectedDate;
+    const authorRole = recordData.uploadedByRole || currentUser.role;
+    const authorName = recordData.uploadedByName || currentUser.name.replace(/\s*\([^)]*\)/g, '').trim();
+
+    const newRecord: ClinicalRecord = {
+      ...recordData,
+      id: `cr-${Date.now()}`,
+      createdAt: recordData.createdAt || now.toISOString(),
+      date: dateStr,
+      time: recordData.time || timeStr,
+      uploadedByRole: authorRole,
+      uploadedByName: authorName
+    };
+
+    setClinicalRecords(prev => [newRecord, ...prev]);
+
+    // Also register event in timeline
+    const newEvent: ActivityEvent = {
+      id: `act-doc-${Date.now()}`,
+      date: dateStr,
+      time: recordData.time || timeStr,
+      type: 'bitacora',
+      title: `Documento médico: ${newRecord.title}`,
+      summary: `${newRecord.residentName} — ${newRecord.categoryLabel} (${newRecord.entryType === 'archivo' ? newRecord.fileName || 'Archivo' : 'Nota clínica'}). Subido por ${authorName}.`,
+      residentNames: [newRecord.residentName],
+      photoUrl: newRecord.fileType === 'imagen' ? newRecord.fileUrl : undefined,
+      fullDetails: {
+        overview: newRecord.description || newRecord.title,
+        author: authorName,
+        attachments: newRecord.fileName ? [newRecord.fileName] : undefined,
+        notes: `Categoría: ${newRecord.categoryLabel}`
+      }
+    };
+    setTimelineEvents(prev => [newEvent, ...prev]);
+
+    showToast('Entrada guardada en Historia clínica', 'success');
+  };
+
+  const updateClinicalRecord = (id: string, updates: Partial<ClinicalRecord>): boolean => {
+    const record = clinicalRecords.find(r => r.id === id);
+    if (!record) return false;
+
+    if (!canEditOrDeleteClinicalRecord(record)) {
+      showToast('Solo el autor puede editar este registro durante las primeras 24 horas', 'alert');
+      return false;
+    }
+
+    setClinicalRecords(prev =>
+      prev.map(r => (r.id === id ? { ...r, ...updates, updatedAt: new Date().toISOString() } : r))
+    );
+    showToast('Registro clínico actualizado', 'success');
+    return true;
+  };
+
+  const deleteClinicalRecord = (id: string): boolean => {
+    const record = clinicalRecords.find(r => r.id === id);
+    if (!record) return false;
+
+    if (!canEditOrDeleteClinicalRecord(record)) {
+      showToast('No se puede eliminar: han pasado más de 24 horas o no es el autor', 'alert');
+      return false;
+    }
+
+    const now = new Date();
+    const day = String(now.getDate()).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const year = now.getFullYear();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const deletedTimestamp = `${day}/${month}/${year} ${hours}:${minutes}`;
+
+    const deletedEntry: DeletedClinicalRecord = {
+      id: `del-cr-${Date.now()}`,
+      recordId: record.id,
+      residentId: record.residentId,
+      residentName: record.residentName,
+      title: record.title,
+      category: record.category,
+      categoryLabel: record.categoryLabel,
+      description: record.description,
+      entryType: record.entryType,
+      fileType: record.fileType,
+      fileName: record.fileName,
+      fileSize: record.fileSize,
+      fileUrl: record.fileUrl,
+      uploadedByRole: record.uploadedByRole,
+      uploadedByName: record.uploadedByName,
+      createdAt: record.createdAt,
+      date: record.date,
+      time: record.time,
+      deletedAt: deletedTimestamp
+    };
+
+    setDeletedClinicalRecords(prev => [deletedEntry, ...prev]);
+    setClinicalRecords(prev => prev.filter(r => r.id !== id));
+    showToast('Registro eliminado y registrado en la lista de eliminados', 'info');
+    return true;
+  };
+
+  const unreadNotificationsCount = notifications.filter(n => !n.isRead).length;
+  const unreadMessagesCount = conversations.reduce((acc, c) => acc + (c.unreadCount || 0), 0);
+
+  return (
+    <AppContext.Provider
+      value={{
+        isLoggedIn,
+        currentUser,
+        user: currentUser,
+        login,
+        logout,
+        switchRole,
+        activeTab,
+        setActiveTab,
+        activeFamiliarTab,
+        setActiveFamiliarTab,
+        selectedFamiliarResidentId,
+        setSelectedFamiliarResidentId,
+        selectedFamiliarResident,
+        familiarResidents,
+        currentScreen,
+        setCurrentScreen,
+        residents,
+        tasks,
+        timelineEvents,
+        bitacoraEntries,
+        supplies,
+        staffWorkers: STAFF_WORKERS,
+        vitalSigns,
+        incidents,
+        consents,
+        clinicalRecords,
+        deletedClinicalRecords,
+        notifications,
+        conversations,
+        selectedDate,
+        setSelectedDate,
+        selectedResident,
+        setSelectedResident,
+        selectedEvent,
+        setSelectedEvent,
+        selectedTaskForMassRegistration,
+        setSelectedTaskForMassRegistration,
+        isTimelineDrawerOpen,
+        setIsTimelineDrawerOpen,
+        isEventDetailModalOpen,
+        setIsEventDetailModalOpen,
+        isMassRegistrationModalOpen,
+        setIsMassRegistrationModalOpen,
+        isResidentDetailModalOpen,
+        setIsResidentDetailModalOpen,
+        isResidentDetailFullScreen,
+        setIsResidentDetailFullScreen,
+        isAdmissionModalOpen,
+        setIsAdmissionModalOpen,
+        isBitacoraModalOpen,
+        setIsBitacoraModalOpen,
+        isVitalSignsModalOpen,
+        setIsVitalSignsModalOpen,
+        isIncidentReportOpen,
+        setIsIncidentReportOpen,
+        isNewConsentModalOpen,
+        setIsNewConsentModalOpen,
+        isNotificationsOpen,
+        setIsNotificationsOpen,
+        isRoleMenuOpen,
+        setIsRoleMenuOpen,
+        isMessagesOpen,
+        setIsMessagesOpen,
+        isConsentSignModalOpen,
+        setIsConsentSignModalOpen,
+        consentToSign,
+        setConsentToSign,
+        openConsentSignModal,
+        signConsent,
+        isFamiliarVitalsModalOpen,
+        setIsFamiliarVitalsModalOpen,
+        isResidentPickerModalOpen,
+        setIsResidentPickerModalOpen,
+        sendMessage,
+        markMedicationAdministered,
+        markTaskCompleted,
+        unmarkTaskCompleted,
+        completeMassRegistration,
+        addBitacoraEntry,
+        addSupplyEntry,
+        updateSupplyPaymentStatus,
+        deleteSupplyEntry,
+        addVitalSigns,
+        createIncidentReport,
+        createConsent,
+        addClinicalRecord,
+        updateClinicalRecord,
+        deleteClinicalRecord,
+        canEditOrDeleteClinicalRecord,
+        requestResidentAdmission,
+        addResidentMedication,
+        toggleResidentMedicationStatus,
+        deleteResidentMedication,
+        markNotificationAsRead,
+        markAllNotificationsAsRead,
+        unreadNotificationsCount,
+        unreadMessagesCount,
+        toastMessage,
+        toastType,
+        showToast,
+        openResidentHub
+      }}
+    >
+      {children}
+    </AppContext.Provider>
+  );
+};
+
+export const useApp = () => {
+  const context = useContext(AppContext);
+  if (!context) {
+    throw new Error('useApp must be used within an AppProvider');
+  }
+  return context;
+};

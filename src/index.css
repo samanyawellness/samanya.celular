@@ -1,0 +1,56 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --color-primary: #068591;
+    --color-accent: #C68A3D;
+    --color-success-bg: #DFF3E7;
+    --color-success-text: #1E7A4C;
+    --color-pending-bg: #FBE9D2;
+    --color-pending-text: #9A5B12;
+    --color-alert-bg: #FBEAEA;
+    --color-alert-text: #8C2E2E;
+    --color-special-bg: #D9F0F1;
+    --color-special-text: #075158;
+    --color-page-bg: #F7F7F8;
+    --color-card-bg: #FFFFFF;
+    --color-text-main: #292A24;
+    --color-text-sec: #5C6058;
+    --color-border: #DEDBD1;
+  }
+
+  body {
+    font-family: 'Work Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: #292A24;
+    background-color: #F7F7F8;
+    font-size: 16px;
+    line-height: 1.5;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: #292A24;
+  }
+}
+
+/* Custom scrollbars & utilities */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #DEDBD1;
+  border-radius: 9999px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #5C6058;
+}
+
+/* Touch feedback class */
+.touch-target {
+  min-width: 44px;
+  min-height: 44px;
+}
