@@ -1,0 +1,46 @@
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-08-31 21:22:57
+================================================================================
+Subir al repositorio cuando lo indique.
+Esta es una aplicacion para centros griatricos. De acuerdo a las pantallas dame una propuesta para el manejo teniendo en cuenta el archivo requerimientos_geriatrico.html donde era el requerimiento inicial pero en las pantallas se desea agregar nuevas funcionalidades para esto crea el archivo creacion_modelo_relacional.sql para yo correrlo manualmente, todas las tablas deben tener el campo id tipo number y ser  la llave primaria se debe llenar por una secuencia el cual se asigna en un trigger, la base de datos a utilizar sera una Oracle.
+Crear el documento documentacion_esquema.html con la mayor documentacion  detallada del esquema incluyendo un grafico del modelo relacional.
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-08-31 21:38:32
+================================================================================
+Antes de realizar cualquier accion esccribir el prompt completo de solicitud en el archivo prompts.txt con la fecha y hora e Bogota Colombia sin omitir nada.
+Deseo que el nombre de las tablas todas empiecen por smy_ realizar los cambios en los objetos y en la documentacion, deseo que los campos de estado sean creados como id_estado_ y existan tablas para los estados con id y nombre_estado_ ejemplo:
+la tabla SMY_CONSENTIMIENTOS contendria el campo id_estado_consetimiento y existiria una tabla SMY_ESTADOS_CONSENTIMIENTOS con el campo id y el campo nombre_estado_consentimiento y la relacion con la llave foranea.
+Deseo que todas las tablas tenga los campos fecha_creacion tipo DATE y id_usuario_ultima_modificacion tipo NUMBER.
+En la tabla de usuarios debe tener llave foranea de id_tipo_usuario y haber una tabla de TIPOS_USUARIOS.
+En general deseo tablas foraneas para los campos con varios opciones a excepcion de las que son S o N.
+Deseo manejar como DATE los campos que estan TIMESTAMP.
+Deseo que en el archivo documentacion_esquema.html el grafico se abra en una ventana modal donde pueda hacer zoom.
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-08-31 21:48:24
+================================================================================
+Cuando el campo es una llave foranea el nombre del campo debe empezar por ID_ ejemplo debe ser ID_ROL y no ROL_ID
+Los campos fecha que el defecto sea SYSDATE cambiarlo porque el defecto sea la hora de Bogota Colombia.
+Si es posible que el visor del modelo se pueda escoger el tipo de visualizacion de las relaciones y que permita mover la posicion de las tablas.
+En la documentacion html revisar el menu lateral que al dar click vaya a la seccion correspondiente porque hay seccion como  Talentos y Turnos que no va a ningun lado, si no existe esa seccion que no aparezca en el menu lateral.
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-08-31 21:55:08
+================================================================================
+En el grafico es posible que se guarde localmente cada grafico para que al abrirlo nuevamente se conserve como estaba cuando se cerro.
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-08-31 22:01:03
+================================================================================
+Se guardo en la disposicion Libre / Posiciones Guardadas, me cambie de disposicion y regrese a Libre y no estaba como lo habia guardado.
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-08-31 22:08:09
+================================================================================
+En la documentacion hay tablas que no tienen los cambios realizados al modelo en el archivo creacion_modelo_relacional.sql ejemplo todas las tablas tienen el campo ID_USUARIO_ULTIMA_MODIFICACION y para la tabla SMY_BITACORA_RESIDENTE no aparece el campo en el html
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-08-31 22:21:50
+================================================================================
+Subir al repositorio solo los archivos prompts.txt, creacion_modelo_relacional.sql y documentacion_esquema.html
