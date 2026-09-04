@@ -44,3 +44,33 @@ En la documentacion hay tablas que no tienen los cambios realizados al modelo en
 FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-08-31 22:21:50
 ================================================================================
 Subir al repositorio solo los archivos prompts.txt, creacion_modelo_relacional.sql y documentacion_esquema.html
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-03 20:21:39
+================================================================================
+Antes de realizar cualquier accion esccribir el prompt completo de solicitud en el archivo prompts.txt con la fecha y hora e Bogota Colombia sin omitir nada.
+Subir al repositorio cuando lo indique.
+Cambiar el nombre de la tabla SMY_TIPOS_DOCUMENTOS_ID por SMY_TIPOS_IDENTIFICACION y los campos que referencia el id llamarlos id_tipo_identificacion.
+En la tabla que se encuentre el campo DOCUMENTO_NUMERO cambiarlo por IDENTIFICACION
+Dentro del archivo creacion_modelo_relacional.sql incluir una tabla para el manejo de errores que se llamara smy_errores y contara con la siguiente estructura:
+CREATE TABLE SMY_ERRORES
+(
+    ID                     NUMBER NOT NULL,
+    TIPO                   VARCHAR2 (1 BYTE) DEFAULT 'E' NOT NULL,
+    NOMBRE_PROGRAMA        VARCHAR2 (50 BYTE) NOT NULL,
+    NOMBRE_METODO          VARCHAR2 (50 BYTE),
+    PARAMETROS             CLOB,
+    DIRECCION_IP           VARCHAR2(30),
+    USUARIO                VARCHAR2 (200 BYTE),
+    CODIGO_ERROR           VARCHAR2 (100 BYTE),
+    TEXTO_ERROR            VARCHAR2 (4000 BYTE),
+    MENSAJE_ERROR          VARCHAR2 (4000 BYTE),
+    FECHA_CREACION         DATE DEFAULT CAST(systimestamp AT TIME ZONE '-05:00' AS DATE),
+    ID_USUARIO_CREACION    NUMBER
+)
+Crear la secuencia respectiva como el trigger y adicionar los cambios realizados al archivo de documentacion_esquema.html, adicionar en el script todos los comentarios de las tablas como la de todas las columnas.
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-03 20:36:59
+================================================================================
+Subir al repositorio y hacer push

@@ -35,6 +35,12 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_ESTADOS_ROLES.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_ESTADOS_ROLES
+COMMENT ON TABLE SMY_ESTADOS_ROLES IS 'Catálogo maestro de estados para roles del sistema (ej. Activo, Inactivo).';
+COMMENT ON COLUMN SMY_ESTADOS_ROLES.ID IS 'Identificador único y clave primaria de la tabla SMY_ESTADOS_ROLES.';
+COMMENT ON COLUMN SMY_ESTADOS_ROLES.NOMBRE_ESTADO_ROL IS 'Nombre descriptivo único correspondiente a: estado rol.';
+COMMENT ON COLUMN SMY_ESTADOS_ROLES.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_ESTADOS_ROLES.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- 0.2 Tipos de Usuarios
 CREATE TABLE SMY_TIPOS_USUARIOS (
@@ -53,6 +59,13 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_TIPOS_USUARIOS.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_TIPOS_USUARIOS
+COMMENT ON TABLE SMY_TIPOS_USUARIOS IS 'Catálogo maestro de tipos de usuarios del sistema (Administrador, Empleado, Acudiente).';
+COMMENT ON COLUMN SMY_TIPOS_USUARIOS.ID IS 'Identificador único y clave primaria de la tabla SMY_TIPOS_USUARIOS.';
+COMMENT ON COLUMN SMY_TIPOS_USUARIOS.NOMBRE_TIPO_USUARIO IS 'Nombre descriptivo único correspondiente a: tipo usuario.';
+COMMENT ON COLUMN SMY_TIPOS_USUARIOS.DESCRIPCION IS 'Descripción detallada de descripcion.';
+COMMENT ON COLUMN SMY_TIPOS_USUARIOS.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_TIPOS_USUARIOS.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- 0.3 Estados de Usuarios
 CREATE TABLE SMY_ESTADOS_USUARIOS (
@@ -70,6 +83,12 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_ESTADOS_USUARIOS.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_ESTADOS_USUARIOS
+COMMENT ON TABLE SMY_ESTADOS_USUARIOS IS 'Catálogo maestro de estados de cuenta de usuario (Activo, Inactivo, Bloqueado).';
+COMMENT ON COLUMN SMY_ESTADOS_USUARIOS.ID IS 'Identificador único y clave primaria de la tabla SMY_ESTADOS_USUARIOS.';
+COMMENT ON COLUMN SMY_ESTADOS_USUARIOS.NOMBRE_ESTADO_USUARIO IS 'Nombre descriptivo único correspondiente a: estado usuario.';
+COMMENT ON COLUMN SMY_ESTADOS_USUARIOS.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_ESTADOS_USUARIOS.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- 0.4 Canales de Notificación
 CREATE TABLE SMY_CANALES_NOTIFICACION (
@@ -87,24 +106,37 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_CANALES_NOTIFICACION.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_CANALES_NOTIFICACION
+COMMENT ON TABLE SMY_CANALES_NOTIFICACION IS 'Catálogo maestro de canales de notificación (Email, WhatsApp, Push, SMS).';
+COMMENT ON COLUMN SMY_CANALES_NOTIFICACION.ID IS 'Identificador único y clave primaria de la tabla SMY_CANALES_NOTIFICACION.';
+COMMENT ON COLUMN SMY_CANALES_NOTIFICACION.NOMBRE_CANAL_NOTIFICACION IS 'Nombre descriptivo único correspondiente a: canal notificacion.';
+COMMENT ON COLUMN SMY_CANALES_NOTIFICACION.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_CANALES_NOTIFICACION.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
--- 0.5 Tipos de Documentos de Identidad
-CREATE TABLE SMY_TIPOS_DOCUMENTOS_ID (
+-- 0.5 Tipos de Documentos de Identificación
+CREATE TABLE SMY_TIPOS_IDENTIFICACION (
     ID                              NUMBER(10)      NOT NULL,
-    NOMBRE_TIPO_DOCUMENTO_ID        VARCHAR2(80)    NOT NULL,
+    NOMBRE_TIPO_IDENTIFICACION      VARCHAR2(80)    NOT NULL,
     SIGLA                           VARCHAR2(10)    NOT NULL, -- 'CC', 'CE', 'PAS', 'TI'
     FECHA_CREACION                  DATE            DEFAULT CAST(SYSTIMESTAMP AT TIME ZONE '-05:00' AS DATE) NOT NULL,
     ID_USUARIO_ULTIMA_MODIFICACION  NUMBER(10),
-    CONSTRAINT PK_SMY_TIPOS_DOCS_ID PRIMARY KEY (ID),
-    CONSTRAINT UQ_SMY_TIPO_DOC_SIGLA UNIQUE (SIGLA)
+    CONSTRAINT PK_SMY_TIPOS_IDENTIFICACION PRIMARY KEY (ID),
+    CONSTRAINT UQ_SMY_TIPO_IDENT_SIGLA UNIQUE (SIGLA)
 );
-CREATE SEQUENCE SEQ_SMY_TIPOS_DOCUMENTOS_ID START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
-CREATE OR REPLACE TRIGGER TRG_SMY_TIPOS_DOCS_ID_BI
-BEFORE INSERT ON SMY_TIPOS_DOCUMENTOS_ID FOR EACH ROW
+CREATE SEQUENCE SEQ_SMY_TIPOS_IDENTIFICACION START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
+CREATE OR REPLACE TRIGGER TRG_SMY_TIPOS_IDENTIFICACION_BI
+BEFORE INSERT ON SMY_TIPOS_IDENTIFICACION FOR EACH ROW
 BEGIN
-    IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_TIPOS_DOCUMENTOS_ID.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
+    IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_TIPOS_IDENTIFICACION.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_TIPOS_IDENTIFICACION
+COMMENT ON TABLE SMY_TIPOS_IDENTIFICACION IS 'Catálogo maestro de tipos de documentos de identificación (Cédula de Ciudadanía, Extranjería, Pasaporte, etc.).';
+COMMENT ON COLUMN SMY_TIPOS_IDENTIFICACION.ID IS 'Identificador único y clave primaria de la tabla SMY_TIPOS_IDENTIFICACION.';
+COMMENT ON COLUMN SMY_TIPOS_IDENTIFICACION.NOMBRE_TIPO_IDENTIFICACION IS 'Nombre descriptivo del tipo de documento de identificación (ej. Cédula de Ciudadanía).';
+COMMENT ON COLUMN SMY_TIPOS_IDENTIFICACION.SIGLA IS 'Sigla o código abreviado oficial del tipo de documento (ej. CC, CE, PAS, TI).';
+COMMENT ON COLUMN SMY_TIPOS_IDENTIFICACION.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_TIPOS_IDENTIFICACION.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- 0.6 Áreas de Empleados
 CREATE TABLE SMY_AREAS_EMPLEADOS (
@@ -122,6 +154,12 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_AREAS_EMPLEADOS.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_AREAS_EMPLEADOS
+COMMENT ON TABLE SMY_AREAS_EMPLEADOS IS 'Catálogo de áreas operativas y asistenciales para empleados (Enfermería, Cuidado, Cocina, etc.).';
+COMMENT ON COLUMN SMY_AREAS_EMPLEADOS.ID IS 'Identificador único y clave primaria de la tabla SMY_AREAS_EMPLEADOS.';
+COMMENT ON COLUMN SMY_AREAS_EMPLEADOS.NOMBRE_AREA_EMPLEADO IS 'Nombre descriptivo único correspondiente a: area empleado.';
+COMMENT ON COLUMN SMY_AREAS_EMPLEADOS.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_AREAS_EMPLEADOS.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- 0.7 Cargos de Empleados
 CREATE TABLE SMY_CARGOS_EMPLEADOS (
@@ -139,6 +177,12 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_CARGOS_EMPLEADOS.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_CARGOS_EMPLEADOS
+COMMENT ON TABLE SMY_CARGOS_EMPLEADOS IS 'Catálogo de cargos y puestos de trabajo del personal del centro.';
+COMMENT ON COLUMN SMY_CARGOS_EMPLEADOS.ID IS 'Identificador único y clave primaria de la tabla SMY_CARGOS_EMPLEADOS.';
+COMMENT ON COLUMN SMY_CARGOS_EMPLEADOS.NOMBRE_CARGO_EMPLEADO IS 'Nombre descriptivo único correspondiente a: cargo empleado.';
+COMMENT ON COLUMN SMY_CARGOS_EMPLEADOS.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_CARGOS_EMPLEADOS.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- 0.8 Estados de Empleados
 CREATE TABLE SMY_ESTADOS_EMPLEADOS (
@@ -156,6 +200,12 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_ESTADOS_EMPLEADOS.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_ESTADOS_EMPLEADOS
+COMMENT ON TABLE SMY_ESTADOS_EMPLEADOS IS 'Catálogo de estados laborales de empleados (Activo, Licencia, Vacaciones, Retirado).';
+COMMENT ON COLUMN SMY_ESTADOS_EMPLEADOS.ID IS 'Identificador único y clave primaria de la tabla SMY_ESTADOS_EMPLEADOS.';
+COMMENT ON COLUMN SMY_ESTADOS_EMPLEADOS.NOMBRE_ESTADO_EMPLEADO IS 'Nombre descriptivo único correspondiente a: estado empleado.';
+COMMENT ON COLUMN SMY_ESTADOS_EMPLEADOS.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_ESTADOS_EMPLEADOS.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- 0.9 Estados de Plantillas de Turno
 CREATE TABLE SMY_ESTADOS_PLANTILLAS_TURNO (
@@ -173,6 +223,12 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_EST_PLANT_TURNO.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_ESTADOS_PLANTILLAS_TURNO
+COMMENT ON TABLE SMY_ESTADOS_PLANTILLAS_TURNO IS 'Catálogo de estados para las plantillas maestras de configuración de turnos.';
+COMMENT ON COLUMN SMY_ESTADOS_PLANTILLAS_TURNO.ID IS 'Identificador único y clave primaria de la tabla SMY_ESTADOS_PLANTILLAS_TURNO.';
+COMMENT ON COLUMN SMY_ESTADOS_PLANTILLAS_TURNO.NOMBRE_ESTADO_PLANTILLA IS 'Nombre descriptivo único correspondiente a: estado plantilla.';
+COMMENT ON COLUMN SMY_ESTADOS_PLANTILLAS_TURNO.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_ESTADOS_PLANTILLAS_TURNO.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- 0.10 Estados de Turnos Asignados
 CREATE TABLE SMY_ESTADOS_TURNOS (
@@ -190,6 +246,12 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_ESTADOS_TURNOS.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_ESTADOS_TURNOS
+COMMENT ON TABLE SMY_ESTADOS_TURNOS IS 'Catálogo de estados de los turnos asignados (Programado, Cumplido, Ausente, Cancelado).';
+COMMENT ON COLUMN SMY_ESTADOS_TURNOS.ID IS 'Identificador único y clave primaria de la tabla SMY_ESTADOS_TURNOS.';
+COMMENT ON COLUMN SMY_ESTADOS_TURNOS.NOMBRE_ESTADO_TURNO IS 'Nombre descriptivo único correspondiente a: estado turno.';
+COMMENT ON COLUMN SMY_ESTADOS_TURNOS.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_ESTADOS_TURNOS.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- 0.11 Tipos de Permisos y Ausencias
 CREATE TABLE SMY_TIPOS_PERMISOS (
@@ -207,6 +269,12 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_TIPOS_PERMISOS.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_TIPOS_PERMISOS
+COMMENT ON TABLE SMY_TIPOS_PERMISOS IS 'Catálogo de tipologías de permisos y ausencias laborales (Calamidad, Médico, Vacaciones, etc.).';
+COMMENT ON COLUMN SMY_TIPOS_PERMISOS.ID IS 'Identificador único y clave primaria de la tabla SMY_TIPOS_PERMISOS.';
+COMMENT ON COLUMN SMY_TIPOS_PERMISOS.NOMBRE_TIPO_PERMISO IS 'Nombre descriptivo único correspondiente a: tipo permiso.';
+COMMENT ON COLUMN SMY_TIPOS_PERMISOS.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_TIPOS_PERMISOS.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- 0.12 Estados de Permisos
 CREATE TABLE SMY_ESTADOS_PERMISOS (
@@ -224,6 +292,12 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_ESTADOS_PERMISOS.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_ESTADOS_PERMISOS
+COMMENT ON TABLE SMY_ESTADOS_PERMISOS IS 'Catálogo de estados del flujo de aprobación de solicitudes de permisos.';
+COMMENT ON COLUMN SMY_ESTADOS_PERMISOS.ID IS 'Identificador único y clave primaria de la tabla SMY_ESTADOS_PERMISOS.';
+COMMENT ON COLUMN SMY_ESTADOS_PERMISOS.NOMBRE_ESTADO_PERMISO IS 'Nombre descriptivo único correspondiente a: estado permiso.';
+COMMENT ON COLUMN SMY_ESTADOS_PERMISOS.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_ESTADOS_PERMISOS.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- 0.13 Géneros
 CREATE TABLE SMY_GENEROS (
@@ -241,6 +315,12 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_GENEROS.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_GENEROS
+COMMENT ON TABLE SMY_GENEROS IS 'Catálogo maestro de géneros de residentes y contactos (Masculino, Femenino, Otro).';
+COMMENT ON COLUMN SMY_GENEROS.ID IS 'Identificador único y clave primaria de la tabla SMY_GENEROS.';
+COMMENT ON COLUMN SMY_GENEROS.NOMBRE_GENERO IS 'Nombre descriptivo único correspondiente a: genero.';
+COMMENT ON COLUMN SMY_GENEROS.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_GENEROS.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- 0.14 Niveles de Movilidad
 CREATE TABLE SMY_NIVELES_MOVILIDAD (
@@ -258,6 +338,12 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_NIVELES_MOVILIDAD.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_NIVELES_MOVILIDAD
+COMMENT ON TABLE SMY_NIVELES_MOVILIDAD IS 'Catálogo de niveles de funcionalidad y movilidad física del residente (Independiente, Asistido, Postrado).';
+COMMENT ON COLUMN SMY_NIVELES_MOVILIDAD.ID IS 'Identificador único y clave primaria de la tabla SMY_NIVELES_MOVILIDAD.';
+COMMENT ON COLUMN SMY_NIVELES_MOVILIDAD.NOMBRE_NIVEL_MOVILIDAD IS 'Nombre descriptivo único correspondiente a: nivel movilidad.';
+COMMENT ON COLUMN SMY_NIVELES_MOVILIDAD.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_NIVELES_MOVILIDAD.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- 0.15 Tipos de Dietas
 CREATE TABLE SMY_TIPOS_DIETAS (
@@ -276,6 +362,13 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_TIPOS_DIETAS.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_TIPOS_DIETAS
+COMMENT ON TABLE SMY_TIPOS_DIETAS IS 'Catálogo de tipos de prescripciones dietarias y nutricionales (Normal, Diabética, Hiposódica, etc.).';
+COMMENT ON COLUMN SMY_TIPOS_DIETAS.ID IS 'Identificador único y clave primaria de la tabla SMY_TIPOS_DIETAS.';
+COMMENT ON COLUMN SMY_TIPOS_DIETAS.NOMBRE_TIPO_DIETA IS 'Nombre descriptivo único correspondiente a: tipo dieta.';
+COMMENT ON COLUMN SMY_TIPOS_DIETAS.DESCRIPCION IS 'Descripción detallada de descripcion.';
+COMMENT ON COLUMN SMY_TIPOS_DIETAS.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_TIPOS_DIETAS.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- 0.16 Consistencias de Dieta
 CREATE TABLE SMY_CONSISTENCIAS_DIETA (
@@ -293,6 +386,12 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_CONSISTENCIAS_DIETA.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_CONSISTENCIAS_DIETA
+COMMENT ON TABLE SMY_CONSISTENCIAS_DIETA IS 'Catálogo de consistencias y texturas para alimentación (Normal, Blanda, Papilla, Líquida).';
+COMMENT ON COLUMN SMY_CONSISTENCIAS_DIETA.ID IS 'Identificador único y clave primaria de la tabla SMY_CONSISTENCIAS_DIETA.';
+COMMENT ON COLUMN SMY_CONSISTENCIAS_DIETA.NOMBRE_CONSISTENCIA_DIETA IS 'Nombre descriptivo único correspondiente a: consistencia dieta.';
+COMMENT ON COLUMN SMY_CONSISTENCIAS_DIETA.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_CONSISTENCIAS_DIETA.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- 0.17 Estados de Residentes
 CREATE TABLE SMY_ESTADOS_RESIDENTES (
@@ -310,6 +409,12 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_ESTADOS_RESIDENTES.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_ESTADOS_RESIDENTES
+COMMENT ON TABLE SMY_ESTADOS_RESIDENTES IS 'Catálogo de estados del residente en el centro (Activo, Hospitalizado, Baja Temporal, Egresado, Fallecido).';
+COMMENT ON COLUMN SMY_ESTADOS_RESIDENTES.ID IS 'Identificador único y clave primaria de la tabla SMY_ESTADOS_RESIDENTES.';
+COMMENT ON COLUMN SMY_ESTADOS_RESIDENTES.NOMBRE_ESTADO_RESIDENTE IS 'Nombre descriptivo único correspondiente a: estado residente.';
+COMMENT ON COLUMN SMY_ESTADOS_RESIDENTES.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_ESTADOS_RESIDENTES.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- 0.18 Parentescos
 CREATE TABLE SMY_PARENTESCOS (
@@ -327,6 +432,12 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_PARENTESCOS.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_PARENTESCOS
+COMMENT ON TABLE SMY_PARENTESCOS IS 'Catálogo de vínculos y relaciones de parentesco familiar con el residente (Hijo/a, Cónyuge, Hermano/a, etc.).';
+COMMENT ON COLUMN SMY_PARENTESCOS.ID IS 'Identificador único y clave primaria de la tabla SMY_PARENTESCOS.';
+COMMENT ON COLUMN SMY_PARENTESCOS.NOMBRE_PARENTESCO IS 'Nombre descriptivo único correspondiente a: parentesco.';
+COMMENT ON COLUMN SMY_PARENTESCOS.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_PARENTESCOS.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- 0.19 Estados de Solicitudes de Admisión
 CREATE TABLE SMY_ESTADOS_SOLICITUDES_ADM (
@@ -344,6 +455,12 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_ESTADOS_SOLICITUDES_ADM.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_ESTADOS_SOLICITUDES_ADM
+COMMENT ON TABLE SMY_ESTADOS_SOLICITUDES_ADM IS 'Catálogo de estados de trámite para solicitudes de admisión (Nueva, En Evaluación, Aprobada, Rechazada).';
+COMMENT ON COLUMN SMY_ESTADOS_SOLICITUDES_ADM.ID IS 'Identificador único y clave primaria de la tabla SMY_ESTADOS_SOLICITUDES_ADM.';
+COMMENT ON COLUMN SMY_ESTADOS_SOLICITUDES_ADM.NOMBRE_ESTADO_SOLICITUD_ADM IS 'Nombre descriptivo único correspondiente a: estado solicitud adm.';
+COMMENT ON COLUMN SMY_ESTADOS_SOLICITUDES_ADM.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_ESTADOS_SOLICITUDES_ADM.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- 0.20 Categorías de Documentos Clínicos
 CREATE TABLE SMY_CATEGORIAS_DOC_CLINICOS (
@@ -361,6 +478,12 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_CAT_DOC_CLIN.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_CATEGORIAS_DOC_CLINICOS
+COMMENT ON TABLE SMY_CATEGORIAS_DOC_CLINICOS IS 'Catálogo de categorías para clasificación de documentos clínicos (Epicrisis, Laboratorio, Consentimiento, etc.).';
+COMMENT ON COLUMN SMY_CATEGORIAS_DOC_CLINICOS.ID IS 'Identificador único y clave primaria de la tabla SMY_CATEGORIAS_DOC_CLINICOS.';
+COMMENT ON COLUMN SMY_CATEGORIAS_DOC_CLINICOS.NOMBRE_CATEGORIA_DOC_CLINICO IS 'Nombre descriptivo único correspondiente a: categoria doc clinico.';
+COMMENT ON COLUMN SMY_CATEGORIAS_DOC_CLINICOS.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_CATEGORIAS_DOC_CLINICOS.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- 0.21 Tipos de Entradas de Documentos Clínicos
 CREATE TABLE SMY_TIPOS_ENTRADAS_DOC (
@@ -378,6 +501,12 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_TIPOS_ENTRADAS_DOC.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_TIPOS_ENTRADAS_DOC
+COMMENT ON TABLE SMY_TIPOS_ENTRADAS_DOC IS 'Catálogo de tipos de entradas documentales (Evolución, Orden Médica, Anexo, Certificado).';
+COMMENT ON COLUMN SMY_TIPOS_ENTRADAS_DOC.ID IS 'Identificador único y clave primaria de la tabla SMY_TIPOS_ENTRADAS_DOC.';
+COMMENT ON COLUMN SMY_TIPOS_ENTRADAS_DOC.NOMBRE_TIPO_ENTRADA_DOC IS 'Nombre descriptivo único correspondiente a: tipo entrada doc.';
+COMMENT ON COLUMN SMY_TIPOS_ENTRADAS_DOC.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_TIPOS_ENTRADAS_DOC.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- 0.22 Tipos de Archivos
 CREATE TABLE SMY_TIPOS_ARCHIVOS_DOC (
@@ -395,6 +524,12 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_TIPOS_ARCHIVOS_DOC.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_TIPOS_ARCHIVOS_DOC
+COMMENT ON TABLE SMY_TIPOS_ARCHIVOS_DOC IS 'Catálogo de extensiones y formatos MIME de archivos adjuntos (PDF, JPG, PNG, DOCX).';
+COMMENT ON COLUMN SMY_TIPOS_ARCHIVOS_DOC.ID IS 'Identificador único y clave primaria de la tabla SMY_TIPOS_ARCHIVOS_DOC.';
+COMMENT ON COLUMN SMY_TIPOS_ARCHIVOS_DOC.NOMBRE_TIPO_ARCHIVO_DOC IS 'Nombre descriptivo único correspondiente a: tipo archivo doc.';
+COMMENT ON COLUMN SMY_TIPOS_ARCHIVOS_DOC.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_TIPOS_ARCHIVOS_DOC.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- 0.23 Estados de Documentos Clínicos
 CREATE TABLE SMY_ESTADOS_DOC_CLINICOS (
@@ -412,6 +547,12 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_ESTADOS_DOC_CLINICOS.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_ESTADOS_DOC_CLINICOS
+COMMENT ON TABLE SMY_ESTADOS_DOC_CLINICOS IS 'Catálogo de estados de vigencia de documentos clínicos (Vigente, Histórico, Anulado).';
+COMMENT ON COLUMN SMY_ESTADOS_DOC_CLINICOS.ID IS 'Identificador único y clave primaria de la tabla SMY_ESTADOS_DOC_CLINICOS.';
+COMMENT ON COLUMN SMY_ESTADOS_DOC_CLINICOS.NOMBRE_ESTADO_DOC_CLINICO IS 'Nombre descriptivo único correspondiente a: estado doc clinico.';
+COMMENT ON COLUMN SMY_ESTADOS_DOC_CLINICOS.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_ESTADOS_DOC_CLINICOS.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- 0.24 Categorías de Bitácora
 CREATE TABLE SMY_CATEGORIAS_BITACORA (
@@ -429,6 +570,12 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_CATEGORIAS_BITACORA.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_CATEGORIAS_BITACORA
+COMMENT ON TABLE SMY_CATEGORIAS_BITACORA IS 'Catálogo de categorías temáticas de novedades en bitácora (Conductual, Cuidados, Caídas, Familiar, Social).';
+COMMENT ON COLUMN SMY_CATEGORIAS_BITACORA.ID IS 'Identificador único y clave primaria de la tabla SMY_CATEGORIAS_BITACORA.';
+COMMENT ON COLUMN SMY_CATEGORIAS_BITACORA.NOMBRE_CATEGORIA_BITACORA IS 'Nombre descriptivo único correspondiente a: categoria bitacora.';
+COMMENT ON COLUMN SMY_CATEGORIAS_BITACORA.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_CATEGORIAS_BITACORA.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- 0.25 Vías de Administración de Medicamentos
 CREATE TABLE SMY_VIAS_ADMINISTRACION (
@@ -446,6 +593,12 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_VIAS_ADMINISTRACION.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_VIAS_ADMINISTRACION
+COMMENT ON TABLE SMY_VIAS_ADMINISTRACION IS 'Catálogo de vías farmacológicas de administración (Oral, Intravenosa, Subcutánea, Tópica, Oftálmica).';
+COMMENT ON COLUMN SMY_VIAS_ADMINISTRACION.ID IS 'Identificador único y clave primaria de la tabla SMY_VIAS_ADMINISTRACION.';
+COMMENT ON COLUMN SMY_VIAS_ADMINISTRACION.NOMBRE_VIA_ADMINISTRACION IS 'Nombre descriptivo único correspondiente a: via administracion.';
+COMMENT ON COLUMN SMY_VIAS_ADMINISTRACION.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_VIAS_ADMINISTRACION.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- 0.26 Estados de Medicamentos Prescritos
 CREATE TABLE SMY_ESTADOS_MEDICAMENTOS (
@@ -463,6 +616,12 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_ESTADOS_MEDICAMENTOS.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_ESTADOS_MEDICAMENTOS
+COMMENT ON TABLE SMY_ESTADOS_MEDICAMENTOS IS 'Catálogo de estados de una prescripción farmacológica (Activo, Suspendido, Finalizado).';
+COMMENT ON COLUMN SMY_ESTADOS_MEDICAMENTOS.ID IS 'Identificador único y clave primaria de la tabla SMY_ESTADOS_MEDICAMENTOS.';
+COMMENT ON COLUMN SMY_ESTADOS_MEDICAMENTOS.NOMBRE_ESTADO_MEDICAMENTO IS 'Nombre descriptivo único correspondiente a: estado medicamento.';
+COMMENT ON COLUMN SMY_ESTADOS_MEDICAMENTOS.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_ESTADOS_MEDICAMENTOS.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- 0.27 Estados de Administración de Medicamentos
 CREATE TABLE SMY_ESTADOS_ADMIN_MED (
@@ -480,6 +639,12 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_ESTADOS_ADMIN_MED.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_ESTADOS_ADMIN_MED
+COMMENT ON TABLE SMY_ESTADOS_ADMIN_MED IS 'Catálogo de estados de administración de dosis farmacológicas (Administrado, Rechazado, Omitido, No Disponible).';
+COMMENT ON COLUMN SMY_ESTADOS_ADMIN_MED.ID IS 'Identificador único y clave primaria de la tabla SMY_ESTADOS_ADMIN_MED.';
+COMMENT ON COLUMN SMY_ESTADOS_ADMIN_MED.NOMBRE_ESTADO_ADMIN_MED IS 'Nombre descriptivo único correspondiente a: estado admin med.';
+COMMENT ON COLUMN SMY_ESTADOS_ADMIN_MED.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_ESTADOS_ADMIN_MED.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- 0.28 Tipos de Comidas
 CREATE TABLE SMY_TIPOS_COMIDAS (
@@ -497,6 +662,12 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_TIPOS_COMIDAS.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_TIPOS_COMIDAS
+COMMENT ON TABLE SMY_TIPOS_COMIDAS IS 'Catálogo de momentos y franjas de alimentación diaria (Desayuno, Almuerzo, Cena, Refrigerio Mañana, Refrigerio Tarde).';
+COMMENT ON COLUMN SMY_TIPOS_COMIDAS.ID IS 'Identificador único y clave primaria de la tabla SMY_TIPOS_COMIDAS.';
+COMMENT ON COLUMN SMY_TIPOS_COMIDAS.NOMBRE_TIPO_COMIDA IS 'Nombre descriptivo único correspondiente a: tipo comida.';
+COMMENT ON COLUMN SMY_TIPOS_COMIDAS.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_TIPOS_COMIDAS.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- 0.29 Tipos de Tareas
 CREATE TABLE SMY_TIPOS_TAREAS (
@@ -514,6 +685,12 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_TIPOS_TAREAS.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_TIPOS_TAREAS
+COMMENT ON TABLE SMY_TIPOS_TAREAS IS 'Catálogo de naturalezas de tareas asistenciales y operativas (Aseo, Ronda, Terapia, Control, Medicación).';
+COMMENT ON COLUMN SMY_TIPOS_TAREAS.ID IS 'Identificador único y clave primaria de la tabla SMY_TIPOS_TAREAS.';
+COMMENT ON COLUMN SMY_TIPOS_TAREAS.NOMBRE_TIPO_TAREA IS 'Nombre descriptivo único correspondiente a: tipo tarea.';
+COMMENT ON COLUMN SMY_TIPOS_TAREAS.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_TIPOS_TAREAS.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- 0.30 Alcances de Tareas
 CREATE TABLE SMY_ALCANCES_TAREAS (
@@ -531,6 +708,12 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_ALCANCES_TAREAS.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_ALCANCES_TAREAS
+COMMENT ON TABLE SMY_ALCANCES_TAREAS IS 'Catálogo de niveles de alcance de ejecución de tareas (Residente, Habitación, Sede General).';
+COMMENT ON COLUMN SMY_ALCANCES_TAREAS.ID IS 'Identificador único y clave primaria de la tabla SMY_ALCANCES_TAREAS.';
+COMMENT ON COLUMN SMY_ALCANCES_TAREAS.NOMBRE_ALCANCE_TAREA IS 'Nombre descriptivo único correspondiente a: alcance tarea.';
+COMMENT ON COLUMN SMY_ALCANCES_TAREAS.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_ALCANCES_TAREAS.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- 0.31 Estados de Tareas
 CREATE TABLE SMY_ESTADOS_TAREAS (
@@ -548,6 +731,12 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_ESTADOS_TAREAS.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_ESTADOS_TAREAS
+COMMENT ON TABLE SMY_ESTADOS_TAREAS IS 'Catálogo de estados de ciclo de vida de tareas (Pendiente, En Progreso, Completada, Cancelada).';
+COMMENT ON COLUMN SMY_ESTADOS_TAREAS.ID IS 'Identificador único y clave primaria de la tabla SMY_ESTADOS_TAREAS.';
+COMMENT ON COLUMN SMY_ESTADOS_TAREAS.NOMBRE_ESTADO_TAREA IS 'Nombre descriptivo único correspondiente a: estado tarea.';
+COMMENT ON COLUMN SMY_ESTADOS_TAREAS.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_ESTADOS_TAREAS.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- 0.32 Tipos de Eventos de Calendario
 CREATE TABLE SMY_TIPOS_EVENTOS (
@@ -565,6 +754,12 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_TIPOS_EVENTOS.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_TIPOS_EVENTOS
+COMMENT ON TABLE SMY_TIPOS_EVENTOS IS 'Catálogo de tipos de eventos y actividades de calendario (Médico, Recreativo, Terapia, Familiar, Administrativo).';
+COMMENT ON COLUMN SMY_TIPOS_EVENTOS.ID IS 'Identificador único y clave primaria de la tabla SMY_TIPOS_EVENTOS.';
+COMMENT ON COLUMN SMY_TIPOS_EVENTOS.NOMBRE_TIPO_EVENTO IS 'Nombre descriptivo único correspondiente a: tipo evento.';
+COMMENT ON COLUMN SMY_TIPOS_EVENTOS.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_TIPOS_EVENTOS.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- 0.33 Tipos de Suministros
 CREATE TABLE SMY_TIPOS_SUMINISTROS (
@@ -582,6 +777,12 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_TIPOS_SUMINISTROS.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_TIPOS_SUMINISTROS
+COMMENT ON TABLE SMY_TIPOS_SUMINISTROS IS 'Catálogo de categorías de insumos y suministros adicionales (Pañales, Guantes, Apósitos, Fórmulas, Higiene).';
+COMMENT ON COLUMN SMY_TIPOS_SUMINISTROS.ID IS 'Identificador único y clave primaria de la tabla SMY_TIPOS_SUMINISTROS.';
+COMMENT ON COLUMN SMY_TIPOS_SUMINISTROS.NOMBRE_TIPO_SUMINISTRO IS 'Nombre descriptivo único correspondiente a: tipo suministro.';
+COMMENT ON COLUMN SMY_TIPOS_SUMINISTROS.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_TIPOS_SUMINISTROS.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- 0.34 Estados de Pago
 CREATE TABLE SMY_ESTADOS_PAGOS (
@@ -599,6 +800,12 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_ESTADOS_PAGOS.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_ESTADOS_PAGOS
+COMMENT ON TABLE SMY_ESTADOS_PAGOS IS 'Catálogo de estados de facturación y cobro de suministros (Pendiente Cobro, Facturado, Pagado, Exonerado).';
+COMMENT ON COLUMN SMY_ESTADOS_PAGOS.ID IS 'Identificador único y clave primaria de la tabla SMY_ESTADOS_PAGOS.';
+COMMENT ON COLUMN SMY_ESTADOS_PAGOS.NOMBRE_ESTADO_PAGO IS 'Nombre descriptivo único correspondiente a: estado pago.';
+COMMENT ON COLUMN SMY_ESTADOS_PAGOS.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_ESTADOS_PAGOS.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- 0.35 Tipos de Consentimientos
 CREATE TABLE SMY_TIPOS_CONSENTIMIENTOS (
@@ -616,6 +823,12 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_TIPOS_CONSENTIMIENTOS.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_TIPOS_CONSENTIMIENTOS
+COMMENT ON TABLE SMY_TIPOS_CONSENTIMIENTOS IS 'Catálogo de tipos de consentimientos informados (Salida Externa, Procedimiento Médico, Tratamiento, Imagen).';
+COMMENT ON COLUMN SMY_TIPOS_CONSENTIMIENTOS.ID IS 'Identificador único y clave primaria de la tabla SMY_TIPOS_CONSENTIMIENTOS.';
+COMMENT ON COLUMN SMY_TIPOS_CONSENTIMIENTOS.NOMBRE_TIPO_CONSENTIMIENTO IS 'Nombre descriptivo único correspondiente a: tipo consentimiento.';
+COMMENT ON COLUMN SMY_TIPOS_CONSENTIMIENTOS.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_TIPOS_CONSENTIMIENTOS.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- 0.36 Estados de Consentimientos
 CREATE TABLE SMY_ESTADOS_CONSENTIMIENTOS (
@@ -633,6 +846,12 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_ESTADOS_CONSENTIMIENTOS.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_ESTADOS_CONSENTIMIENTOS
+COMMENT ON TABLE SMY_ESTADOS_CONSENTIMIENTOS IS 'Catálogo de estados globales de documentos de consentimiento (Borrador, Enviado, Firmado, Rechazado, Vencido).';
+COMMENT ON COLUMN SMY_ESTADOS_CONSENTIMIENTOS.ID IS 'Identificador único y clave primaria de la tabla SMY_ESTADOS_CONSENTIMIENTOS.';
+COMMENT ON COLUMN SMY_ESTADOS_CONSENTIMIENTOS.NOMBRE_ESTADO_CONSENTIMIENTO IS 'Nombre descriptivo único correspondiente a: estado consentimiento.';
+COMMENT ON COLUMN SMY_ESTADOS_CONSENTIMIENTOS.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_ESTADOS_CONSENTIMIENTOS.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- 0.37 Estados de Firmas de Consentimientos
 CREATE TABLE SMY_ESTADOS_FIRMAS_CONS (
@@ -650,6 +869,12 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_ESTADOS_FIRMAS_CONS.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_ESTADOS_FIRMAS_CONS
+COMMENT ON TABLE SMY_ESTADOS_FIRMAS_CONS IS 'Catálogo de estados individuales de firma por destinatario (Pendiente, Firmado, Rechazado).';
+COMMENT ON COLUMN SMY_ESTADOS_FIRMAS_CONS.ID IS 'Identificador único y clave primaria de la tabla SMY_ESTADOS_FIRMAS_CONS.';
+COMMENT ON COLUMN SMY_ESTADOS_FIRMAS_CONS.NOMBRE_ESTADO_FIRMA_CONS IS 'Nombre descriptivo único correspondiente a: estado firma cons.';
+COMMENT ON COLUMN SMY_ESTADOS_FIRMAS_CONS.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_ESTADOS_FIRMAS_CONS.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- 0.38 Tipos de Incidentes
 CREATE TABLE SMY_TIPOS_INCIDENTES (
@@ -667,6 +892,12 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_TIPOS_INCIDENTES.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_TIPOS_INCIDENTES
+COMMENT ON TABLE SMY_TIPOS_INCIDENTES IS 'Catálogo de tipos de incidentes y eventos adversos (Caída, Fuga, Error Medicación, Lesión, Agresión, Otro).';
+COMMENT ON COLUMN SMY_TIPOS_INCIDENTES.ID IS 'Identificador único y clave primaria de la tabla SMY_TIPOS_INCIDENTES.';
+COMMENT ON COLUMN SMY_TIPOS_INCIDENTES.NOMBRE_TIPO_INCIDENTE IS 'Nombre descriptivo único correspondiente a: tipo incidente.';
+COMMENT ON COLUMN SMY_TIPOS_INCIDENTES.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_TIPOS_INCIDENTES.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- 0.39 Severidades de Incidentes
 CREATE TABLE SMY_SEVERIDADES_INCIDENTES (
@@ -684,6 +915,12 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_SEVERIDADES_INCIDENTES.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_SEVERIDADES_INCIDENTES
+COMMENT ON TABLE SMY_SEVERIDADES_INCIDENTES IS 'Catálogo de niveles de gravedad y severidad de incidentes (Leve, Moderada, Grave, Crítica).';
+COMMENT ON COLUMN SMY_SEVERIDADES_INCIDENTES.ID IS 'Identificador único y clave primaria de la tabla SMY_SEVERIDADES_INCIDENTES.';
+COMMENT ON COLUMN SMY_SEVERIDADES_INCIDENTES.NOMBRE_SEVERIDAD_INCIDENTE IS 'Nombre descriptivo único correspondiente a: severidad incidente.';
+COMMENT ON COLUMN SMY_SEVERIDADES_INCIDENTES.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_SEVERIDADES_INCIDENTES.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- 0.40 Estados de Incidentes
 CREATE TABLE SMY_ESTADOS_INCIDENTES (
@@ -701,6 +938,12 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_ESTADOS_INCIDENTES.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_ESTADOS_INCIDENTES
+COMMENT ON TABLE SMY_ESTADOS_INCIDENTES IS 'Catálogo de estados de investigación y cierre de incidentes (Reportado, En Investigación, Plan Acción, Cerrado).';
+COMMENT ON COLUMN SMY_ESTADOS_INCIDENTES.ID IS 'Identificador único y clave primaria de la tabla SMY_ESTADOS_INCIDENTES.';
+COMMENT ON COLUMN SMY_ESTADOS_INCIDENTES.NOMBRE_ESTADO_INCIDENTE IS 'Nombre descriptivo único correspondiente a: estado incidente.';
+COMMENT ON COLUMN SMY_ESTADOS_INCIDENTES.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_ESTADOS_INCIDENTES.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- 0.41 Roles en Incidentes
 CREATE TABLE SMY_ROLES_EN_INCIDENTE (
@@ -718,6 +961,12 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_ROLES_EN_INCIDENTE.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_ROLES_EN_INCIDENTE
+COMMENT ON TABLE SMY_ROLES_EN_INCIDENTE IS 'Catálogo de roles o participación en un incidente (Afectado, Testigo, Involucrado, Reportante).';
+COMMENT ON COLUMN SMY_ROLES_EN_INCIDENTE.ID IS 'Identificador único y clave primaria de la tabla SMY_ROLES_EN_INCIDENTE.';
+COMMENT ON COLUMN SMY_ROLES_EN_INCIDENTE.NOMBRE_ROL_INCIDENTE IS 'Nombre descriptivo único correspondiente a: rol incidente.';
+COMMENT ON COLUMN SMY_ROLES_EN_INCIDENTE.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_ROLES_EN_INCIDENTE.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- 0.42 Tipos de Canales de Chat
 CREATE TABLE SMY_TIPOS_CANALES_CHAT (
@@ -735,6 +984,12 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_TIPOS_CANALES_CHAT.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_TIPOS_CANALES_CHAT
+COMMENT ON TABLE SMY_TIPOS_CANALES_CHAT IS 'Catálogo de modalidades de canales de mensajería (Directo 1 a 1, Grupal Familiar, Mesa Soporte).';
+COMMENT ON COLUMN SMY_TIPOS_CANALES_CHAT.ID IS 'Identificador único y clave primaria de la tabla SMY_TIPOS_CANALES_CHAT.';
+COMMENT ON COLUMN SMY_TIPOS_CANALES_CHAT.NOMBRE_TIPO_CANAL_CHAT IS 'Nombre descriptivo único correspondiente a: tipo canal chat.';
+COMMENT ON COLUMN SMY_TIPOS_CANALES_CHAT.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_TIPOS_CANALES_CHAT.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- 0.43 Tipos de Adjuntos en Chat
 CREATE TABLE SMY_TIPOS_ADJUNTOS_CHAT (
@@ -752,6 +1007,12 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_TIPOS_ADJUNTOS_CHAT.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_TIPOS_ADJUNTOS_CHAT
+COMMENT ON TABLE SMY_TIPOS_ADJUNTOS_CHAT IS 'Catálogo de formatos de archivos adjuntos en el chat (Imagen, Documento, Audio).';
+COMMENT ON COLUMN SMY_TIPOS_ADJUNTOS_CHAT.ID IS 'Identificador único y clave primaria de la tabla SMY_TIPOS_ADJUNTOS_CHAT.';
+COMMENT ON COLUMN SMY_TIPOS_ADJUNTOS_CHAT.NOMBRE_TIPO_ADJUNTO_CHAT IS 'Nombre descriptivo único correspondiente a: tipo adjunto chat.';
+COMMENT ON COLUMN SMY_TIPOS_ADJUNTOS_CHAT.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_TIPOS_ADJUNTOS_CHAT.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- 0.44 Tipos de Notificaciones
 CREATE TABLE SMY_TIPOS_NOTIFICACIONES (
@@ -769,6 +1030,12 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_TIPOS_NOTIFICACIONES.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_TIPOS_NOTIFICACIONES
+COMMENT ON TABLE SMY_TIPOS_NOTIFICACIONES IS 'Catálogo de tipos y niveles de prioridad de notificaciones del sistema (Alerta, Novedad, Mensaje, Tarea).';
+COMMENT ON COLUMN SMY_TIPOS_NOTIFICACIONES.ID IS 'Identificador único y clave primaria de la tabla SMY_TIPOS_NOTIFICACIONES.';
+COMMENT ON COLUMN SMY_TIPOS_NOTIFICACIONES.NOMBRE_TIPO_NOTIFICACION IS 'Nombre descriptivo único correspondiente a: tipo notificacion.';
+COMMENT ON COLUMN SMY_TIPOS_NOTIFICACIONES.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_TIPOS_NOTIFICACIONES.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- =============================================================================
 -- SECCIÓN 1: MÓDULO DE SEGURIDAD, USUARIOS Y CONTROL DE ACCESO
@@ -794,6 +1061,15 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_ROLES.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_ROLES
+COMMENT ON TABLE SMY_ROLES IS 'Catálogo de perfiles y roles que gobiernan las vistas, permisos y privilegios del sistema.';
+COMMENT ON COLUMN SMY_ROLES.ID IS 'Identificador único y clave primaria de la tabla SMY_ROLES.';
+COMMENT ON COLUMN SMY_ROLES.CODIGO IS 'Código mnemotécnico único del rol (ej. ADMIN, CUIDADOR, FAMILIAR).';
+COMMENT ON COLUMN SMY_ROLES.NOMBRE IS 'Nombre descriptivo del perfil de acceso.';
+COMMENT ON COLUMN SMY_ROLES.DESCRIPCION IS 'Descripción detallada del alcance y responsabilidades del rol.';
+COMMENT ON COLUMN SMY_ROLES.ID_ESTADO_ROL IS 'Clave foránea hacia SMY_ESTADOS_ROLES(ID).';
+COMMENT ON COLUMN SMY_ROLES.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_ROLES.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- Tabla: SMY_USUARIOS
 CREATE TABLE SMY_USUARIOS (
@@ -826,6 +1102,22 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_USUARIOS.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_USUARIOS
+COMMENT ON TABLE SMY_USUARIOS IS 'Cuentas de usuario con credenciales seguras, hash criptográfico y preferencias de contacto.';
+COMMENT ON COLUMN SMY_USUARIOS.ID IS 'Identificador único y clave primaria de la tabla SMY_USUARIOS.';
+COMMENT ON COLUMN SMY_USUARIOS.ID_ROL IS 'Clave foránea hacia SMY_ROLES(ID) que determina los privilegios de la cuenta.';
+COMMENT ON COLUMN SMY_USUARIOS.ID_TIPO_USUARIO IS 'Clave foránea hacia SMY_TIPOS_USUARIOS(ID) (ADMIN, EMPLEADO, ACUDIENTE).';
+COMMENT ON COLUMN SMY_USUARIOS.USERNAME IS 'Nombre de usuario único para autenticación en la plataforma.';
+COMMENT ON COLUMN SMY_USUARIOS.EMAIL IS 'Correo electrónico institucional o de contacto del usuario.';
+COMMENT ON COLUMN SMY_USUARIOS.PASSWORD_HASH IS 'Hash criptográfico de la contraseña de acceso (bcrypt/PBKDF2/SHA-256).';
+COMMENT ON COLUMN SMY_USUARIOS.NOMBRE_COMPLETO IS 'Nombre descriptivo único correspondiente a: completo.';
+COMMENT ON COLUMN SMY_USUARIOS.TELEFONO IS 'Campo de datos para telefono en SMY_USUARIOS.';
+COMMENT ON COLUMN SMY_USUARIOS.AVATAR_URL IS 'Campo de datos para avatar url en SMY_USUARIOS.';
+COMMENT ON COLUMN SMY_USUARIOS.ID_CANAL_NOTIF_PREF IS 'Clave foránea hacia SMY_CANALES_NOTIFICACION(ID) con el canal preferido.';
+COMMENT ON COLUMN SMY_USUARIOS.ID_ESTADO_USUARIO IS 'Clave foránea hacia SMY_ESTADOS_USUARIOS(ID) (ACTIVO, INACTIVO, BLOQUEADO).';
+COMMENT ON COLUMN SMY_USUARIOS.ULTIMO_ACCESO IS 'Fecha y hora del último inicio de sesión exitoso.';
+COMMENT ON COLUMN SMY_USUARIOS.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_USUARIOS.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- Tabla: SMY_AUDITORIA_ACCESOS
 CREATE TABLE SMY_AUDITORIA_ACCESOS (
@@ -848,6 +1140,56 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_AUDITORIA_ACCESOS.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_AUDITORIA_ACCESOS
+COMMENT ON TABLE SMY_AUDITORIA_ACCESOS IS 'Registro inmutable de trazabilidad para inicios de sesión, cierres y acciones críticas del sistema.';
+COMMENT ON COLUMN SMY_AUDITORIA_ACCESOS.ID IS 'Identificador único y clave primaria de la tabla SMY_AUDITORIA_ACCESOS.';
+COMMENT ON COLUMN SMY_AUDITORIA_ACCESOS.ID_USUARIO IS 'Clave foránea hacia SMY_USUARIOS(ID) correspondiente a la cuenta.';
+COMMENT ON COLUMN SMY_AUDITORIA_ACCESOS.ACCION IS 'Acción de seguridad ejecutada (ej. LOGIN_EXITOSO, LOGIN_FALLIDO, LOGOUT, EXPORT).';
+COMMENT ON COLUMN SMY_AUDITORIA_ACCESOS.TABLA_AFECTADA IS 'Nombre de la tabla afectada si la acción involucró manipulación de datos.';
+COMMENT ON COLUMN SMY_AUDITORIA_ACCESOS.REGISTRO_ID IS 'Identificador del registro principal consultado o modificado.';
+COMMENT ON COLUMN SMY_AUDITORIA_ACCESOS.DIRECCION_IP IS 'Dirección IP de origen desde donde se realizó la solicitud.';
+COMMENT ON COLUMN SMY_AUDITORIA_ACCESOS.DETALLES IS 'Detalle contextual complementario en formato JSON o texto plano.';
+COMMENT ON COLUMN SMY_AUDITORIA_ACCESOS.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_AUDITORIA_ACCESOS.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
+
+-- 1.4 Tabla: SMY_ERRORES (Control y Registro de Errores)
+CREATE TABLE SMY_ERRORES
+(
+    ID                     NUMBER NOT NULL,
+    TIPO                   VARCHAR2 (1 BYTE) DEFAULT 'E' NOT NULL,
+    NOMBRE_PROGRAMA        VARCHAR2 (50 BYTE) NOT NULL,
+    NOMBRE_METODO          VARCHAR2 (50 BYTE),
+    PARAMETROS             CLOB,
+    DIRECCION_IP           VARCHAR2(30),
+    USUARIO                VARCHAR2 (200 BYTE),
+    CODIGO_ERROR           VARCHAR2 (100 BYTE),
+    TEXTO_ERROR            VARCHAR2 (4000 BYTE),
+    MENSAJE_ERROR          VARCHAR2 (4000 BYTE),
+    FECHA_CREACION         DATE DEFAULT CAST(systimestamp AT TIME ZONE '-05:00' AS DATE),
+    ID_USUARIO_CREACION    NUMBER,
+    CONSTRAINT PK_SMY_ERRORES PRIMARY KEY (ID)
+);
+CREATE SEQUENCE SEQ_SMY_ERRORES START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
+CREATE OR REPLACE TRIGGER TRG_SMY_ERRORES_BI
+BEFORE INSERT ON SMY_ERRORES FOR EACH ROW
+BEGIN
+    IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_ERRORES.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
+END;
+/
+-- Comentarios del Diccionario de Datos: SMY_ERRORES
+COMMENT ON TABLE SMY_ERRORES IS 'Bitácora centralizada para captura, diagnóstico y auditoría forense de excepciones y errores del sistema.';
+COMMENT ON COLUMN SMY_ERRORES.ID IS 'Identificador único y clave primaria de la tabla SMY_ERRORES.';
+COMMENT ON COLUMN SMY_ERRORES.TIPO IS 'Tipo o severidad del registro (''E''=Error, ''W''=Advertencia, ''I''=Información).';
+COMMENT ON COLUMN SMY_ERRORES.NOMBRE_PROGRAMA IS 'Nombre descriptivo único correspondiente a: programa.';
+COMMENT ON COLUMN SMY_ERRORES.NOMBRE_METODO IS 'Nombre descriptivo único correspondiente a: metodo.';
+COMMENT ON COLUMN SMY_ERRORES.PARAMETROS IS 'Parámetros de entrada o payload serializado (JSON/texto) presente en la solicitud fallida.';
+COMMENT ON COLUMN SMY_ERRORES.DIRECCION_IP IS 'Dirección IP del cliente, dispositivo o servidor solicitante.';
+COMMENT ON COLUMN SMY_ERRORES.USUARIO IS 'Nombre de usuario o login de la cuenta activa al momento de la falla.';
+COMMENT ON COLUMN SMY_ERRORES.CODIGO_ERROR IS 'Código técnico de error retornado por la base de datos (ej. ORA-XXXXX) o aplicación.';
+COMMENT ON COLUMN SMY_ERRORES.TEXTO_ERROR IS 'Traza técnica detallada del error, stack trace o mensaje técnico del motor/servidor.';
+COMMENT ON COLUMN SMY_ERRORES.MENSAJE_ERROR IS 'Mensaje de error procesado y comprensible para el usuario o soporte funcional.';
+COMMENT ON COLUMN SMY_ERRORES.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_ERRORES.ID_USUARIO_CREACION IS 'Identificador del usuario que originó o registró el evento.';
 
 -- =============================================================================
 -- SECCIÓN 2: MÓDULO DE TALENTO HUMANO, TURNOS Y AUSENCIAS
@@ -857,8 +1199,8 @@ END;
 CREATE TABLE SMY_EMPLEADOS (
     ID                              NUMBER(10)          NOT NULL,
     ID_USUARIO                      NUMBER(10),
-    ID_TIPO_DOCUMENTO               NUMBER(10)          NOT NULL,
-    DOCUMENTO_NUMERO                VARCHAR2(30)        NOT NULL,
+    ID_TIPO_IDENTIFICACION         NUMBER(10)          NOT NULL,
+    IDENTIFICACION                  VARCHAR2(30)        NOT NULL,
     NOMBRES                         VARCHAR2(80)        NOT NULL,
     APELLIDOS                       VARCHAR2(80)        NOT NULL,
     ID_CARGO_EMPLEADO               NUMBER(10)          NOT NULL,
@@ -872,9 +1214,9 @@ CREATE TABLE SMY_EMPLEADOS (
     FECHA_CREACION                  DATE                DEFAULT CAST(SYSTIMESTAMP AT TIME ZONE '-05:00' AS DATE) NOT NULL,
     ID_USUARIO_ULTIMA_MODIFICACION  NUMBER(10),
     CONSTRAINT PK_SMY_EMPLEADOS PRIMARY KEY (ID),
-    CONSTRAINT UQ_SMY_EMP_DOC UNIQUE (ID_TIPO_DOCUMENTO, DOCUMENTO_NUMERO),
+    CONSTRAINT UQ_SMY_EMP_IDENT UNIQUE (ID_TIPO_IDENTIFICACION, IDENTIFICACION),
     CONSTRAINT FK_SMY_EMP_USUARIO FOREIGN KEY (ID_USUARIO) REFERENCES SMY_USUARIOS (ID),
-    CONSTRAINT FK_SMY_EMP_TIPO_DOC FOREIGN KEY (ID_TIPO_DOCUMENTO) REFERENCES SMY_TIPOS_DOCUMENTOS_ID (ID),
+    CONSTRAINT FK_SMY_EMP_TIPO_IDENT FOREIGN KEY (ID_TIPO_IDENTIFICACION) REFERENCES SMY_TIPOS_IDENTIFICACION (ID),
     CONSTRAINT FK_SMY_EMP_CARGO FOREIGN KEY (ID_CARGO_EMPLEADO) REFERENCES SMY_CARGOS_EMPLEADOS (ID),
     CONSTRAINT FK_SMY_EMP_AREA FOREIGN KEY (ID_AREA_EMPLEADO) REFERENCES SMY_AREAS_EMPLEADOS (ID),
     CONSTRAINT FK_SMY_EMP_ESTADO FOREIGN KEY (ID_ESTADO_EMPLEADO) REFERENCES SMY_ESTADOS_EMPLEADOS (ID)
@@ -886,6 +1228,24 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_EMPLEADOS.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_EMPLEADOS
+COMMENT ON TABLE SMY_EMPLEADOS IS 'Ficha del colaborador asistencial, médico, administrativo y de servicios de la institución.';
+COMMENT ON COLUMN SMY_EMPLEADOS.ID IS 'Identificador único y clave primaria de la tabla SMY_EMPLEADOS.';
+COMMENT ON COLUMN SMY_EMPLEADOS.ID_USUARIO IS 'Clave foránea opcional hacia SMY_USUARIOS(ID) si el empleado tiene usuario en sistema.';
+COMMENT ON COLUMN SMY_EMPLEADOS.ID_TIPO_IDENTIFICACION IS 'Clave foránea hacia SMY_TIPOS_IDENTIFICACION(ID) para el tipo de documento.';
+COMMENT ON COLUMN SMY_EMPLEADOS.IDENTIFICACION IS 'Número de documento o identificación oficial del empleado.';
+COMMENT ON COLUMN SMY_EMPLEADOS.NOMBRES IS 'Nombres del empleado.';
+COMMENT ON COLUMN SMY_EMPLEADOS.APELLIDOS IS 'Apellidos del empleado.';
+COMMENT ON COLUMN SMY_EMPLEADOS.ID_CARGO_EMPLEADO IS 'Clave foránea hacia SMY_CARGOS_EMPLEADOS(ID) con el cargo laboral.';
+COMMENT ON COLUMN SMY_EMPLEADOS.ID_AREA_EMPLEADO IS 'Clave foránea hacia SMY_AREAS_EMPLEADOS(ID) con el área operativa.';
+COMMENT ON COLUMN SMY_EMPLEADOS.UNIDAD_ASIGNADA IS 'Sede, piso, ala o unidad asistencial asignada de base al colaborador.';
+COMMENT ON COLUMN SMY_EMPLEADOS.TELEFONO IS 'Número de contacto telefónico del colaborador.';
+COMMENT ON COLUMN SMY_EMPLEADOS.EMAIL_CORP IS 'Correo electrónico corporativo o personal para comunicaciones.';
+COMMENT ON COLUMN SMY_EMPLEADOS.FECHA_CONTRATACION IS 'Fecha de inicio del contrato laboral.';
+COMMENT ON COLUMN SMY_EMPLEADOS.FECHA_TERMINACION IS 'Fecha de terminación o cese del contrato laboral (si aplica).';
+COMMENT ON COLUMN SMY_EMPLEADOS.ID_ESTADO_EMPLEADO IS 'Clave foránea hacia SMY_ESTADOS_EMPLEADOS(ID) (Activo, Inactivo, etc.).';
+COMMENT ON COLUMN SMY_EMPLEADOS.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_EMPLEADOS.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- Tabla: SMY_DOCUMENTOS_EMPLEADO
 CREATE TABLE SMY_DOCUMENTOS_EMPLEADO (
@@ -908,6 +1268,17 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_DOCUMENTOS_EMPLEADO.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_DOCUMENTOS_EMPLEADO
+COMMENT ON TABLE SMY_DOCUMENTOS_EMPLEADO IS 'Repositorio digital de legajos, contratos, certificados y soportes documentales del empleado.';
+COMMENT ON COLUMN SMY_DOCUMENTOS_EMPLEADO.ID IS 'Identificador único y clave primaria de la tabla SMY_DOCUMENTOS_EMPLEADO.';
+COMMENT ON COLUMN SMY_DOCUMENTOS_EMPLEADO.ID_EMPLEADO IS 'Clave foránea hacia SMY_EMPLEADOS(ID) titular del documento.';
+COMMENT ON COLUMN SMY_DOCUMENTOS_EMPLEADO.TIPO_DOCUMENTO IS 'Tipo de documento laboral (Hoja de Vida, Certificado, Curso, Contrato).';
+COMMENT ON COLUMN SMY_DOCUMENTOS_EMPLEADO.NOMBRE_ARCHIVO IS 'Nombre descriptivo único correspondiente a: archivo.';
+COMMENT ON COLUMN SMY_DOCUMENTOS_EMPLEADO.URL_ARCHIVO IS 'Ruta de almacenamiento local o URI de acceso al archivo digital.';
+COMMENT ON COLUMN SMY_DOCUMENTOS_EMPLEADO.FECHA_EXPEDICION IS 'Fecha en la cual fue emitido el documento.';
+COMMENT ON COLUMN SMY_DOCUMENTOS_EMPLEADO.FECHA_VENCIMIENTO IS 'Fecha de vencimiento del certificado o documento (si aplica).';
+COMMENT ON COLUMN SMY_DOCUMENTOS_EMPLEADO.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_DOCUMENTOS_EMPLEADO.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- Tabla: SMY_PLANTILLAS_TURNO
 CREATE TABLE SMY_PLANTILLAS_TURNO (
@@ -932,6 +1303,18 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_PLANTILLAS_TURNO.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_PLANTILLAS_TURNO
+COMMENT ON TABLE SMY_PLANTILLAS_TURNO IS 'Plantillas maestras de configuración horaria y franjas para turnos de trabajo.';
+COMMENT ON COLUMN SMY_PLANTILLAS_TURNO.ID IS 'Identificador único y clave primaria de la tabla SMY_PLANTILLAS_TURNO.';
+COMMENT ON COLUMN SMY_PLANTILLAS_TURNO.CODIGO IS 'Código mnemotécnico de la plantilla de turno (ej. TM, TT, TN).';
+COMMENT ON COLUMN SMY_PLANTILLAS_TURNO.NOMBRE IS 'Nombre descriptivo de la franja horaria (ej. Turno Mañana).';
+COMMENT ON COLUMN SMY_PLANTILLAS_TURNO.HORA_INICIO IS 'Hora programada de inicio del turno en formato HH24:MI (ej. 06:00).';
+COMMENT ON COLUMN SMY_PLANTILLAS_TURNO.HORA_FIN IS 'Hora programada de finalización del turno en formato HH24:MI (ej. 14:00).';
+COMMENT ON COLUMN SMY_PLANTILLAS_TURNO.TOTAL_HORAS IS 'Número de horas nominales que computa el turno (ej. 8.00).';
+COMMENT ON COLUMN SMY_PLANTILLAS_TURNO.COLOR_HEX IS 'Código de color hexadecimal representativo para el calendario gráfico.';
+COMMENT ON COLUMN SMY_PLANTILLAS_TURNO.ID_ESTADO_PLANTILLA IS 'Clave foránea hacia SMY_ESTADOS_PLANTILLAS_TURNO(ID).';
+COMMENT ON COLUMN SMY_PLANTILLAS_TURNO.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_PLANTILLAS_TURNO.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- Tabla: SMY_TURNOS_ASIGNADOS
 CREATE TABLE SMY_TURNOS_ASIGNADOS (
@@ -956,6 +1339,17 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_TURNOS_ASIGNADOS.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_TURNOS_ASIGNADOS
+COMMENT ON TABLE SMY_TURNOS_ASIGNADOS IS 'Programación y asignación de turnos laborales al personal de la institución.';
+COMMENT ON COLUMN SMY_TURNOS_ASIGNADOS.ID IS 'Identificador único y clave primaria de la tabla SMY_TURNOS_ASIGNADOS.';
+COMMENT ON COLUMN SMY_TURNOS_ASIGNADOS.ID_EMPLEADO IS 'Clave foránea hacia SMY_EMPLEADOS(ID) asignado al turno.';
+COMMENT ON COLUMN SMY_TURNOS_ASIGNADOS.ID_PLANTILLA_TURNO IS 'Clave foránea hacia SMY_PLANTILLAS_TURNO(ID) con el patrón horario.';
+COMMENT ON COLUMN SMY_TURNOS_ASIGNADOS.FECHA_TURNO IS 'Fecha calendario correspondiente a la ejecución del turno.';
+COMMENT ON COLUMN SMY_TURNOS_ASIGNADOS.AREA_ASIGNADA IS 'Área física, pabellón o servicio específico a cubrir en este turno.';
+COMMENT ON COLUMN SMY_TURNOS_ASIGNADOS.OBSERVACIONES IS 'Observaciones especiales o instrucciones operativas para el colaborador.';
+COMMENT ON COLUMN SMY_TURNOS_ASIGNADOS.ID_ESTADO_TURNO IS 'Clave foránea hacia SMY_ESTADOS_TURNOS(ID) (Programado, Cumplido, Ausente, etc.).';
+COMMENT ON COLUMN SMY_TURNOS_ASIGNADOS.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_TURNOS_ASIGNADOS.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- Tabla: SMY_SOLICITUDES_PERMISOS
 CREATE TABLE SMY_SOLICITUDES_PERMISOS (
@@ -985,6 +1379,21 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_SOLICITUDES_PERMISOS.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_SOLICITUDES_PERMISOS
+COMMENT ON TABLE SMY_SOLICITUDES_PERMISOS IS 'Registro, trámite y aprobación de solicitudes de permisos, licencias y ausencias laborales.';
+COMMENT ON COLUMN SMY_SOLICITUDES_PERMISOS.ID IS 'Identificador único y clave primaria de la tabla SMY_SOLICITUDES_PERMISOS.';
+COMMENT ON COLUMN SMY_SOLICITUDES_PERMISOS.ID_EMPLEADO IS 'Clave foránea hacia SMY_EMPLEADOS(ID) que solicita el permiso.';
+COMMENT ON COLUMN SMY_SOLICITUDES_PERMISOS.ID_TIPO_PERMISO IS 'Clave foránea hacia SMY_TIPOS_PERMISOS(ID) con el motivo de ausencia.';
+COMMENT ON COLUMN SMY_SOLICITUDES_PERMISOS.FECHA_INICIO IS 'Fecha y hora en que inicia el permiso o ausencia laboral.';
+COMMENT ON COLUMN SMY_SOLICITUDES_PERMISOS.FECHA_FIN IS 'Fecha y hora en que concluye el permiso o ausencia laboral.';
+COMMENT ON COLUMN SMY_SOLICITUDES_PERMISOS.MOTIVO IS 'Justificación detallada expuesta por el empleado.';
+COMMENT ON COLUMN SMY_SOLICITUDES_PERMISOS.URL_SOPORTE IS 'Enlace o ruta del documento justificativo o incapacidad médica.';
+COMMENT ON COLUMN SMY_SOLICITUDES_PERMISOS.ID_ESTADO_PERMISO IS 'Clave foránea hacia SMY_ESTADOS_PERMISOS(ID) (Pendiente, Aprobado, Rechazado).';
+COMMENT ON COLUMN SMY_SOLICITUDES_PERMISOS.ID_USUARIO_APROBO IS 'Clave foránea hacia SMY_USUARIOS(ID) del directivo que resolvió la solicitud.';
+COMMENT ON COLUMN SMY_SOLICITUDES_PERMISOS.FECHA_RESPUESTA IS 'Fecha y hora en que se emitió la resolución de la solicitud.';
+COMMENT ON COLUMN SMY_SOLICITUDES_PERMISOS.OBSERVACIONES_ADMIN IS 'Comentarios de retroalimentación o condición consignados por la administración.';
+COMMENT ON COLUMN SMY_SOLICITUDES_PERMISOS.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_SOLICITUDES_PERMISOS.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- =============================================================================
 -- SECCIÓN 3: MÓDULO DE RESIDENTES, ACUDIENTES Y ADMISIONES
@@ -994,8 +1403,8 @@ END;
 CREATE TABLE SMY_RESIDENTES (
     ID                              NUMBER(10)          NOT NULL,
     CODIGO_EXPEDIENTE               VARCHAR2(30),
-    ID_TIPO_DOCUMENTO               NUMBER(10)          NOT NULL,
-    DOCUMENTO_NUMERO                VARCHAR2(30)        NOT NULL,
+    ID_TIPO_IDENTIFICACION         NUMBER(10)          NOT NULL,
+    IDENTIFICACION                  VARCHAR2(30)        NOT NULL,
     NOMBRES                         VARCHAR2(80)        NOT NULL,
     APELLIDOS                       VARCHAR2(80)        NOT NULL,
     FECHA_NACIMIENTO                DATE                NOT NULL,
@@ -1015,8 +1424,8 @@ CREATE TABLE SMY_RESIDENTES (
     FECHA_CREACION                  DATE                DEFAULT CAST(SYSTIMESTAMP AT TIME ZONE '-05:00' AS DATE) NOT NULL,
     ID_USUARIO_ULTIMA_MODIFICACION  NUMBER(10),
     CONSTRAINT PK_SMY_RESIDENTES PRIMARY KEY (ID),
-    CONSTRAINT UQ_SMY_RES_DOC UNIQUE (ID_TIPO_DOCUMENTO, DOCUMENTO_NUMERO),
-    CONSTRAINT FK_SMY_RES_TIPO_DOC FOREIGN KEY (ID_TIPO_DOCUMENTO) REFERENCES SMY_TIPOS_DOCUMENTOS_ID (ID),
+    CONSTRAINT UQ_SMY_RES_IDENT UNIQUE (ID_TIPO_IDENTIFICACION, IDENTIFICACION),
+    CONSTRAINT FK_SMY_RES_TIPO_IDENT FOREIGN KEY (ID_TIPO_IDENTIFICACION) REFERENCES SMY_TIPOS_IDENTIFICACION (ID),
     CONSTRAINT FK_SMY_RES_GENERO FOREIGN KEY (ID_GENERO) REFERENCES SMY_GENEROS (ID),
     CONSTRAINT FK_SMY_RES_MOVILIDAD FOREIGN KEY (ID_NIVEL_MOVILIDAD) REFERENCES SMY_NIVELES_MOVILIDAD (ID),
     CONSTRAINT FK_SMY_RES_DIETA FOREIGN KEY (ID_TIPO_DIETA) REFERENCES SMY_TIPOS_DIETAS (ID),
@@ -1029,13 +1438,37 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_RESIDENTES.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_RESIDENTES
+COMMENT ON TABLE SMY_RESIDENTES IS 'Ficha integral maestra del residente, antecedentes demográficos, clínicos, ubicación y contacto.';
+COMMENT ON COLUMN SMY_RESIDENTES.ID IS 'Identificador único y clave primaria de la tabla SMY_RESIDENTES.';
+COMMENT ON COLUMN SMY_RESIDENTES.CODIGO_EXPEDIENTE IS 'Código único de expediente o historia institucional del residente (ej. RES-2024-001).';
+COMMENT ON COLUMN SMY_RESIDENTES.ID_TIPO_IDENTIFICACION IS 'Clave foránea hacia SMY_TIPOS_IDENTIFICACION(ID) del residente.';
+COMMENT ON COLUMN SMY_RESIDENTES.IDENTIFICACION IS 'Número de documento o cédula de identificación del residente.';
+COMMENT ON COLUMN SMY_RESIDENTES.NOMBRES IS 'Nombres del residente.';
+COMMENT ON COLUMN SMY_RESIDENTES.APELLIDOS IS 'Apellidos del residente.';
+COMMENT ON COLUMN SMY_RESIDENTES.FECHA_NACIMIENTO IS 'Fecha de nacimiento del residente.';
+COMMENT ON COLUMN SMY_RESIDENTES.ID_GENERO IS 'Clave foránea hacia SMY_GENEROS(ID).';
+COMMENT ON COLUMN SMY_RESIDENTES.FOTO_URL IS 'Ruta relativa o URI de la fotografía de perfil del residente.';
+COMMENT ON COLUMN SMY_RESIDENTES.HABITACION IS 'Número o denominación de la habitación asignada.';
+COMMENT ON COLUMN SMY_RESIDENTES.CAMA IS 'Identificador de cama o puesto dentro de la habitación (A, B, etc.).';
+COMMENT ON COLUMN SMY_RESIDENTES.EPS IS 'Entidad Promotora de Salud (EPS) a la que está afiliado el residente.';
+COMMENT ON COLUMN SMY_RESIDENTES.PLAN_COMPLEMENTARIO IS 'Plan de medicina prepagada o póliza de salud complementaria.';
+COMMENT ON COLUMN SMY_RESIDENTES.TIPO_SANGRE IS 'Grupo sanguíneo y factor RH (ej. O+, A+, AB-).';
+COMMENT ON COLUMN SMY_RESIDENTES.ID_NIVEL_MOVILIDAD IS 'Clave foránea hacia SMY_NIVELES_MOVILIDAD(ID).';
+COMMENT ON COLUMN SMY_RESIDENTES.ID_TIPO_DIETA IS 'Clave foránea hacia SMY_TIPOS_DIETAS(ID).';
+COMMENT ON COLUMN SMY_RESIDENTES.ALERTAS_CLINICAS IS 'Resumen de alergias, riesgos de caída o alertas asistenciales de alta visibilidad.';
+COMMENT ON COLUMN SMY_RESIDENTES.ID_ESTADO_RESIDENTE IS 'Clave foránea hacia SMY_ESTADOS_RESIDENTES(ID) (Activo, Hospitalizado, etc.).';
+COMMENT ON COLUMN SMY_RESIDENTES.FECHA_INGRESO IS 'Fecha formal de ingreso y admisión al centro geriátrico.';
+COMMENT ON COLUMN SMY_RESIDENTES.FECHA_EGRESO IS 'Fecha de egreso o retiro formal de la institución.';
+COMMENT ON COLUMN SMY_RESIDENTES.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_RESIDENTES.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- Tabla: SMY_ACUDIENTES
 CREATE TABLE SMY_ACUDIENTES (
     ID                              NUMBER(10)          NOT NULL,
     ID_USUARIO                      NUMBER(10),
-    ID_TIPO_DOCUMENTO               NUMBER(10)          NOT NULL,
-    DOCUMENTO_NUMERO                VARCHAR2(30)        NOT NULL,
+    ID_TIPO_IDENTIFICACION         NUMBER(10)          NOT NULL,
+    IDENTIFICACION                  VARCHAR2(30)        NOT NULL,
     NOMBRES                         VARCHAR2(80)        NOT NULL,
     APELLIDOS                       VARCHAR2(80)        NOT NULL,
     TELEFONO_PRINCIPAL              VARCHAR2(30)        NOT NULL,
@@ -1047,9 +1480,9 @@ CREATE TABLE SMY_ACUDIENTES (
     FECHA_CREACION                  DATE                DEFAULT CAST(SYSTIMESTAMP AT TIME ZONE '-05:00' AS DATE) NOT NULL,
     ID_USUARIO_ULTIMA_MODIFICACION  NUMBER(10),
     CONSTRAINT PK_SMY_ACUDIENTES PRIMARY KEY (ID),
-    CONSTRAINT UQ_SMY_ACU_DOC UNIQUE (ID_TIPO_DOCUMENTO, DOCUMENTO_NUMERO),
+    CONSTRAINT UQ_SMY_ACU_IDENT UNIQUE (ID_TIPO_IDENTIFICACION, IDENTIFICACION),
     CONSTRAINT FK_SMY_ACU_USUARIO FOREIGN KEY (ID_USUARIO) REFERENCES SMY_USUARIOS (ID),
-    CONSTRAINT FK_SMY_ACU_TIPO_DOC FOREIGN KEY (ID_TIPO_DOCUMENTO) REFERENCES SMY_TIPOS_DOCUMENTOS_ID (ID),
+    CONSTRAINT FK_SMY_ACU_TIPO_IDENT FOREIGN KEY (ID_TIPO_IDENTIFICACION) REFERENCES SMY_TIPOS_IDENTIFICACION (ID),
     CONSTRAINT FK_SMY_ACU_CANAL FOREIGN KEY (ID_CANAL_NOTIF_PREF) REFERENCES SMY_CANALES_NOTIFICACION (ID)
 );
 CREATE SEQUENCE SEQ_SMY_ACUDIENTES START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
@@ -1059,6 +1492,22 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_ACUDIENTES.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_ACUDIENTES
+COMMENT ON TABLE SMY_ACUDIENTES IS 'Ficha de familiares, acudientes, tutores legales y contactos de emergencia de los residentes.';
+COMMENT ON COLUMN SMY_ACUDIENTES.ID IS 'Identificador único y clave primaria de la tabla SMY_ACUDIENTES.';
+COMMENT ON COLUMN SMY_ACUDIENTES.ID_USUARIO IS 'Clave foránea opcional hacia SMY_USUARIOS(ID) para acceso al portal familiar.';
+COMMENT ON COLUMN SMY_ACUDIENTES.ID_TIPO_IDENTIFICACION IS 'Clave foránea hacia SMY_TIPOS_IDENTIFICACION(ID) del acudiente.';
+COMMENT ON COLUMN SMY_ACUDIENTES.IDENTIFICACION IS 'Número de documento o cédula de identificación del acudiente.';
+COMMENT ON COLUMN SMY_ACUDIENTES.NOMBRES IS 'Nombres del acudiente o contacto.';
+COMMENT ON COLUMN SMY_ACUDIENTES.APELLIDOS IS 'Apellidos del acudiente o contacto.';
+COMMENT ON COLUMN SMY_ACUDIENTES.TELEFONO_PRINCIPAL IS 'Número telefónico celular principal de contacto.';
+COMMENT ON COLUMN SMY_ACUDIENTES.TELEFONO_SECUNDARIO IS 'Número telefónico secundario o fijo alternativo.';
+COMMENT ON COLUMN SMY_ACUDIENTES.EMAIL IS 'Correo electrónico para notificaciones, consentimientos y circulares.';
+COMMENT ON COLUMN SMY_ACUDIENTES.DIRECCION IS 'Dirección domiciliaria de residencia.';
+COMMENT ON COLUMN SMY_ACUDIENTES.CIUDAD IS 'Ciudad o municipio de residencia.';
+COMMENT ON COLUMN SMY_ACUDIENTES.ID_CANAL_NOTIF_PREF IS 'Clave foránea hacia SMY_CANALES_NOTIFICACION(ID) preferido.';
+COMMENT ON COLUMN SMY_ACUDIENTES.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_ACUDIENTES.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- Tabla Intermedia: SMY_RESIDENTE_ACUDIENTE
 CREATE TABLE SMY_RESIDENTE_ACUDIENTE (
@@ -1087,6 +1536,17 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_RESIDENTE_ACUDIENTE.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_RESIDENTE_ACUDIENTE
+COMMENT ON TABLE SMY_RESIDENTE_ACUDIENTE IS 'Tabla de relación asociativa multidireccional entre residentes y sus acudientes o tutores.';
+COMMENT ON COLUMN SMY_RESIDENTE_ACUDIENTE.ID IS 'Identificador único y clave primaria de la tabla SMY_RESIDENTE_ACUDIENTE.';
+COMMENT ON COLUMN SMY_RESIDENTE_ACUDIENTE.ID_RESIDENTE IS 'Clave foránea hacia SMY_RESIDENTES(ID).';
+COMMENT ON COLUMN SMY_RESIDENTE_ACUDIENTE.ID_ACUDIENTE IS 'Clave foránea hacia SMY_ACUDIENTES(ID).';
+COMMENT ON COLUMN SMY_RESIDENTE_ACUDIENTE.ID_PARENTESCO IS 'Clave foránea hacia SMY_PARENTESCOS(ID) que define el vínculo familiar.';
+COMMENT ON COLUMN SMY_RESIDENTE_ACUDIENTE.ES_PRINCIPAL IS 'Indicador de contacto de emergencia prioritario (''S''/''N'').';
+COMMENT ON COLUMN SMY_RESIDENTE_ACUDIENTE.ES_RESPONSABLE_PAGO IS 'Indicador de responsabilidad legal y económica de pagos (''S''/''N'').';
+COMMENT ON COLUMN SMY_RESIDENTE_ACUDIENTE.AUTORIZADO_SALIDAS IS 'Indicador de autorización expresa para retirar al residente del centro (''S''/''N'').';
+COMMENT ON COLUMN SMY_RESIDENTE_ACUDIENTE.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_RESIDENTE_ACUDIENTE.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- Tabla: SMY_SOLICITUDES_ADMISION
 CREATE TABLE SMY_SOLICITUDES_ADMISION (
@@ -1122,6 +1582,25 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_SOLICITUDES_ADMISION.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_SOLICITUDES_ADMISION
+COMMENT ON TABLE SMY_SOLICITUDES_ADMISION IS 'Registro, evaluación clínica/social y flujo de gestión para solicitudes de nuevo ingreso.';
+COMMENT ON COLUMN SMY_SOLICITUDES_ADMISION.ID IS 'Identificador único y clave primaria de la tabla SMY_SOLICITUDES_ADMISION.';
+COMMENT ON COLUMN SMY_SOLICITUDES_ADMISION.NOMBRE_COMPLETO IS 'Nombre descriptivo único correspondiente a: completo.';
+COMMENT ON COLUMN SMY_SOLICITUDES_ADMISION.FECHA_NACIMIENTO IS 'Fecha de nacimiento del postulante.';
+COMMENT ON COLUMN SMY_SOLICITUDES_ADMISION.ID_GENERO IS 'Clave foránea hacia SMY_GENEROS(ID).';
+COMMENT ON COLUMN SMY_SOLICITUDES_ADMISION.HABITACION_PREF IS 'Tipo o preferencia de habitación requerida (Individual, Compartida).';
+COMMENT ON COLUMN SMY_SOLICITUDES_ADMISION.CAMA_PREF IS 'Preferencia de cama o ubicación específica deseada.';
+COMMENT ON COLUMN SMY_SOLICITUDES_ADMISION.ID_NIVEL_MOVILIDAD IS 'Clave foránea hacia SMY_NIVELES_MOVILIDAD(ID) preliminar.';
+COMMENT ON COLUMN SMY_SOLICITUDES_ADMISION.ID_TIPO_DIETA IS 'Clave foránea hacia SMY_TIPOS_DIETAS(ID) requerida.';
+COMMENT ON COLUMN SMY_SOLICITUDES_ADMISION.ALERTAS_CLINICAS IS 'Alergias o diagnósticos críticos reportados en la postulación.';
+COMMENT ON COLUMN SMY_SOLICITUDES_ADMISION.FECHA_DESEADA IS 'Fecha tentativa deseada para concretar el ingreso.';
+COMMENT ON COLUMN SMY_SOLICITUDES_ADMISION.ID_ESTADO_SOLICITUD_ADM IS 'Clave foránea hacia SMY_ESTADOS_SOLICITUDES_ADM(ID).';
+COMMENT ON COLUMN SMY_SOLICITUDES_ADMISION.NOTAS_ADICIONALES IS 'Notas de trabajo social, valoración psicológica o acuerdos especiales.';
+COMMENT ON COLUMN SMY_SOLICITUDES_ADMISION.ID_RESIDENTE_CREADO IS 'Clave foránea hacia SMY_RESIDENTES(ID) creada tras aprobar la admisión.';
+COMMENT ON COLUMN SMY_SOLICITUDES_ADMISION.ID_USUARIO_REVISO IS 'Clave foránea hacia SMY_USUARIOS(ID) del profesional evaluador.';
+COMMENT ON COLUMN SMY_SOLICITUDES_ADMISION.FECHA_REVISION IS 'Fecha en que se evaluó y dictaminó la solicitud.';
+COMMENT ON COLUMN SMY_SOLICITUDES_ADMISION.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_SOLICITUDES_ADMISION.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- Tabla: SMY_SOLICITUD_ADM_CONTACTOS
 CREATE TABLE SMY_SOLICITUD_ADM_CONTACTOS (
@@ -1144,6 +1623,16 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_SOLICITUD_ADM_CONTACTOS.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_SOLICITUD_ADM_CONTACTOS
+COMMENT ON TABLE SMY_SOLICITUD_ADM_CONTACTOS IS 'Contactos familiares y de referencia asociados a una solicitud de admisión en trámite.';
+COMMENT ON COLUMN SMY_SOLICITUD_ADM_CONTACTOS.ID IS 'Identificador único y clave primaria de la tabla SMY_SOLICITUD_ADM_CONTACTOS.';
+COMMENT ON COLUMN SMY_SOLICITUD_ADM_CONTACTOS.ID_SOLICITUD_ADMISION IS 'Clave foránea hacia SMY_SOLICITUDES_ADMISION(ID).';
+COMMENT ON COLUMN SMY_SOLICITUD_ADM_CONTACTOS.NOMBRE IS 'Nombre completo del contacto de referencia de la solicitud.';
+COMMENT ON COLUMN SMY_SOLICITUD_ADM_CONTACTOS.ID_PARENTESCO IS 'Clave foránea hacia SMY_PARENTESCOS(ID).';
+COMMENT ON COLUMN SMY_SOLICITUD_ADM_CONTACTOS.TELEFONO IS 'Número telefónico de contacto.';
+COMMENT ON COLUMN SMY_SOLICITUD_ADM_CONTACTOS.EMAIL IS 'Correo electrónico de contacto.';
+COMMENT ON COLUMN SMY_SOLICITUD_ADM_CONTACTOS.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_SOLICITUD_ADM_CONTACTOS.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- =============================================================================
 -- SECCIÓN 4: MÓDULO DE HISTORIA CLÍNICA Y GESTOR DOCUMENTAL DIGITAL
@@ -1173,6 +1662,19 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_HISTORIAS_CLINICAS.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_HISTORIAS_CLINICAS
+COMMENT ON TABLE SMY_HISTORIAS_CLINICAS IS 'Expediente clínico centralizado del residente con diagnósticos CIE, antecedentes y directrices.';
+COMMENT ON COLUMN SMY_HISTORIAS_CLINICAS.ID IS 'Identificador único y clave primaria de la tabla SMY_HISTORIAS_CLINICAS.';
+COMMENT ON COLUMN SMY_HISTORIAS_CLINICAS.ID_RESIDENTE IS 'Clave foránea hacia SMY_RESIDENTES(ID) titular de la historia clínica.';
+COMMENT ON COLUMN SMY_HISTORIAS_CLINICAS.DIAGNOSTICOS_BASE IS 'Campo de datos para diagnosticos base en SMY_HISTORIAS_CLINICAS.';
+COMMENT ON COLUMN SMY_HISTORIAS_CLINICAS.ANTECEDENTES_QUIRUR IS 'Campo de datos para antecedentes quirur en SMY_HISTORIAS_CLINICAS.';
+COMMENT ON COLUMN SMY_HISTORIAS_CLINICAS.ANTECEDENTES_FAM IS 'Campo de datos para antecedentes fam en SMY_HISTORIAS_CLINICAS.';
+COMMENT ON COLUMN SMY_HISTORIAS_CLINICAS.ALERGIAS_MEDICAMENT IS 'Campo de datos para alergias medicament en SMY_HISTORIAS_CLINICAS.';
+COMMENT ON COLUMN SMY_HISTORIAS_CLINICAS.ALERGIAS_ALIMENTAR IS 'Campo de datos para alergias alimentar en SMY_HISTORIAS_CLINICAS.';
+COMMENT ON COLUMN SMY_HISTORIAS_CLINICAS.MEDICO_TRATANTE IS 'Campo de datos para medico tratante en SMY_HISTORIAS_CLINICAS.';
+COMMENT ON COLUMN SMY_HISTORIAS_CLINICAS.TELEFONO_MEDICO IS 'Campo de datos para telefono medico en SMY_HISTORIAS_CLINICAS.';
+COMMENT ON COLUMN SMY_HISTORIAS_CLINICAS.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_HISTORIAS_CLINICAS.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- Tabla: SMY_DOCUMENTOS_CLINICOS
 CREATE TABLE SMY_DOCUMENTOS_CLINICOS (
@@ -1208,6 +1710,25 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_DOCUMENTOS_CLINICOS.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_DOCUMENTOS_CLINICOS
+COMMENT ON TABLE SMY_DOCUMENTOS_CLINICOS IS 'Repositorio digital de documentos clínicos, evoluciones médicas, órdenes y exámenes anexos.';
+COMMENT ON COLUMN SMY_DOCUMENTOS_CLINICOS.ID IS 'Identificador único y clave primaria de la tabla SMY_DOCUMENTOS_CLINICOS.';
+COMMENT ON COLUMN SMY_DOCUMENTOS_CLINICOS.ID_RESIDENTE IS 'Clave foránea hacia SMY_RESIDENTES(ID) asociado al documento.';
+COMMENT ON COLUMN SMY_DOCUMENTOS_CLINICOS.TITULO IS 'Título o encabezado descriptivo del documento clínico.';
+COMMENT ON COLUMN SMY_DOCUMENTOS_CLINICOS.ID_CATEGORIA_DOC_CLINICO IS 'Clave foránea hacia SMY_CATEGORIAS_DOC_CLINICOS(ID).';
+COMMENT ON COLUMN SMY_DOCUMENTOS_CLINICOS.DESCRIPCION IS 'Descripción detallada de descripcion.';
+COMMENT ON COLUMN SMY_DOCUMENTOS_CLINICOS.ID_TIPO_ENTRADA_DOC IS 'Clave foránea hacia SMY_TIPOS_ENTRADAS_DOC(ID).';
+COMMENT ON COLUMN SMY_DOCUMENTOS_CLINICOS.ID_TIPO_ARCHIVO_DOC IS 'Clave foránea hacia SMY_TIPOS_ARCHIVOS_DOC(ID).';
+COMMENT ON COLUMN SMY_DOCUMENTOS_CLINICOS.NOMBRE_ARCHIVO IS 'Nombre descriptivo único correspondiente a: archivo.';
+COMMENT ON COLUMN SMY_DOCUMENTOS_CLINICOS.PESO_ARCHIVO IS 'Campo de datos para peso archivo en SMY_DOCUMENTOS_CLINICOS.';
+COMMENT ON COLUMN SMY_DOCUMENTOS_CLINICOS.URL_ARCHIVO IS 'Campo de datos para url archivo en SMY_DOCUMENTOS_CLINICOS.';
+COMMENT ON COLUMN SMY_DOCUMENTOS_CLINICOS.SUBIDO_POR_ROL IS 'Campo de datos para subido por rol en SMY_DOCUMENTOS_CLINICOS.';
+COMMENT ON COLUMN SMY_DOCUMENTOS_CLINICOS.SUBIDO_POR_NOMBRE IS 'Campo de datos para subido por nombre en SMY_DOCUMENTOS_CLINICOS.';
+COMMENT ON COLUMN SMY_DOCUMENTOS_CLINICOS.ID_USUARIO IS 'Clave foránea que referencia al registro correspondiente a: usuario.';
+COMMENT ON COLUMN SMY_DOCUMENTOS_CLINICOS.FECHA_DOCUMENTO IS 'Fecha clínica del hecho, atención o examen médico.';
+COMMENT ON COLUMN SMY_DOCUMENTOS_CLINICOS.ID_ESTADO_DOC_CLINICO IS 'Clave foránea hacia SMY_ESTADOS_DOC_CLINICOS(ID).';
+COMMENT ON COLUMN SMY_DOCUMENTOS_CLINICOS.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_DOCUMENTOS_CLINICOS.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- Tabla: SMY_DOCUMENTOS_ELIMINADOS_LOG (Papelera / Auditoría)
 CREATE TABLE SMY_DOCUMENTOS_ELIMINADOS_LOG (
@@ -1236,6 +1757,22 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_DOC_ELIM_LOG.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_DOCUMENTOS_ELIMINADOS_LOG
+COMMENT ON TABLE SMY_DOCUMENTOS_ELIMINADOS_LOG IS 'Registro inmutable de auditoría forense ante la anulación o eliminación de documentos clínicos.';
+COMMENT ON COLUMN SMY_DOCUMENTOS_ELIMINADOS_LOG.ID IS 'Identificador único y clave primaria de la tabla SMY_DOCUMENTOS_ELIMINADOS_LOG.';
+COMMENT ON COLUMN SMY_DOCUMENTOS_ELIMINADOS_LOG.ID_DOCUMENTO_CLINICO IS 'Clave foránea que referencia al registro correspondiente a: documento clinico.';
+COMMENT ON COLUMN SMY_DOCUMENTOS_ELIMINADOS_LOG.ID_RESIDENTE IS 'Clave foránea hacia SMY_RESIDENTES(ID) que estaba vinculado.';
+COMMENT ON COLUMN SMY_DOCUMENTOS_ELIMINADOS_LOG.TITULO IS 'Campo de datos para titulo en SMY_DOCUMENTOS_ELIMINADOS_LOG.';
+COMMENT ON COLUMN SMY_DOCUMENTOS_ELIMINADOS_LOG.ID_CATEGORIA_DOC_CLINICO IS 'Clave foránea que referencia al registro correspondiente a: categoria doc clinico.';
+COMMENT ON COLUMN SMY_DOCUMENTOS_ELIMINADOS_LOG.NOMBRE_ARCHIVO IS 'Nombre descriptivo único correspondiente a: archivo.';
+COMMENT ON COLUMN SMY_DOCUMENTOS_ELIMINADOS_LOG.URL_ARCHIVO IS 'Campo de datos para url archivo en SMY_DOCUMENTOS_ELIMINADOS_LOG.';
+COMMENT ON COLUMN SMY_DOCUMENTOS_ELIMINADOS_LOG.SUBIDO_POR_NOMBRE IS 'Campo de datos para subido por nombre en SMY_DOCUMENTOS_ELIMINADOS_LOG.';
+COMMENT ON COLUMN SMY_DOCUMENTOS_ELIMINADOS_LOG.ID_USUARIO_ELIMINO IS 'Clave foránea hacia SMY_USUARIOS(ID) del usuario ejecutor.';
+COMMENT ON COLUMN SMY_DOCUMENTOS_ELIMINADOS_LOG.ELIMINADO_POR_NOM IS 'Campo de datos para eliminado por nom en SMY_DOCUMENTOS_ELIMINADOS_LOG.';
+COMMENT ON COLUMN SMY_DOCUMENTOS_ELIMINADOS_LOG.MOTIVO_ELIMINACION IS 'Causa o justificación médica/legal formal para anular el registro.';
+COMMENT ON COLUMN SMY_DOCUMENTOS_ELIMINADOS_LOG.FECHA_ELIMINACION IS 'Fecha y hora exacta en que se efectuó la anulación en sistema.';
+COMMENT ON COLUMN SMY_DOCUMENTOS_ELIMINADOS_LOG.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_DOCUMENTOS_ELIMINADOS_LOG.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- =============================================================================
 -- SECCIÓN 5: MÓDULO DE BITÁCORA DIARIA Y SIGNOS VITALES
@@ -1274,6 +1811,23 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_BITACORA_RESIDENTE.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_BITACORA_RESIDENTE
+COMMENT ON TABLE SMY_BITACORA_RESIDENTE IS 'Registro cronológico continuo de novedades asistenciales, estado de ánimo y observaciones diarias.';
+COMMENT ON COLUMN SMY_BITACORA_RESIDENTE.ID IS 'Identificador único y clave primaria de la tabla SMY_BITACORA_RESIDENTE.';
+COMMENT ON COLUMN SMY_BITACORA_RESIDENTE.ID_RESIDENTE IS 'Clave foránea hacia SMY_RESIDENTES(ID) sobre el que se hace la anotación.';
+COMMENT ON COLUMN SMY_BITACORA_RESIDENTE.ID_EMPLEADO IS 'Clave foránea que referencia al registro correspondiente a: empleado.';
+COMMENT ON COLUMN SMY_BITACORA_RESIDENTE.ID_USUARIO IS 'Clave foránea que referencia al registro correspondiente a: usuario.';
+COMMENT ON COLUMN SMY_BITACORA_RESIDENTE.FECHA IS 'Fecha calendario correspondiente a la novedad asistencial.';
+COMMENT ON COLUMN SMY_BITACORA_RESIDENTE.HORA IS 'Hora del suceso en formato HH24:MI (ej. 10:30).';
+COMMENT ON COLUMN SMY_BITACORA_RESIDENTE.ID_CATEGORIA_BITACORA IS 'Clave foránea hacia SMY_CATEGORIAS_BITACORA(ID).';
+COMMENT ON COLUMN SMY_BITACORA_RESIDENTE.CONTENIDO IS 'Campo de datos para contenido en SMY_BITACORA_RESIDENTE.';
+COMMENT ON COLUMN SMY_BITACORA_RESIDENTE.GRABADO_POR_VOZ IS 'Campo de datos para grabado por voz en SMY_BITACORA_RESIDENTE.';
+COMMENT ON COLUMN SMY_BITACORA_RESIDENTE.AUDIO_URL IS 'Ruta de archivo de audio o nota de voz dictada por el cuidador.';
+COMMENT ON COLUMN SMY_BITACORA_RESIDENTE.FOTO_ADJUNTA_URL IS 'Campo de datos para foto adjunta url en SMY_BITACORA_RESIDENTE.';
+COMMENT ON COLUMN SMY_BITACORA_RESIDENTE.ID_TURNO_ASIGNADO IS 'Clave foránea que referencia al registro correspondiente a: turno asignado.';
+COMMENT ON COLUMN SMY_BITACORA_RESIDENTE.VISIBLE_ACUDIENTE IS 'Campo de datos para visible acudiente en SMY_BITACORA_RESIDENTE.';
+COMMENT ON COLUMN SMY_BITACORA_RESIDENTE.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_BITACORA_RESIDENTE.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- Tabla: SMY_SIGNOS_VITALES
 CREATE TABLE SMY_SIGNOS_VITALES (
@@ -1305,6 +1859,24 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_SIGNOS_VITALES.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_SIGNOS_VITALES
+COMMENT ON TABLE SMY_SIGNOS_VITALES IS 'Monitoreo biomédico y registro de signos vitales (presión, FC, FR, glucosa, temperatura, SpO2).';
+COMMENT ON COLUMN SMY_SIGNOS_VITALES.ID IS 'Identificador único y clave primaria de la tabla SMY_SIGNOS_VITALES.';
+COMMENT ON COLUMN SMY_SIGNOS_VITALES.ID_RESIDENTE IS 'Clave foránea hacia SMY_RESIDENTES(ID) al que corresponden los signos.';
+COMMENT ON COLUMN SMY_SIGNOS_VITALES.ID_USUARIO_REGISTRO IS 'Clave foránea que referencia al registro correspondiente a: usuario registro.';
+COMMENT ON COLUMN SMY_SIGNOS_VITALES.FECHA IS 'Fecha calendario de la toma biomédica.';
+COMMENT ON COLUMN SMY_SIGNOS_VITALES.HORA IS 'Hora de la medición en formato HH24:MI.';
+COMMENT ON COLUMN SMY_SIGNOS_VITALES.PRESION_SISTOLICA IS 'Presión arterial sistólica en milímetros de mercurio (mmHg).';
+COMMENT ON COLUMN SMY_SIGNOS_VITALES.PRESION_DIASTOLICA IS 'Presión arterial diastólica en milímetros de mercurio (mmHg).';
+COMMENT ON COLUMN SMY_SIGNOS_VITALES.FRECUENCIA_CARDIACA IS 'Frecuencia cardíaca en pulsaciones por minuto (lpm).';
+COMMENT ON COLUMN SMY_SIGNOS_VITALES.SATURACION_OXIGENO IS 'Saturación de oxígeno en sangre periférica en porcentaje (% SpO2).';
+COMMENT ON COLUMN SMY_SIGNOS_VITALES.TEMPERATURA IS 'Temperatura corporal en grados Celsius (°C).';
+COMMENT ON COLUMN SMY_SIGNOS_VITALES.GLUCOMETRIA IS 'Nivel de glucosa capilar en miligramos por decilitro (mg/dL).';
+COMMENT ON COLUMN SMY_SIGNOS_VITALES.PESO_KG IS 'Peso corporal registrado en kilogramos (kg).';
+COMMENT ON COLUMN SMY_SIGNOS_VITALES.OBSERVACIONES IS 'Observaciones clínicas sobre el estado hemodinámico del paciente.';
+COMMENT ON COLUMN SMY_SIGNOS_VITALES.ES_ALERTA_RANGO IS 'Campo de datos para es alerta rango en SMY_SIGNOS_VITALES.';
+COMMENT ON COLUMN SMY_SIGNOS_VITALES.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_SIGNOS_VITALES.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- =============================================================================
 -- SECCIÓN 6: MÓDULO DE FARMACOTERAPIA Y ADMINISTRACIÓN
@@ -1344,6 +1916,27 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_MEDICAMENTOS_PRESCRITOS.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_MEDICAMENTOS_PRESCRITOS
+COMMENT ON TABLE SMY_MEDICAMENTOS_PRESCRITOS IS 'Prescripciones médicas y planes farmacoterapéuticos activos e históricos del residente.';
+COMMENT ON COLUMN SMY_MEDICAMENTOS_PRESCRITOS.ID IS 'Identificador único y clave primaria de la tabla SMY_MEDICAMENTOS_PRESCRITOS.';
+COMMENT ON COLUMN SMY_MEDICAMENTOS_PRESCRITOS.ID_RESIDENTE IS 'Clave foránea hacia SMY_RESIDENTES(ID) paciente de la prescripción.';
+COMMENT ON COLUMN SMY_MEDICAMENTOS_PRESCRITOS.NOMBRE_MEDICAMENTO IS 'Nombre descriptivo único correspondiente a: medicamento.';
+COMMENT ON COLUMN SMY_MEDICAMENTOS_PRESCRITOS.PRINCIPIO_ACTIVO IS 'Campo de datos para principio activo en SMY_MEDICAMENTOS_PRESCRITOS.';
+COMMENT ON COLUMN SMY_MEDICAMENTOS_PRESCRITOS.DOSIS IS 'Cantidad o dosificación indicada por toma (ej. 1 tableta, 5 ml).';
+COMMENT ON COLUMN SMY_MEDICAMENTOS_PRESCRITOS.CANTIDAD IS 'Campo de datos para cantidad en SMY_MEDICAMENTOS_PRESCRITOS.';
+COMMENT ON COLUMN SMY_MEDICAMENTOS_PRESCRITOS.ID_VIA_ADMINISTRACION IS 'Clave foránea hacia SMY_VIAS_ADMINISTRACION(ID).';
+COMMENT ON COLUMN SMY_MEDICAMENTOS_PRESCRITOS.FRECUENCIA_HORAS IS 'Intervalo de administración en horas (ej. cada 8 horas = 8).';
+COMMENT ON COLUMN SMY_MEDICAMENTOS_PRESCRITOS.HORARIOS_FIJOS IS 'Campo de datos para horarios fijos en SMY_MEDICAMENTOS_PRESCRITOS.';
+COMMENT ON COLUMN SMY_MEDICAMENTOS_PRESCRITOS.INDICACIONES IS 'Instrucciones de administración (ej. con alimentos, en ayunas).';
+COMMENT ON COLUMN SMY_MEDICAMENTOS_PRESCRITOS.REQUIERE_FOTO_COMP IS 'Campo de datos para requiere foto comp en SMY_MEDICAMENTOS_PRESCRITOS.';
+COMMENT ON COLUMN SMY_MEDICAMENTOS_PRESCRITOS.FECHA_INICIO IS 'Fecha de inicio formal del tratamiento farmacológico.';
+COMMENT ON COLUMN SMY_MEDICAMENTOS_PRESCRITOS.FECHA_FIN IS 'Fecha de finalización prevista del tratamiento farmacológico.';
+COMMENT ON COLUMN SMY_MEDICAMENTOS_PRESCRITOS.STOCK_ACTUAL IS 'Campo de datos para stock actual en SMY_MEDICAMENTOS_PRESCRITOS.';
+COMMENT ON COLUMN SMY_MEDICAMENTOS_PRESCRITOS.STOCK_MINIMO IS 'Campo de datos para stock minimo en SMY_MEDICAMENTOS_PRESCRITOS.';
+COMMENT ON COLUMN SMY_MEDICAMENTOS_PRESCRITOS.ID_ESTADO_MEDICAMENTO IS 'Clave foránea hacia SMY_ESTADOS_MEDICAMENTOS(ID).';
+COMMENT ON COLUMN SMY_MEDICAMENTOS_PRESCRITOS.PRESCRITO_POR IS 'Campo de datos para prescrito por en SMY_MEDICAMENTOS_PRESCRITOS.';
+COMMENT ON COLUMN SMY_MEDICAMENTOS_PRESCRITOS.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_MEDICAMENTOS_PRESCRITOS.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- Tabla: SMY_REGISTROS_ADMIN_MED
 CREATE TABLE SMY_REGISTROS_ADMIN_MED (
@@ -1374,6 +1967,22 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_REGISTROS_ADMIN_MED.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_REGISTROS_ADMIN_MED
+COMMENT ON TABLE SMY_REGISTROS_ADMIN_MED IS 'Kardex digital de administración efectiva de dosis y registro de novedades de suministro.';
+COMMENT ON COLUMN SMY_REGISTROS_ADMIN_MED.ID IS 'Identificador único y clave primaria de la tabla SMY_REGISTROS_ADMIN_MED.';
+COMMENT ON COLUMN SMY_REGISTROS_ADMIN_MED.ID_MEDICAMENTO_PRESCRITO IS 'Clave foránea hacia SMY_MEDICAMENTOS_PRESCRITOS(ID).';
+COMMENT ON COLUMN SMY_REGISTROS_ADMIN_MED.ID_RESIDENTE IS 'Clave foránea hacia SMY_RESIDENTES(ID) que recibe la dosis.';
+COMMENT ON COLUMN SMY_REGISTROS_ADMIN_MED.FECHA_PROGRAMADA IS 'Fecha prevista en el kardex para la toma del fármaco.';
+COMMENT ON COLUMN SMY_REGISTROS_ADMIN_MED.HORA_PROGRAMADA IS 'Hora prevista en el kardex para la toma (HH24:MI).';
+COMMENT ON COLUMN SMY_REGISTROS_ADMIN_MED.FECHA_ADMINISTRADA IS 'Fecha correspondiente al campo fecha_administrada del registro.';
+COMMENT ON COLUMN SMY_REGISTROS_ADMIN_MED.HORA_ADMINISTRADA IS 'Campo de datos para hora administrada en SMY_REGISTROS_ADMIN_MED.';
+COMMENT ON COLUMN SMY_REGISTROS_ADMIN_MED.ID_USUARIO_ADMINISTRO IS 'Clave foránea que referencia al registro correspondiente a: usuario administro.';
+COMMENT ON COLUMN SMY_REGISTROS_ADMIN_MED.ID_ESTADO_ADMIN_MED IS 'Clave foránea hacia SMY_ESTADOS_ADMIN_MED(ID) (Administrado, Rechazado, etc.).';
+COMMENT ON COLUMN SMY_REGISTROS_ADMIN_MED.MOTIVO_RECHAZO_OMIS IS 'Campo de datos para motivo rechazo omis en SMY_REGISTROS_ADMIN_MED.';
+COMMENT ON COLUMN SMY_REGISTROS_ADMIN_MED.FOTO_EVIDENCIA_URL IS 'Campo de datos para foto evidencia url en SMY_REGISTROS_ADMIN_MED.';
+COMMENT ON COLUMN SMY_REGISTROS_ADMIN_MED.NOTAS IS 'Campo de datos para notas en SMY_REGISTROS_ADMIN_MED.';
+COMMENT ON COLUMN SMY_REGISTROS_ADMIN_MED.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_REGISTROS_ADMIN_MED.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- =============================================================================
 -- SECCIÓN 7: MÓDULO DE NUTRICIÓN, PLANES ALIMENTICIOS Y CONSUMO
@@ -1403,6 +2012,17 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_PLANES_NUTRICIONALES.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_PLANES_NUTRICIONALES
+COMMENT ON TABLE SMY_PLANES_NUTRICIONALES IS 'Prescripción nutricional individualizada con requerimientos calóricos, texturas y restricciones.';
+COMMENT ON COLUMN SMY_PLANES_NUTRICIONALES.ID IS 'Identificador único y clave primaria de la tabla SMY_PLANES_NUTRICIONALES.';
+COMMENT ON COLUMN SMY_PLANES_NUTRICIONALES.ID_RESIDENTE IS 'Clave foránea hacia SMY_RESIDENTES(ID) titular del plan nutricional.';
+COMMENT ON COLUMN SMY_PLANES_NUTRICIONALES.ID_TIPO_DIETA IS 'Clave foránea hacia SMY_TIPOS_DIETAS(ID) prescrita.';
+COMMENT ON COLUMN SMY_PLANES_NUTRICIONALES.ID_CONSISTENCIA_DIETA IS 'Clave foránea hacia SMY_CONSISTENCIAS_DIETA(ID) requerida.';
+COMMENT ON COLUMN SMY_PLANES_NUTRICIONALES.RESTRICCIONES IS 'Alimentos alérgenos, contraindicados o no permitidos.';
+COMMENT ON COLUMN SMY_PLANES_NUTRICIONALES.ALERGIAS_ALIMENTOS IS 'Campo de datos para alergias alimentos en SMY_PLANES_NUTRICIONALES.';
+COMMENT ON COLUMN SMY_PLANES_NUTRICIONALES.RECOMENDACIONES IS 'Campo de datos para recomendaciones en SMY_PLANES_NUTRICIONALES.';
+COMMENT ON COLUMN SMY_PLANES_NUTRICIONALES.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_PLANES_NUTRICIONALES.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- Tabla: SMY_REGISTROS_ALIM_SESION (Control Grupal)
 CREATE TABLE SMY_REGISTROS_ALIM_SESION (
@@ -1427,6 +2047,18 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_REG_ALIM_SESION.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_REGISTROS_ALIM_SESION
+COMMENT ON TABLE SMY_REGISTROS_ALIM_SESION IS 'Control de sesión o momento de alimentación comunitaria o individual en el comedor o habitación.';
+COMMENT ON COLUMN SMY_REGISTROS_ALIM_SESION.ID IS 'Identificador único y clave primaria de la tabla SMY_REGISTROS_ALIM_SESION.';
+COMMENT ON COLUMN SMY_REGISTROS_ALIM_SESION.FECHA IS 'Fecha calendario correspondiente al servicio de alimentación.';
+COMMENT ON COLUMN SMY_REGISTROS_ALIM_SESION.ID_TIPO_COMIDA IS 'Clave foránea hacia SMY_TIPOS_COMIDAS(ID) (Desayuno, Almuerzo, Cena, etc.).';
+COMMENT ON COLUMN SMY_REGISTROS_ALIM_SESION.TOTAL_ESPERADOS IS 'Campo de datos para total esperados en SMY_REGISTROS_ALIM_SESION.';
+COMMENT ON COLUMN SMY_REGISTROS_ALIM_SESION.TOTAL_NORMALES IS 'Campo de datos para total normales en SMY_REGISTROS_ALIM_SESION.';
+COMMENT ON COLUMN SMY_REGISTROS_ALIM_SESION.TOTAL_EXCEPCIONES IS 'Campo de datos para total excepciones en SMY_REGISTROS_ALIM_SESION.';
+COMMENT ON COLUMN SMY_REGISTROS_ALIM_SESION.ID_USUARIO_REGISTRO IS 'Clave foránea que referencia al registro correspondiente a: usuario registro.';
+COMMENT ON COLUMN SMY_REGISTROS_ALIM_SESION.OBSERVACIONES IS 'Campo de datos para observaciones en SMY_REGISTROS_ALIM_SESION.';
+COMMENT ON COLUMN SMY_REGISTROS_ALIM_SESION.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_REGISTROS_ALIM_SESION.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- Tabla: SMY_REGISTROS_ALIM_DETALLE (Consumo Individual)
 CREATE TABLE SMY_REGISTROS_ALIM_DETALLE (
@@ -1456,6 +2088,20 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_REG_ALIM_DETALLE.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_REGISTROS_ALIM_DETALLE
+COMMENT ON TABLE SMY_REGISTROS_ALIM_DETALLE IS 'Registro individual de consumo, porcentaje de ingesta y tolerancia alimentaria del residente.';
+COMMENT ON COLUMN SMY_REGISTROS_ALIM_DETALLE.ID IS 'Identificador único y clave primaria de la tabla SMY_REGISTROS_ALIM_DETALLE.';
+COMMENT ON COLUMN SMY_REGISTROS_ALIM_DETALLE.ID_SESION_ALIMENTACION IS 'Clave foránea hacia SMY_REGISTROS_ALIM_SESION(ID).';
+COMMENT ON COLUMN SMY_REGISTROS_ALIM_DETALLE.ID_RESIDENTE IS 'Clave foránea hacia SMY_RESIDENTES(ID) comensal.';
+COMMENT ON COLUMN SMY_REGISTROS_ALIM_DETALLE.FECHA IS 'Fecha calendario del consumo.';
+COMMENT ON COLUMN SMY_REGISTROS_ALIM_DETALLE.ID_TIPO_COMIDA IS 'Clave foránea hacia SMY_TIPOS_COMIDAS(ID).';
+COMMENT ON COLUMN SMY_REGISTROS_ALIM_DETALLE.PORCENTAJE_CONSUMO IS 'Campo de datos para porcentaje consumo en SMY_REGISTROS_ALIM_DETALLE.';
+COMMENT ON COLUMN SMY_REGISTROS_ALIM_DETALLE.CONSUMO_LIQUIDOS_ML IS 'Campo de datos para consumo liquidos ml en SMY_REGISTROS_ALIM_DETALLE.';
+COMMENT ON COLUMN SMY_REGISTROS_ALIM_DETALLE.ES_EXCEPCION IS 'Campo de datos para es excepcion en SMY_REGISTROS_ALIM_DETALLE.';
+COMMENT ON COLUMN SMY_REGISTROS_ALIM_DETALLE.MOTIVO_EXCEPCION IS 'Campo de datos para motivo excepcion en SMY_REGISTROS_ALIM_DETALLE.';
+COMMENT ON COLUMN SMY_REGISTROS_ALIM_DETALLE.ID_USUARIO_REGISTRO IS 'Clave foránea que referencia al registro correspondiente a: usuario registro.';
+COMMENT ON COLUMN SMY_REGISTROS_ALIM_DETALLE.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_REGISTROS_ALIM_DETALLE.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- =============================================================================
 -- SECCIÓN 8: MÓDULO DE TAREAS, ACTIVIDADES Y REGISTRO MASIVO
@@ -1493,6 +2139,23 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_TAREAS_OPERATIVAS.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_TAREAS_OPERATIVAS
+COMMENT ON TABLE SMY_TAREAS_OPERATIVAS IS 'Planificación, asignación y seguimiento de tareas asistenciales, operativas y de mantenimiento.';
+COMMENT ON COLUMN SMY_TAREAS_OPERATIVAS.ID IS 'Identificador único y clave primaria de la tabla SMY_TAREAS_OPERATIVAS.';
+COMMENT ON COLUMN SMY_TAREAS_OPERATIVAS.FECHA_PROGRAMADA IS 'Fecha prevista para la realización de la tarea.';
+COMMENT ON COLUMN SMY_TAREAS_OPERATIVAS.HORA_PROGRAMADA IS 'Hora programada para inicio de la actividad (HH24:MI).';
+COMMENT ON COLUMN SMY_TAREAS_OPERATIVAS.TITULO IS 'Título o denominación breve de la tarea programada.';
+COMMENT ON COLUMN SMY_TAREAS_OPERATIVAS.ID_TIPO_TAREA IS 'Clave foránea hacia SMY_TIPOS_TAREAS(ID).';
+COMMENT ON COLUMN SMY_TAREAS_OPERATIVAS.ID_ALCANCE_TAREA IS 'Clave foránea hacia SMY_ALCANCES_TAREAS(ID).';
+COMMENT ON COLUMN SMY_TAREAS_OPERATIVAS.ID_RESIDENTE IS 'Clave foránea opcional hacia SMY_RESIDENTES(ID) si es de alcance individual.';
+COMMENT ON COLUMN SMY_TAREAS_OPERATIVAS.CANTIDAD_RESIDENTES IS 'Campo de datos para cantidad residentes en SMY_TAREAS_OPERATIVAS.';
+COMMENT ON COLUMN SMY_TAREAS_OPERATIVAS.DESCRIPCION IS 'Instrucciones detalladas y pasos para la ejecución de la tarea.';
+COMMENT ON COLUMN SMY_TAREAS_OPERATIVAS.ID_ESTADO_TAREA IS 'Clave foránea hacia SMY_ESTADOS_TAREAS(ID).';
+COMMENT ON COLUMN SMY_TAREAS_OPERATIVAS.ID_USUARIO_ASIGNADO IS 'Clave foránea que referencia al registro correspondiente a: usuario asignado.';
+COMMENT ON COLUMN SMY_TAREAS_OPERATIVAS.ID_USUARIO_COMPLETO IS 'Clave foránea que referencia al registro correspondiente a: usuario completo.';
+COMMENT ON COLUMN SMY_TAREAS_OPERATIVAS.COMPLETADO_EL IS 'Campo de datos para completado el en SMY_TAREAS_OPERATIVAS.';
+COMMENT ON COLUMN SMY_TAREAS_OPERATIVAS.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_TAREAS_OPERATIVAS.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- Tabla: SMY_EVENTOS_CALENDARIO
 CREATE TABLE SMY_EVENTOS_CALENDARIO (
@@ -1523,6 +2186,22 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_EVENTOS_CALENDARIO.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_EVENTOS_CALENDARIO
+COMMENT ON TABLE SMY_EVENTOS_CALENDARIO IS 'Agenda central de eventos, terapias grupales, actividades culturales y visitas médicas.';
+COMMENT ON COLUMN SMY_EVENTOS_CALENDARIO.ID IS 'Identificador único y clave primaria de la tabla SMY_EVENTOS_CALENDARIO.';
+COMMENT ON COLUMN SMY_EVENTOS_CALENDARIO.TITULO IS 'Título de la actividad, terapia, evento social o cita médica.';
+COMMENT ON COLUMN SMY_EVENTOS_CALENDARIO.DESCRIPCION IS 'Objetivo, agenda y detalles de la actividad programada.';
+COMMENT ON COLUMN SMY_EVENTOS_CALENDARIO.ID_TIPO_EVENTO IS 'Clave foránea hacia SMY_TIPOS_EVENTOS(ID).';
+COMMENT ON COLUMN SMY_EVENTOS_CALENDARIO.FECHA_INICIO IS 'Fecha y hora de inicio de la actividad.';
+COMMENT ON COLUMN SMY_EVENTOS_CALENDARIO.HORA_INICIO IS 'Campo de datos para hora inicio en SMY_EVENTOS_CALENDARIO.';
+COMMENT ON COLUMN SMY_EVENTOS_CALENDARIO.FECHA_FIN IS 'Fecha y hora de culminación prevista.';
+COMMENT ON COLUMN SMY_EVENTOS_CALENDARIO.HORA_FIN IS 'Campo de datos para hora fin en SMY_EVENTOS_CALENDARIO.';
+COMMENT ON COLUMN SMY_EVENTOS_CALENDARIO.LUGAR IS 'Espacio físico, salón, jardín o sede externa del evento.';
+COMMENT ON COLUMN SMY_EVENTOS_CALENDARIO.ID_RESIDENTE IS 'Clave foránea que referencia al registro correspondiente a: residente.';
+COMMENT ON COLUMN SMY_EVENTOS_CALENDARIO.VISIBLE_ACUDIENTES IS 'Campo de datos para visible acudientes en SMY_EVENTOS_CALENDARIO.';
+COMMENT ON COLUMN SMY_EVENTOS_CALENDARIO.ID_ORGANIZADOR IS 'Clave foránea que referencia al registro correspondiente a: organizador.';
+COMMENT ON COLUMN SMY_EVENTOS_CALENDARIO.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_EVENTOS_CALENDARIO.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- =============================================================================
 -- SECCIÓN 9: MÓDULO DE SUMINISTROS, ENTREGAS Y GASTOS ADICIONALES
@@ -1563,6 +2242,27 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_SUMINISTROS_REGISTRO.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_SUMINISTROS_REGISTRO
+COMMENT ON TABLE SMY_SUMINISTROS_REGISTRO IS 'Registro de entrega de insumos, materiales médicos y servicios adicionales facturables.';
+COMMENT ON COLUMN SMY_SUMINISTROS_REGISTRO.ID IS 'Identificador único y clave primaria de la tabla SMY_SUMINISTROS_REGISTRO.';
+COMMENT ON COLUMN SMY_SUMINISTROS_REGISTRO.ID_RESIDENTE IS 'Clave foránea hacia SMY_RESIDENTES(ID) receptor de los insumos.';
+COMMENT ON COLUMN SMY_SUMINISTROS_REGISTRO.ID_TIPO_SUMINISTRO IS 'Clave foránea hacia SMY_TIPOS_SUMINISTROS(ID).';
+COMMENT ON COLUMN SMY_SUMINISTROS_REGISTRO.DESCRIPCION IS 'Descripción detallada de descripcion.';
+COMMENT ON COLUMN SMY_SUMINISTROS_REGISTRO.CANTIDAD IS 'Número de unidades entregadas o aplicadas.';
+COMMENT ON COLUMN SMY_SUMINISTROS_REGISTRO.FECHA IS 'Fecha en que se entregó o consumió el material.';
+COMMENT ON COLUMN SMY_SUMINISTROS_REGISTRO.HORA IS 'Campo de datos para hora en SMY_SUMINISTROS_REGISTRO.';
+COMMENT ON COLUMN SMY_SUMINISTROS_REGISTRO.COSTO IS 'Campo de datos para costo en SMY_SUMINISTROS_REGISTRO.';
+COMMENT ON COLUMN SMY_SUMINISTROS_REGISTRO.ID_ESTADO_PAGO IS 'Clave foránea hacia SMY_ESTADOS_PAGOS(ID).';
+COMMENT ON COLUMN SMY_SUMINISTROS_REGISTRO.PAGADO_POR IS 'Campo de datos para pagado por en SMY_SUMINISTROS_REGISTRO.';
+COMMENT ON COLUMN SMY_SUMINISTROS_REGISTRO.FECHA_PAGO IS 'Fecha correspondiente al campo fecha_pago del registro.';
+COMMENT ON COLUMN SMY_SUMINISTROS_REGISTRO.ID_TRABAJADOR_RECIBE IS 'Clave foránea que referencia al registro correspondiente a: trabajador recibe.';
+COMMENT ON COLUMN SMY_SUMINISTROS_REGISTRO.ENTREGADO_POR IS 'Campo de datos para entregado por en SMY_SUMINISTROS_REGISTRO.';
+COMMENT ON COLUMN SMY_SUMINISTROS_REGISTRO.ID_USUARIO_REGISTRA IS 'Clave foránea que referencia al registro correspondiente a: usuario registra.';
+COMMENT ON COLUMN SMY_SUMINISTROS_REGISTRO.REGISTRADO_POR_NOM IS 'Campo de datos para registrado por nom en SMY_SUMINISTROS_REGISTRO.';
+COMMENT ON COLUMN SMY_SUMINISTROS_REGISTRO.REGISTRADO_POR_ROL IS 'Campo de datos para registrado por rol en SMY_SUMINISTROS_REGISTRO.';
+COMMENT ON COLUMN SMY_SUMINISTROS_REGISTRO.NOTAS IS 'Campo de datos para notas en SMY_SUMINISTROS_REGISTRO.';
+COMMENT ON COLUMN SMY_SUMINISTROS_REGISTRO.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_SUMINISTROS_REGISTRO.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- =============================================================================
 -- SECCIÓN 10: MÓDULO DE CONSENTIMIENTOS INFORMADOS Y FIRMAS
@@ -1596,6 +2296,21 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_CONSENTIMIENTOS.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_CONSENTIMIENTOS
+COMMENT ON TABLE SMY_CONSENTIMIENTOS IS 'Custodia y gestión digital de consentimientos informados para salidas y procedimientos.';
+COMMENT ON COLUMN SMY_CONSENTIMIENTOS.ID IS 'Identificador único y clave primaria de la tabla SMY_CONSENTIMIENTOS.';
+COMMENT ON COLUMN SMY_CONSENTIMIENTOS.ID_RESIDENTE IS 'Clave foránea hacia SMY_RESIDENTES(ID) sobre el que versa la autorización.';
+COMMENT ON COLUMN SMY_CONSENTIMIENTOS.ID_TIPO_CONSENTIMIENTO IS 'Clave foránea hacia SMY_TIPOS_CONSENTIMIENTOS(ID).';
+COMMENT ON COLUMN SMY_CONSENTIMIENTOS.DESCRIPCION IS 'Explicación clara de los alcances, beneficios y eventuales riesgos asumidos.';
+COMMENT ON COLUMN SMY_CONSENTIMIENTOS.NOMBRE_DOCUMENTO IS 'Nombre descriptivo único correspondiente a: documento.';
+COMMENT ON COLUMN SMY_CONSENTIMIENTOS.TAMANO_DOCUMENTO IS 'Campo de datos para tamano documento en SMY_CONSENTIMIENTOS.';
+COMMENT ON COLUMN SMY_CONSENTIMIENTOS.URL_DOCUMENTO IS 'Campo de datos para url documento en SMY_CONSENTIMIENTOS.';
+COMMENT ON COLUMN SMY_CONSENTIMIENTOS.ID_ESTADO_CONSENTIMIENTO IS 'Clave foránea hacia SMY_ESTADOS_CONSENTIMIENTOS(ID).';
+COMMENT ON COLUMN SMY_CONSENTIMIENTOS.FECHA_ENVIO IS 'Fecha correspondiente al campo fecha_envio del registro.';
+COMMENT ON COLUMN SMY_CONSENTIMIENTOS.FECHA_RESPUESTA IS 'Fecha correspondiente al campo fecha_respuesta del registro.';
+COMMENT ON COLUMN SMY_CONSENTIMIENTOS.ID_USUARIO_CREADOR IS 'Clave foránea que referencia al registro correspondiente a: usuario creador.';
+COMMENT ON COLUMN SMY_CONSENTIMIENTOS.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_CONSENTIMIENTOS.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- Tabla: SMY_CONSENTIMIENTO_DESTINATARIOS
 CREATE TABLE SMY_CONSENTIMIENTO_DESTINATARIOS (
@@ -1625,6 +2340,21 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_CONSENTIMIENTO_DESTINATARIOS.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_CONSENTIMIENTO_DESTINATARIOS
+COMMENT ON TABLE SMY_CONSENTIMIENTO_DESTINATARIOS IS 'Control de firmas digitales y trazabilidad por cada acudiente o tutor convocado a firmar.';
+COMMENT ON COLUMN SMY_CONSENTIMIENTO_DESTINATARIOS.ID IS 'Identificador único y clave primaria de la tabla SMY_CONSENTIMIENTO_DESTINATARIOS.';
+COMMENT ON COLUMN SMY_CONSENTIMIENTO_DESTINATARIOS.ID_CONSENTIMIENTO IS 'Clave foránea hacia SMY_CONSENTIMIENTOS(ID).';
+COMMENT ON COLUMN SMY_CONSENTIMIENTO_DESTINATARIOS.ID_ACUDIENTE IS 'Clave foránea hacia SMY_ACUDIENTES(ID) convocado a firmar.';
+COMMENT ON COLUMN SMY_CONSENTIMIENTO_DESTINATARIOS.NOMBRE_DESTINATARIO IS 'Nombre descriptivo único correspondiente a: destinatario.';
+COMMENT ON COLUMN SMY_CONSENTIMIENTO_DESTINATARIOS.ID_PARENTESCO IS 'Clave foránea que referencia al registro correspondiente a: parentesco.';
+COMMENT ON COLUMN SMY_CONSENTIMIENTO_DESTINATARIOS.EMAIL IS 'Campo de datos para email en SMY_CONSENTIMIENTO_DESTINATARIOS.';
+COMMENT ON COLUMN SMY_CONSENTIMIENTO_DESTINATARIOS.ID_ESTADO_FIRMA_CONS IS 'Clave foránea hacia SMY_ESTADOS_FIRMAS_CONS(ID).';
+COMMENT ON COLUMN SMY_CONSENTIMIENTO_DESTINATARIOS.FECHA_ACCION IS 'Fecha correspondiente al campo fecha_accion del registro.';
+COMMENT ON COLUMN SMY_CONSENTIMIENTO_DESTINATARIOS.IP_FIRMA IS 'Campo de datos para ip firma en SMY_CONSENTIMIENTO_DESTINATARIOS.';
+COMMENT ON COLUMN SMY_CONSENTIMIENTO_DESTINATARIOS.FIRMA_DIGITAL_HASH IS 'Huella criptográfica (hash SHA-256) del acta firmada.';
+COMMENT ON COLUMN SMY_CONSENTIMIENTO_DESTINATARIOS.MOTIVO_RECHAZO IS 'Motivo o reparo legal expuesto en caso de negar la firma.';
+COMMENT ON COLUMN SMY_CONSENTIMIENTO_DESTINATARIOS.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_CONSENTIMIENTO_DESTINATARIOS.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- =============================================================================
 -- SECCIÓN 11: MÓDULO DE INCIDENTES, EVENTOS ADVERSOS Y SEGUIMIENTO
@@ -1662,6 +2392,23 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_INCIDENTES.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_INCIDENTES
+COMMENT ON TABLE SMY_INCIDENTES IS 'Registro institucional de eventos adversos, caídas e incidentes para gestión de calidad.';
+COMMENT ON COLUMN SMY_INCIDENTES.ID IS 'Identificador único y clave primaria de la tabla SMY_INCIDENTES.';
+COMMENT ON COLUMN SMY_INCIDENTES.ID_TIPO_INCIDENTE IS 'Clave foránea hacia SMY_TIPOS_INCIDENTES(ID).';
+COMMENT ON COLUMN SMY_INCIDENTES.ID_SEVERIDAD_INCIDENTE IS 'Clave foránea hacia SMY_SEVERIDADES_INCIDENTES(ID).';
+COMMENT ON COLUMN SMY_INCIDENTES.FECHA_HORA_EVENTO IS 'Fecha y hora exacta en que aconteció el evento adverso o accidente.';
+COMMENT ON COLUMN SMY_INCIDENTES.DESCRIPCION IS 'Descripción detallada de descripcion.';
+COMMENT ON COLUMN SMY_INCIDENTES.ACCIONES_TOMADAS IS 'Campo de datos para acciones tomadas en SMY_INCIDENTES.';
+COMMENT ON COLUMN SMY_INCIDENTES.FOTO_EVIDENCIA_URL IS 'Campo de datos para foto evidencia url en SMY_INCIDENTES.';
+COMMENT ON COLUMN SMY_INCIDENTES.ID_USUARIO_REPORTO IS 'Clave foránea que referencia al registro correspondiente a: usuario reporto.';
+COMMENT ON COLUMN SMY_INCIDENTES.ID_ESTADO_INCIDENTE IS 'Clave foránea hacia SMY_ESTADOS_INCIDENTES(ID).';
+COMMENT ON COLUMN SMY_INCIDENTES.NOTIFICADO_ACUDIENTE IS 'Campo de datos para notificado acudiente en SMY_INCIDENTES.';
+COMMENT ON COLUMN SMY_INCIDENTES.FECHA_CIERRE IS 'Fecha correspondiente al campo fecha_cierre del registro.';
+COMMENT ON COLUMN SMY_INCIDENTES.ID_USUARIO_CERRO IS 'Clave foránea que referencia al registro correspondiente a: usuario cerro.';
+COMMENT ON COLUMN SMY_INCIDENTES.CONCLUSIONES_CIERRE IS 'Campo de datos para conclusiones cierre en SMY_INCIDENTES.';
+COMMENT ON COLUMN SMY_INCIDENTES.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_INCIDENTES.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- Tabla Intermedia: SMY_INCIDENTE_RESIDENTES
 CREATE TABLE SMY_INCIDENTE_RESIDENTES (
@@ -1684,6 +2431,14 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_INCIDENTE_RESIDENTES.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_INCIDENTE_RESIDENTES
+COMMENT ON TABLE SMY_INCIDENTE_RESIDENTES IS 'Detalle de residentes implicados y rol de participación en un evento adverso.';
+COMMENT ON COLUMN SMY_INCIDENTE_RESIDENTES.ID IS 'Identificador único y clave primaria de la tabla SMY_INCIDENTE_RESIDENTES.';
+COMMENT ON COLUMN SMY_INCIDENTE_RESIDENTES.ID_INCIDENTE IS 'Clave foránea hacia SMY_INCIDENTES(ID).';
+COMMENT ON COLUMN SMY_INCIDENTE_RESIDENTES.ID_RESIDENTE IS 'Clave foránea hacia SMY_RESIDENTES(ID) involucrado.';
+COMMENT ON COLUMN SMY_INCIDENTE_RESIDENTES.ID_ROL_INCIDENTE IS 'Clave foránea hacia SMY_ROLES_EN_INCIDENTE(ID) (Afectado, Testigo, etc.).';
+COMMENT ON COLUMN SMY_INCIDENTE_RESIDENTES.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_INCIDENTE_RESIDENTES.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- =============================================================================
 -- SECCIÓN 12: MÓDULO DE COMUNICACIONES, MENSAJERÍA Y NOTIFICACIONES
@@ -1709,6 +2464,15 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_CONVERSACIONES_CHAT.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_CONVERSACIONES_CHAT
+COMMENT ON TABLE SMY_CONVERSACIONES_CHAT IS 'Salas y canales de mensajería instantánea interna y comunicación con familias.';
+COMMENT ON COLUMN SMY_CONVERSACIONES_CHAT.ID IS 'Identificador único y clave primaria de la tabla SMY_CONVERSACIONES_CHAT.';
+COMMENT ON COLUMN SMY_CONVERSACIONES_CHAT.TITULO IS 'Título o etiqueta asignada al hilo o grupo de mensajería.';
+COMMENT ON COLUMN SMY_CONVERSACIONES_CHAT.ID_TIPO_CANAL_CHAT IS 'Clave foránea hacia SMY_TIPOS_CANALES_CHAT(ID).';
+COMMENT ON COLUMN SMY_CONVERSACIONES_CHAT.ID_RESIDENTE IS 'Clave foránea que referencia al registro correspondiente a: residente.';
+COMMENT ON COLUMN SMY_CONVERSACIONES_CHAT.ULTIMO_MENSAJE_EL IS 'Campo de datos para ultimo mensaje el en SMY_CONVERSACIONES_CHAT.';
+COMMENT ON COLUMN SMY_CONVERSACIONES_CHAT.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_CONVERSACIONES_CHAT.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- Tabla Intermedia: SMY_CHAT_PARTICIPANTES
 CREATE TABLE SMY_CHAT_PARTICIPANTES (
@@ -1732,6 +2496,16 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_CHAT_PARTICIPANTES.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_CHAT_PARTICIPANTES
+COMMENT ON TABLE SMY_CHAT_PARTICIPANTES IS 'Usuarios asociados como miembros activos de cada conversación de mensajería.';
+COMMENT ON COLUMN SMY_CHAT_PARTICIPANTES.ID IS 'Identificador único y clave primaria de la tabla SMY_CHAT_PARTICIPANTES.';
+COMMENT ON COLUMN SMY_CHAT_PARTICIPANTES.ID_CONVERSACION_CHAT IS 'Clave foránea hacia SMY_CONVERSACIONES_CHAT(ID).';
+COMMENT ON COLUMN SMY_CHAT_PARTICIPANTES.ID_USUARIO IS 'Clave foránea hacia SMY_USUARIOS(ID) integrante del canal.';
+COMMENT ON COLUMN SMY_CHAT_PARTICIPANTES.FECHA_UNION IS 'Fecha correspondiente al campo fecha_union del registro.';
+COMMENT ON COLUMN SMY_CHAT_PARTICIPANTES.ULTIMA_LECTURA IS 'Campo de datos para ultima lectura en SMY_CHAT_PARTICIPANTES.';
+COMMENT ON COLUMN SMY_CHAT_PARTICIPANTES.MENSAJES_NO_LEIDOS IS 'Campo de datos para mensajes no leidos en SMY_CHAT_PARTICIPANTES.';
+COMMENT ON COLUMN SMY_CHAT_PARTICIPANTES.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_CHAT_PARTICIPANTES.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- Tabla: SMY_MENSAJES_CHAT
 CREATE TABLE SMY_MENSAJES_CHAT (
@@ -1756,6 +2530,17 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_MENSAJES_CHAT.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_MENSAJES_CHAT
+COMMENT ON TABLE SMY_MENSAJES_CHAT IS 'Mensajes de texto, contenidos y anexos multimedia intercambiados en las conversaciones.';
+COMMENT ON COLUMN SMY_MENSAJES_CHAT.ID IS 'Identificador único y clave primaria de la tabla SMY_MENSAJES_CHAT.';
+COMMENT ON COLUMN SMY_MENSAJES_CHAT.ID_CONVERSACION_CHAT IS 'Clave foránea hacia SMY_CONVERSACIONES_CHAT(ID) contenedora del mensaje.';
+COMMENT ON COLUMN SMY_MENSAJES_CHAT.ID_REMITENTE IS 'Clave foránea que referencia al registro correspondiente a: remitente.';
+COMMENT ON COLUMN SMY_MENSAJES_CHAT.TEXTO IS 'Campo de datos para texto en SMY_MENSAJES_CHAT.';
+COMMENT ON COLUMN SMY_MENSAJES_CHAT.ADJUNTO_URL IS 'Campo de datos para adjunto url en SMY_MENSAJES_CHAT.';
+COMMENT ON COLUMN SMY_MENSAJES_CHAT.ID_TIPO_ADJUNTO_CHAT IS 'Clave foránea hacia SMY_TIPOS_ADJUNTOS_CHAT(ID).';
+COMMENT ON COLUMN SMY_MENSAJES_CHAT.ENVIADO_EL IS 'Fecha y hora de emisión del mensaje en zona horaria Bogotá.';
+COMMENT ON COLUMN SMY_MENSAJES_CHAT.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_MENSAJES_CHAT.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- Tabla: SMY_NOTIFICACIONES_SISTEMA
 CREATE TABLE SMY_NOTIFICACIONES_SISTEMA (
@@ -1782,6 +2567,19 @@ BEGIN
     IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_NOTIFICACIONES_SISTEMA.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
 END;
 /
+-- Comentarios del Diccionario de Datos: SMY_NOTIFICACIONES_SISTEMA
+COMMENT ON TABLE SMY_NOTIFICACIONES_SISTEMA IS 'Bandeja de notificaciones y alertas transaccionales dirigidas a los usuarios.';
+COMMENT ON COLUMN SMY_NOTIFICACIONES_SISTEMA.ID IS 'Identificador único y clave primaria de la tabla SMY_NOTIFICACIONES_SISTEMA.';
+COMMENT ON COLUMN SMY_NOTIFICACIONES_SISTEMA.ID_USUARIO_DESTINO IS 'Clave foránea hacia SMY_USUARIOS(ID) receptor de la notificación.';
+COMMENT ON COLUMN SMY_NOTIFICACIONES_SISTEMA.TITULO IS 'Asunto o título sintetizado de la alerta.';
+COMMENT ON COLUMN SMY_NOTIFICACIONES_SISTEMA.MENSAJE IS 'Texto detallado con el contenido y contexto de la novedad.';
+COMMENT ON COLUMN SMY_NOTIFICACIONES_SISTEMA.ID_TIPO_NOTIFICACION IS 'Clave foránea hacia SMY_TIPOS_NOTIFICACIONES(ID).';
+COMMENT ON COLUMN SMY_NOTIFICACIONES_SISTEMA.PANTALLA_DESTINO IS 'Campo de datos para pantalla destino en SMY_NOTIFICACIONES_SISTEMA.';
+COMMENT ON COLUMN SMY_NOTIFICACIONES_SISTEMA.ID_OBJETO_DESTINO IS 'Clave foránea que referencia al registro correspondiente a: objeto destino.';
+COMMENT ON COLUMN SMY_NOTIFICACIONES_SISTEMA.LEIDO IS 'Indicador de lectura o apertura de la notificación (''S''/''N'').';
+COMMENT ON COLUMN SMY_NOTIFICACIONES_SISTEMA.FECHA_LEIDO IS 'Fecha y hora en que el usuario marcó o abrió la notificación.';
+COMMENT ON COLUMN SMY_NOTIFICACIONES_SISTEMA.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_NOTIFICACIONES_SISTEMA.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
 -- =============================================================================
 -- SECCIÓN 13: ÍNDICES DE RENDIMIENTO (OPTIMIZACIÓN PARA CONSULTAS FRECUENTES)
@@ -1808,6 +2606,8 @@ CREATE INDEX IDX_SMY_IR_INC ON SMY_INCIDENTE_RESIDENTES(ID_INCIDENTE);
 CREATE INDEX IDX_SMY_IR_RES ON SMY_INCIDENTE_RESIDENTES(ID_RESIDENTE);
 CREATE INDEX IDX_SMY_MC_CONV ON SMY_MENSAJES_CHAT(ID_CONVERSACION_CHAT, ENVIADO_EL);
 CREATE INDEX IDX_SMY_NOTIF_USER_LEI ON SMY_NOTIFICACIONES_SISTEMA(ID_USUARIO_DESTINO, LEIDO);
+CREATE INDEX IDX_SMY_ERR_FECHA ON SMY_ERRORES(FECHA_CREACION);
+CREATE INDEX IDX_SMY_ERR_PROG ON SMY_ERRORES(NOMBRE_PROGRAMA);
 
 -- =============================================================================
 -- SECCIÓN 14: INSERCIÓN DE DATOS SEMILLA EN TABLAS MAESTRAS
@@ -1832,11 +2632,11 @@ INSERT INTO SMY_CANALES_NOTIFICACION (ID, NOMBRE_CANAL_NOTIFICACION) VALUES (1, 
 INSERT INTO SMY_CANALES_NOTIFICACION (ID, NOMBRE_CANAL_NOTIFICACION) VALUES (2, 'EMAIL');
 INSERT INTO SMY_CANALES_NOTIFICACION (ID, NOMBRE_CANAL_NOTIFICACION) VALUES (3, 'AMBOS');
 
--- Tipos de Documentos de Identidad
-INSERT INTO SMY_TIPOS_DOCUMENTOS_ID (ID, NOMBRE_TIPO_DOCUMENTO_ID, SIGLA) VALUES (1, 'Cédula de Ciudadanía', 'CC');
-INSERT INTO SMY_TIPOS_DOCUMENTOS_ID (ID, NOMBRE_TIPO_DOCUMENTO_ID, SIGLA) VALUES (2, 'Cédula de Extranjería', 'CE');
-INSERT INTO SMY_TIPOS_DOCUMENTOS_ID (ID, NOMBRE_TIPO_DOCUMENTO_ID, SIGLA) VALUES (3, 'Pasaporte', 'PAS');
-INSERT INTO SMY_TIPOS_DOCUMENTOS_ID (ID, NOMBRE_TIPO_DOCUMENTO_ID, SIGLA) VALUES (4, 'Tarjeta de Identidad', 'TI');
+-- Tipos de Identificación
+INSERT INTO SMY_TIPOS_IDENTIFICACION (ID, NOMBRE_TIPO_IDENTIFICACION, SIGLA) VALUES (1, 'Cédula de Ciudadanía', 'CC');
+INSERT INTO SMY_TIPOS_IDENTIFICACION (ID, NOMBRE_TIPO_IDENTIFICACION, SIGLA) VALUES (2, 'Cédula de Extranjería', 'CE');
+INSERT INTO SMY_TIPOS_IDENTIFICACION (ID, NOMBRE_TIPO_IDENTIFICACION, SIGLA) VALUES (3, 'Pasaporte', 'PAS');
+INSERT INTO SMY_TIPOS_IDENTIFICACION (ID, NOMBRE_TIPO_IDENTIFICACION, SIGLA) VALUES (4, 'Tarjeta de Identidad', 'TI');
 
 -- Áreas de Empleados
 INSERT INTO SMY_AREAS_EMPLEADOS (ID, NOMBRE_AREA_EMPLEADO) VALUES (1, 'Enfermería');

@@ -842,7 +842,7 @@ erDiagram
 
     <!-- SECCION 4: DICCIONARIO DE DATOS DETALLADO -->
     <section id="diccionario">
-      <h2><span class="sec-id">04</span>Diccionario de Datos Detallado (70 Tablas con Auditoría Completa)</h2>
+      <h2><span class="sec-id">04</span>Diccionario de Datos Detallado (79 Tablas con Auditoría Completa)</h2>
       <p>Todas las tablas contienen sus claves primarias generadas por secuencias/triggers, foráneas con prefijo <span class="mono">ID_*</span>, valores por defecto de fecha en hora legal de Bogotá (UTC-5) y los campos obligatorios de auditoría <span class="mono">FECHA_CREACION</span> e <span class="mono">ID_USUARIO_ULTIMA_MODIFICACION</span>.</p>
 
       <!-- 4.0 CATALOGOS MAESTROS -->
@@ -865,7 +865,7 @@ erDiagram
             <tr><td class="col-name">SMY_TIPOS_USUARIOS</td><td>ID</td><td>NOMBRE_TIPO_USUARIO</td><td>SMY_USUARIOS</td><td>ID_TIPO_USUARIO</td></tr>
             <tr><td class="col-name">SMY_ESTADOS_USUARIOS</td><td>ID</td><td>NOMBRE_ESTADO_USUARIO</td><td>SMY_USUARIOS</td><td>ID_ESTADO_USUARIO</td></tr>
             <tr><td class="col-name">SMY_CANALES_NOTIFICACION</td><td>ID</td><td>NOMBRE_CANAL_NOTIFICACION</td><td>SMY_USUARIOS / SMY_ACUDIENTES</td><td>ID_CANAL_NOTIF_PREF</td></tr>
-            <tr><td class="col-name">SMY_TIPOS_DOCUMENTOS_ID</td><td>ID</td><td>NOMBRE_TIPO_DOCUMENTO_ID / SIGLA</td><td>SMY_EMPLEADOS / SMY_RESIDENTES</td><td>ID_TIPO_DOCUMENTO</td></tr>
+            <tr><td class="col-name">SMY_TIPOS_IDENTIFICACION</td><td>ID</td><td>NOMBRE_TIPO_IDENTIFICACION / SIGLA</td><td>SMY_EMPLEADOS / SMY_RESIDENTES / SMY_ACUDIENTES</td><td>ID_TIPO_IDENTIFICACION</td></tr>
             <tr><td class="col-name">SMY_CARGOS_EMPLEADOS</td><td>ID</td><td>NOMBRE_CARGO_EMPLEADO</td><td>SMY_EMPLEADOS</td><td>ID_CARGO_EMPLEADO</td></tr>
             <tr><td class="col-name">SMY_AREAS_EMPLEADOS</td><td>ID</td><td>NOMBRE_AREA_EMPLEADO</td><td>SMY_EMPLEADOS</td><td>ID_AREA_EMPLEADO</td></tr>
             <tr><td class="col-name">SMY_ESTADOS_EMPLEADOS</td><td>ID</td><td>NOMBRE_ESTADO_EMPLEADO</td><td>SMY_EMPLEADOS</td><td>ID_ESTADO_EMPLEADO</td></tr>
@@ -955,6 +955,29 @@ erDiagram
           </table>
         </div>
       </div>
+      <div class="card table-block" data-table="SMY_ERRORES">
+        <h4>Tabla: SMY_ERRORES</h4>
+        <p>Bitácora centralizada de control, diagnóstico y trazabilidad forense de excepciones y errores del sistema.</p>
+        <div class="table-container">
+          <table class="data-dict">
+            <thead><tr><th>Columna</th><th>Tipo Oracle</th><th>Nulo</th><th>Defecto (Bogotá UTC-5)</th><th>Descripción y Foráneas</th></tr></thead>
+            <tbody>
+              <tr><td class="col-name">ID</td><td class="col-type">NUMBER</td><td><span class="badge badge-pk">PK</span></td><td>SEQ_SMY_ERRORES</td><td>Identificador único del registro de error.</td></tr>
+              <tr><td class="col-name">TIPO</td><td class="col-type">VARCHAR2(1 BYTE)</td><td><span class="badge badge-req">No</span></td><td>'E'</td><td>Tipo/Severidad del evento ('E'=Error, 'W'=Advertencia, 'I'=Información).</td></tr>
+              <tr><td class="col-name">NOMBRE_PROGRAMA</td><td class="col-type">VARCHAR2(50 BYTE)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Módulo, servicio o programa origen del error.</td></tr>
+              <tr><td class="col-name">NOMBRE_METODO</td><td class="col-type">VARCHAR2(50 BYTE)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Método, procedimiento o función donde se produjo la excepción.</td></tr>
+              <tr><td class="col-name">PARAMETROS</td><td class="col-type">CLOB</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Parámetros de entrada o payload capturado al ocurrir el error.</td></tr>
+              <tr><td class="col-name">DIRECCION_IP</td><td class="col-type">VARCHAR2(30)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Dirección IP del cliente o servidor solicitante.</td></tr>
+              <tr><td class="col-name">USUARIO</td><td class="col-type">VARCHAR2(200 BYTE)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Nombre o login de usuario activo en la sesión.</td></tr>
+              <tr><td class="col-name">CODIGO_ERROR</td><td class="col-type">VARCHAR2(100 BYTE)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Código de error (ej. ORA-XXXXX, HTTP 500, etc.).</td></tr>
+              <tr><td class="col-name">TEXTO_ERROR</td><td class="col-type">VARCHAR2(4000 BYTE)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Descripción técnica completa y stack trace del error.</td></tr>
+              <tr><td class="col-name">MENSAJE_ERROR</td><td class="col-type">VARCHAR2(4000 BYTE)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Mensaje descriptivo y amigable procesado para soporte.</td></tr>
+              <tr><td class="col-name">FECHA_CREACION</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>Hora Bogotá (UTC-5)</td><td>Fecha y hora de captura del error.</td></tr>
+              <tr><td class="col-name">ID_USUARIO_CREACION</td><td class="col-type">NUMBER</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>ID del usuario que originó el error (si aplica).</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
 
       <div class="card table-block" data-table="SMY_AUDITORIA_ACCESOS">
         <h4>Tabla: SMY_AUDITORIA_ACCESOS</h4>
@@ -988,8 +1011,8 @@ erDiagram
             <tbody>
               <tr><td class="col-name">ID</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-pk">PK</span></td><td>SEQ_SMY_EMPLEADOS</td><td>ID del colaborador.</td></tr>
               <tr><td class="col-name">ID_USUARIO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK opcional hacia SMY_USUARIOS(ID).</td></tr>
-              <tr><td class="col-name">ID_TIPO_DOCUMENTO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_TIPOS_DOCUMENTOS_ID(ID).</td></tr>
-              <tr><td class="col-name">DOCUMENTO_NUMERO</td><td class="col-type">VARCHAR2(30)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Número de identificación.</td></tr>
+              <tr><td class="col-name">ID_TIPO_IDENTIFICACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_TIPOS_IDENTIFICACION(ID).</td></tr>
+              <tr><td class="col-name">IDENTIFICACION</td><td class="col-type">VARCHAR2(30)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Número de identificación o documento de identidad oficial.</td></tr>
               <tr><td class="col-name">NOMBRES</td><td class="col-type">VARCHAR2(80)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Nombres del colaborador.</td></tr>
               <tr><td class="col-name">APELLIDOS</td><td class="col-type">VARCHAR2(80)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Apellidos del colaborador.</td></tr>
               <tr><td class="col-name">TELEFONO</td><td class="col-type">VARCHAR2(30)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Teléfono de contacto.</td></tr>
@@ -1104,8 +1127,8 @@ erDiagram
             <thead><tr><th>Columna</th><th>Tipo Oracle</th><th>Nulo</th><th>Defecto (Bogotá UTC-5)</th><th>Descripción y Foráneas</th></tr></thead>
             <tbody>
               <tr><td class="col-name">ID</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-pk">PK</span></td><td>SEQ_SMY_RESIDENTES</td><td>ID del residente.</td></tr>
-              <tr><td class="col-name">ID_TIPO_DOCUMENTO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_TIPOS_DOCUMENTOS_ID(ID).</td></tr>
-              <tr><td class="col-name">DOCUMENTO_NUMERO</td><td class="col-type">VARCHAR2(30)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Número de identificación.</td></tr>
+              <tr><td class="col-name">ID_TIPO_IDENTIFICACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_TIPOS_IDENTIFICACION(ID).</td></tr>
+              <tr><td class="col-name">IDENTIFICACION</td><td class="col-type">VARCHAR2(30)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Número de identificación o documento de identidad oficial.</td></tr>
               <tr><td class="col-name">NOMBRES</td><td class="col-type">VARCHAR2(80)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Nombres del residente.</td></tr>
               <tr><td class="col-name">APELLIDOS</td><td class="col-type">VARCHAR2(80)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Apellidos del residente.</td></tr>
               <tr><td class="col-name">FECHA_NACIMIENTO</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Fecha de nacimiento.</td></tr>
@@ -1137,8 +1160,8 @@ erDiagram
             <tbody>
               <tr><td class="col-name">ID</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-pk">PK</span></td><td>SEQ_SMY_ACUDIENTES</td><td>ID del acudiente.</td></tr>
               <tr><td class="col-name">ID_USUARIO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK opcional hacia SMY_USUARIOS(ID).</td></tr>
-              <tr><td class="col-name">ID_TIPO_DOCUMENTO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_TIPOS_DOCUMENTOS_ID(ID).</td></tr>
-              <tr><td class="col-name">DOCUMENTO_NUMERO</td><td class="col-type">VARCHAR2(30)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Documento de identidad.</td></tr>
+              <tr><td class="col-name">ID_TIPO_IDENTIFICACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_TIPOS_IDENTIFICACION(ID).</td></tr>
+              <tr><td class="col-name">IDENTIFICACION</td><td class="col-type">VARCHAR2(30)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Número de identificación o cédula del acudiente/tutor.</td></tr>
               <tr><td class="col-name">NOMBRES</td><td class="col-type">VARCHAR2(80)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Nombres del acudiente.</td></tr>
               <tr><td class="col-name">APELLIDOS</td><td class="col-type">VARCHAR2(80)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Apellidos del acudiente.</td></tr>
               <tr><td class="col-name">TELEFONO_PRINCIPAL</td><td class="col-type">VARCHAR2(30)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Teléfono primario de contacto.</td></tr>
@@ -1767,7 +1790,7 @@ erDiagram
     <section id="oracle-specs">
       <h2><span class="sec-id">05</span>Especificación de Triggers y Secuencias en Oracle</h2>
       <p>
-        Para garantizar la compatibilidad con todas las versiones de Oracle (11g a 23c), cada una de las 70 tablas cuenta con una secuencia y un trigger <span class="mono">BEFORE INSERT</span> asociado:
+        Para garantizar la compatibilidad con todas las versiones de Oracle (11g a 23c), cada una de las 79 tablas cuenta con una secuencia y un trigger <span class="mono">BEFORE INSERT</span> asociado:
       </p>
 
       <pre class="code-block">
@@ -1894,7 +1917,8 @@ const initialNodesData = [
   { id: 26, label: "SMY_CONVERSACIONES_CHAT", group: "chat", shape: "box", color: { background: "#4f46e5", border: "#4338ca" }, font: { color: "#fff", face: "IBM Plex Mono", size: 13 } },
   { id: 27, label: "SMY_CHAT_PARTICIPANTES", group: "chat", shape: "box", color: { background: "#6366f1", border: "#4f46e5" }, font: { color: "#fff", face: "IBM Plex Mono", size: 13 } },
   { id: 28, label: "SMY_MENSAJES_CHAT", group: "chat", shape: "box", color: { background: "#818cf8", border: "#6366f1" }, font: { color: "#000", face: "IBM Plex Mono", size: 13 } },
-  { id: 29, label: "SMY_NOTIFICACIONES_SISTEMA", group: "chat", shape: "box", color: { background: "#6366f1", border: "#4f46e5" }, font: { color: "#fff", face: "IBM Plex Mono", size: 13 } }
+  { id: 29, label: "SMY_NOTIFICACIONES_SISTEMA", group: "chat", shape: "box", color: { background: "#6366f1", border: "#4f46e5" }, font: { color: "#fff", face: "IBM Plex Mono", size: 13 } },
+  { id: 30, label: "SMY_ERRORES", group: "seguridad", shape: "box", color: { background: "#dc2626", border: "#991b1b" }, font: { color: "#fff", face: "IBM Plex Mono", size: 13 } }
 ];
 
 const initialEdgesData = [
@@ -1937,7 +1961,8 @@ const initialEdgesData = [
   { from: 2, to: 27, label: "ID_USUARIO", arrows: "to" },
   { from: 26, to: 28, label: "ID_CONVERSACION", arrows: "to" },
   { from: 2, to: 28, label: "ID_REMITENTE", arrows: "to" },
-  { from: 2, to: 29, label: "ID_USUARIO_DEST", arrows: "to" }
+  { from: 2, to: 29, label: "ID_USUARIO_DEST", arrows: "to" },
+  { from: 2, to: 30, label: "ID_USUARIO_CREACION", arrows: "to", color: { color: "#dc2626" } }
 ];
 
 function getCustomPositions() {
