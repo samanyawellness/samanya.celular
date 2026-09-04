@@ -1,4 +1,4 @@
-import { Resident, TaskItem, ActivityEvent, ConsentRecord, AppNotification, BitacoraEntry, VitalSigns, IncidentReport, ChatConversation, ClinicalRecord, DeletedClinicalRecord, SupplyEntry, StaffWorker } from '../types';
+import { Resident, TaskItem, ActivityEvent, ConsentRecord, AppNotification, BitacoraEntry, VitalSigns, IncidentReport, ClinicalRecord, DeletedClinicalRecord, SupplyEntry, StaffWorker } from '../types';
 
 export const INITIAL_RESIDENTS: Resident[] = [
   {
@@ -38,14 +38,10 @@ export const INITIAL_RESIDENTS: Resident[] = [
       {
         name: 'Lucía Delgado (Hija)',
         relationship: 'Hija mayor / Apoderada',
-        phone: '+34 622 189 401',
-        email: 'lucia.delgado@correo.es',
       },
       {
         name: 'Carlos Delgado (Hijo)',
         relationship: 'Hijo',
-        phone: '+34 633 456 789',
-        email: 'carlos.delgado@correo.es',
       }
     ]
   },
@@ -64,8 +60,6 @@ export const INITIAL_RESIDENTS: Resident[] = [
       {
         name: 'Javier Pérez (Hijo)',
         relationship: 'Hijo',
-        phone: '+34 611 987 234',
-        email: 'javier.perez@empresa.com',
       }
     ]
   },
@@ -84,8 +78,6 @@ export const INITIAL_RESIDENTS: Resident[] = [
       {
         name: 'Marta Valverde (Sobrina)',
         relationship: 'Tutora legal',
-        phone: '+34 677 345 112',
-        email: 'marta.valverde@correo.es',
       }
     ]
   },
@@ -104,8 +96,6 @@ export const INITIAL_RESIDENTS: Resident[] = [
       {
         name: 'Ignacio Gómez Ibáñez (Hijo)',
         relationship: 'Hijo tutor',
-        phone: '+34 644 555 890',
-        email: 'ignacio.gomez@gmail.com',
       }
     ]
   },
@@ -124,8 +114,6 @@ export const INITIAL_RESIDENTS: Resident[] = [
       {
         name: 'Elena Morales Soto (Hija)',
         relationship: 'Hija',
-        phone: '+34 655 778 990',
-        email: 'elena.morales@sanidad.org',
       }
     ]
   }
@@ -382,6 +370,17 @@ export const INITIAL_ACTIVITY_TIMELINE: ActivityEvent[] = [
 
 export const INITIAL_BITACORA: BitacoraEntry[] = [
   {
+    id: 'bit-vis-1',
+    residentId: 'res-1',
+    residentName: 'Carmen Delgado Serrano',
+    date: '2026-08-19',
+    time: '11:30 AM',
+    category: 'Visitante',
+    text: 'La hija de Doña Carmen llegó acompañada de un familiar joven. Estuvieron en el jardín exterior merendando y paseando un rato. Residente muy animada y contenta.',
+    recordedByVoice: true,
+    author: 'Elena Morales (Cuidadora)'
+  },
+  {
     id: 'bit-1',
     residentId: 'res-1',
     residentName: 'Carmen Delgado Serrano',
@@ -634,125 +633,6 @@ export const INITIAL_NOTIFICATIONS: AppNotification[] = [
   }
 ];
 
-export const INITIAL_CONVERSATIONS: ChatConversation[] = [
-  {
-    id: 'conv-1',
-    contactName: 'Elena Morales',
-    contactRole: 'Cuidadora Principal — Planta 1',
-    contactAvatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=250',
-    contactPhone: '+34 912 345 678',
-    contactUnit: 'Planta 1',
-    hasHistory: true,
-    lastMessage: 'Doña Carmen ha participado muy contenta en el taller de estimulación cognitiva esta mañana.',
-    lastMessageTime: '11:15 AM',
-    unreadCount: 1,
-    messages: [
-      {
-        id: 'msg-1',
-        conversationId: 'conv-1',
-        senderId: 'contact-elena',
-        senderName: 'Elena Morales',
-        senderRole: 'Cuidadora',
-        text: '¡Hola! Le escribo para comentarle que Doña Carmen ha desayunado muy bien hoy y se encuentra muy animada.',
-        timestamp: '09:15 AM',
-        isFromMe: false,
-        isRead: true
-      },
-      {
-        id: 'msg-2',
-        conversationId: 'conv-1',
-        senderId: 'me-familiar',
-        senderName: 'Javier / Lucía',
-        senderRole: 'Familiar',
-        text: '¡Muchas gracias, Elena! ¿Pudo tomarse la medicación sin problemas?',
-        timestamp: '09:30 AM',
-        isFromMe: true,
-        isRead: true
-      },
-      {
-        id: 'msg-3',
-        conversationId: 'conv-1',
-        senderId: 'contact-elena',
-        senderName: 'Elena Morales',
-        senderRole: 'Cuidadora',
-        text: 'Doña Carmen ha participado muy contenta en el taller de estimulación cognitiva esta mañana.',
-        timestamp: '11:15 AM',
-        isFromMe: false,
-        isRead: false
-      }
-    ]
-  },
-  {
-    id: 'conv-2',
-    contactName: 'Lucía Sánchez',
-    contactRole: 'Enfermera de Guardia / Curas',
-    contactAvatar: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80&w=250',
-    contactPhone: '+34 912 345 679',
-    contactUnit: 'Enfermería Central',
-    hasHistory: true,
-    lastMessage: 'Le confirmo que la analítica y control de tensión arterial están programados para mañana.',
-    lastMessageTime: 'Ayer 17:30',
-    unreadCount: 0,
-    messages: [
-      {
-        id: 'msg-4',
-        conversationId: 'conv-2',
-        senderId: 'me-familiar',
-        senderName: 'Javier / Lucía',
-        senderRole: 'Familiar',
-        text: 'Buenas tardes Lucía, ¿cuándo tienen prevista la siguiente analítica rutinaria?',
-        timestamp: 'Ayer 16:45',
-        isFromMe: true,
-        isRead: true
-      },
-      {
-        id: 'msg-5',
-        conversationId: 'conv-2',
-        senderId: 'contact-lucia',
-        senderName: 'Lucía Sánchez',
-        senderRole: 'Enfermera',
-        text: 'Le confirmo que la analítica y control de tensión arterial están programados para mañana.',
-        timestamp: 'Ayer 17:30',
-        isFromMe: false,
-        isRead: true
-      }
-    ]
-  },
-  {
-    id: 'conv-3',
-    contactName: 'Dr. Carlos Ramírez',
-    contactRole: 'Médico Geriátrico',
-    contactAvatar: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&q=80&w=250',
-    contactPhone: '+34 912 345 680',
-    contactUnit: 'Dirección Médica',
-    hasHistory: false,
-    unreadCount: 0,
-    messages: []
-  },
-  {
-    id: 'conv-4',
-    contactName: 'Marcos Toledo',
-    contactRole: 'Fisioterapeuta y Rehabilitación',
-    contactAvatar: 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?auto=format&fit=crop&q=80&w=250',
-    contactPhone: '+34 912 345 681',
-    contactUnit: 'Gimnasio / Terapia',
-    hasHistory: false,
-    unreadCount: 0,
-    messages: []
-  },
-  {
-    id: 'conv-5',
-    contactName: 'Silvia Benítez',
-    contactRole: 'Trabajadora Social y Administración',
-    contactAvatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=250',
-    contactPhone: '+34 912 345 682',
-    contactUnit: 'Atención a Familias',
-    hasHistory: false,
-    unreadCount: 0,
-    messages: []
-  }
-];
-
 export const INITIAL_CLINICAL_RECORDS: ClinicalRecord[] = [
   {
     id: 'cr-1',
@@ -872,7 +752,6 @@ export const STAFF_WORKERS: StaffWorker[] = [
     name: 'Elena Morales',
     role: 'Cuidadora Principal (Planta 1)',
     avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=250',
-    phone: '+34 670 112 233',
     unit: 'Planta 1 — Cuidados Asistenciales'
   },
   {
@@ -880,7 +759,6 @@ export const STAFF_WORKERS: StaffWorker[] = [
     name: 'Dr. Carlos Ramírez',
     role: 'Médico de Residencia',
     avatar: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&q=80&w=250',
-    phone: '+34 680 998 877',
     unit: 'Área Médica y Valoración'
   },
   {
@@ -888,7 +766,6 @@ export const STAFF_WORKERS: StaffWorker[] = [
     name: 'Marta Gil',
     role: 'Enfermera de Turno',
     avatar: 'https://images.unsplash.com/photo-1594824813596-f947e4f35b40?auto=format&fit=crop&q=80&w=250',
-    phone: '+34 690 445 566',
     unit: 'Enfermería y Curas'
   },
   {
@@ -896,7 +773,6 @@ export const STAFF_WORKERS: StaffWorker[] = [
     name: 'Javier Ortega',
     role: 'Fisioterapeuta y Rehabilitación',
     avatar: 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?auto=format&fit=crop&q=80&w=250',
-    phone: '+34 650 334 455',
     unit: 'Gimnasio Terapéutico'
   },
   {
@@ -904,7 +780,6 @@ export const STAFF_WORKERS: StaffWorker[] = [
     name: 'Silvia Benítez',
     role: 'Trabajadora Social y Administración',
     avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=250',
-    phone: '+34 912 345 682',
     unit: 'Atención a Familias'
   }
 ];

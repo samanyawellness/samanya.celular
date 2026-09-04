@@ -2,38 +2,11 @@ export type UserRole = 'cuidador' | 'familiar';
 export type AppTab = 'inicio' | 'tareas' | 'residentes' | 'consentimientos' | 'perfil';
 export type FamiliarTab = 'perfil' | 'bitacora' | 'inicio' | 'residente' | 'calendario';
 
-export interface ChatMessage {
-  id: string;
-  conversationId: string;
-  senderId: string;
-  senderName: string;
-  senderRole: string;
-  text: string;
-  timestamp: string;
-  isFromMe: boolean;
-  isRead: boolean;
-}
-
-export interface ChatConversation {
-  id: string;
-  contactName: string;
-  contactRole: string;
-  contactAvatar: string;
-  contactPhone?: string;
-  contactUnit?: string;
-  hasHistory: boolean;
-  lastMessage?: string;
-  lastMessageTime?: string;
-  unreadCount: number;
-  messages: ChatMessage[];
-}
-
 export interface StaffWorker {
   id: string;
   name: string;
   role: string;
   avatar: string;
-  phone?: string;
   unit?: string;
 }
 
@@ -89,8 +62,8 @@ export interface Resident {
   responsible: {
     name: string;
     relationship: string;
-    phone: string;
-    email: string;
+    phone?: string;
+    email?: string;
   }[];
 }
 
@@ -217,37 +190,6 @@ export interface ConsentRecord {
     email: string;
     status: 'enviado' | 'leido' | 'firmado' | 'rechazado';
   }[];
-}
-
-export interface ResponsibleContact {
-  name: string;
-  relationship: string;
-  phone: string;
-  email: string;
-}
-
-export interface AdmissionRequest {
-  id: string;
-  fullName: string;
-  birthDate: string;
-  age?: number;
-  gender: string;
-  roomPreference?: string;
-  bedPreference?: string;
-  alerts?: string[];
-  mobility?: string;
-  diet?: string;
-  medications?: {
-    drugName: string;
-    dose: string;
-    time: string;
-    route: string;
-    details?: string;
-  }[];
-  responsibleContacts: ResponsibleContact[];
-  requestedDate: string;
-  status: 'pendiente_aprobacion' | 'aprobada' | 'denegada';
-  notes?: string;
 }
 
 export interface AppNotification {

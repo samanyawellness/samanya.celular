@@ -10,7 +10,6 @@ import { LoginScreen } from './components/LoginScreen';
 import { TimelineDrawer } from './components/TimelineDrawer';
 import { MassRegistrationModal } from './components/MassRegistrationModal';
 import { ResidentDetailModal } from './components/ResidentDetailModal';
-import { RequestResidentAdmissionModal } from './components/RequestResidentAdmissionModal';
 import { BitacoraModal } from './components/BitacoraModal';
 import { VitalSignsModal } from './components/VitalSignsModal';
 import { IncidentReportScreen } from './components/IncidentReportScreen';
@@ -24,13 +23,11 @@ import { FamiliarBottomNav } from './components/familiar/FamiliarBottomNav';
 import { FamiliarHomeScreen } from './components/familiar/FamiliarHomeScreen';
 import { FamiliarBitacoraScreen } from './components/familiar/FamiliarBitacoraScreen';
 import { FamiliarResidenteScreen } from './components/familiar/FamiliarResidenteScreen';
-import { FamiliarMensajeriaScreen } from './components/familiar/FamiliarMensajeriaScreen';
 import { FamiliarProfileScreen } from './components/familiar/FamiliarProfileScreen';
 import { FamiliarConsentModal } from './components/familiar/FamiliarConsentModal';
 import { FamiliarVitalsModal } from './components/familiar/FamiliarVitalsModal';
-import { MessagesModal } from './components/MessagesModal';
 
-import { Smartphone, Monitor, Bell, MessageSquare } from 'lucide-react';
+import { Smartphone, Monitor, Bell } from 'lucide-react';
 
 const MainLayout: React.FC = () => {
   const {
@@ -40,9 +37,7 @@ const MainLayout: React.FC = () => {
     currentUser,
     user,
     notifications,
-    setIsNotificationsOpen,
-    setIsMessagesOpen,
-    unreadMessagesCount
+    setIsNotificationsOpen
   } = useApp();
   const [deviceFrameMode, setDeviceFrameMode] = useState(false);
 
@@ -114,22 +109,6 @@ const MainLayout: React.FC = () => {
 
             <div className="flex items-center gap-2">
               <button
-                id="btn-top-messages"
-                type="button"
-                onClick={() => setIsMessagesOpen(true)}
-                className="touch-target w-9 h-9 rounded-full bg-white border border-[#DEDBD1] shadow-2xs hover:bg-[#F7F7F8] active:scale-95 transition-all flex items-center justify-center relative text-[#292A24]"
-                aria-label={`Mensajes ${unreadMessagesCount > 0 ? `(${unreadMessagesCount} no leídos)` : ''}`}
-                title="Mensajería"
-              >
-                <MessageSquare className="w-4.5 h-4.5 text-[#292A24]" />
-                {unreadMessagesCount > 0 && (
-                  <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#068591] px-1 text-[10px] font-bold text-white shadow-xs">
-                    {unreadMessagesCount}
-                  </span>
-                )}
-              </button>
-
-              <button
                 id="btn-top-notifications"
                 type="button"
                 onClick={() => setIsNotificationsOpen(true)}
@@ -177,7 +156,6 @@ const MainLayout: React.FC = () => {
         <TimelineDrawer />
         <MassRegistrationModal />
         <ResidentDetailModal />
-        <RequestResidentAdmissionModal />
         <BitacoraModal />
         <VitalSignsModal />
         <IncidentReportScreen />
@@ -187,7 +165,6 @@ const MainLayout: React.FC = () => {
         {/* Familiar & Common Modals */}
         <FamiliarConsentModal />
         <FamiliarVitalsModal />
-        <MessagesModal />
 
         <Toast />
       </div>

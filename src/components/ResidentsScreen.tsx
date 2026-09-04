@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import {
-  Plus,
   Search,
   AlertTriangle,
   ChevronRight,
@@ -11,8 +10,7 @@ import {
 export const ResidentsScreen: React.FC = () => {
   const {
     residents,
-    openResidentHub,
-    setIsAdmissionModalOpen
+    openResidentHub
   } = useApp();
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -24,24 +22,16 @@ export const ResidentsScreen: React.FC = () => {
 
   return (
     <div className="space-y-4 pb-24 px-4 sm:px-5 max-w-lg mx-auto pt-1">
-      {/* Top Header & Request Admission Action */}
+      {/* Top Header */}
       <div className="flex items-center justify-between pt-1">
         <div>
           <h2 className="text-xl font-bold text-[#292A24]">
             Mis residentes
           </h2>
+          <p className="text-xs text-[#5C6058] mt-0.5">
+            {residents.length} residentes asignados
+          </p>
         </div>
-
-        <button
-          id="btn-request-admission-plus"
-          type="button"
-          onClick={() => setIsAdmissionModalOpen(true)}
-          className="touch-target w-10 h-10 bg-[#068591] hover:bg-[#056c76] text-white rounded-full shadow-xs active:scale-95 transition-all flex items-center justify-center"
-          aria-label="Solicitar alta de residente"
-          title="Solicitar alta de residente"
-        >
-          <Plus className="w-5 h-5 stroke-[2.5]" />
-        </button>
       </div>
 
       {/* Search Field */}

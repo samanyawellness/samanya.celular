@@ -1,6 +1,6 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
-import { Bell, MessageSquare } from 'lucide-react';
+import { Bell } from 'lucide-react';
 
 interface HeaderProps {
   rightAction?: React.ReactNode;
@@ -11,9 +11,7 @@ export const Header: React.FC<HeaderProps> = ({ rightAction }) => {
     currentUser,
     setIsRoleMenuOpen,
     setIsNotificationsOpen,
-    unreadNotificationsCount,
-    setIsMessagesOpen,
-    unreadMessagesCount
+    unreadNotificationsCount
   } = useApp();
 
   const isFamiliar = currentUser.role === 'familiar';
@@ -52,46 +50,26 @@ export const Header: React.FC<HeaderProps> = ({ rightAction }) => {
           </div>
         )}
 
-        {/* Right: Messages + Notifications Bell or Custom Action */}
+        {/* Right: Notifications Bell or Custom Action */}
         <div className="flex items-center gap-1">
           {rightAction ? (
             rightAction
           ) : (
-            <>
-              {/* Messages button for both roles */}
-              <button
-                id="btn-header-messages"
-                type="button"
-                onClick={() => setIsMessagesOpen(true)}
-                className="touch-target relative flex items-center justify-center p-2 rounded-2xl text-[#292A24] hover:bg-[#F7F7F8] active:scale-95 transition-all"
-                aria-label={`Mensajes ${unreadMessagesCount > 0 ? `(${unreadMessagesCount} no leídos)` : ''}`}
-                title="Mensajería"
-              >
-                <MessageSquare className="w-6 h-6 text-[#292A24]" />
-                {unreadMessagesCount > 0 && (
-                  <span className="absolute top-1.5 right-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-[#068591] px-1 text-[11px] font-bold text-white shadow-sm ring-2 ring-white">
-                    {unreadMessagesCount}
-                  </span>
-                )}
-              </button>
-
-              {/* Notifications bell */}
-              <button
-                id="btn-header-notifications"
-                type="button"
-                onClick={() => setIsNotificationsOpen(true)}
-                className="touch-target relative flex items-center justify-center p-2 rounded-2xl text-[#292A24] hover:bg-[#F7F7F8] active:scale-95 transition-all"
-                aria-label={`Notificaciones ${unreadNotificationsCount > 0 ? `(${unreadNotificationsCount} no leídas)` : ''}`}
-                title="Notificaciones"
-              >
-                <Bell className="w-6 h-6 text-[#292A24]" />
-                {unreadNotificationsCount > 0 && (
-                  <span className="absolute top-1.5 right-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-[#8C2E2E] px-1 text-[11px] font-bold text-white shadow-sm ring-2 ring-white">
-                    {unreadNotificationsCount}
-                  </span>
-                )}
-              </button>
-            </>
+            <button
+              id="btn-header-notifications"
+              type="button"
+              onClick={() => setIsNotificationsOpen(true)}
+              className="touch-target relative flex items-center justify-center p-2 rounded-2xl text-[#292A24] hover:bg-[#F7F7F8] active:scale-95 transition-all"
+              aria-label={`Notificaciones ${unreadNotificationsCount > 0 ? `(${unreadNotificationsCount} no leídas)` : ''}`}
+              title="Notificaciones"
+            >
+              <Bell className="w-6 h-6 text-[#292A24]" />
+              {unreadNotificationsCount > 0 && (
+                <span className="absolute top-1.5 right-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-[#8C2E2E] px-1 text-[11px] font-bold text-white shadow-sm ring-2 ring-white">
+                  {unreadNotificationsCount}
+                </span>
+              )}
+            </button>
           )}
         </div>
       </div>

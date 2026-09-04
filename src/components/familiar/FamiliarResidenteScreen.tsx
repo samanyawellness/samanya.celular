@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { ClinicalHistorySection } from '../common/ClinicalHistorySection';
+import { QrCode } from 'lucide-react';
+import { ResidentQRPlaceholderScreen } from '../ResidentQRPlaceholderScreen';
 
 export const FamiliarResidenteScreen: React.FC = () => {
   const { selectedFamiliarResident } = useApp();
 
   // Tab selector state: 'datos_generales' | 'historia_clinica'
   const [activeSection, setActiveSection] = useState<'datos_generales' | 'historia_clinica'>('datos_generales');
+  const [showQRScreen, setShowQRScreen] = useState(false);
 
   const resident = selectedFamiliarResident;
 
@@ -111,11 +114,22 @@ export const FamiliarResidenteScreen: React.FC = () => {
     'Protocolo de descanso: Cama articulada con barandilla de seguridad acolchada.'
   ];
 
+  if (showQRScreen) {
+    return (
+      <div className="pb-28 px-4 sm:px-5 max-w-lg mx-auto pt-1 animate-in fade-in duration-200">
+        <ResidentQRPlaceholderScreen
+          resident={resident}
+          onBack={() => setShowQRScreen(false)}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4 pb-28 px-4 sm:px-5 max-w-lg mx-auto pt-1 animate-in fade-in duration-200">
-      {/* 1. Selector de pestañas con fondo gris neutral (#EFECE6 / #DEDBD1) */}
-      <div className="sticky top-0 z-30 pt-1 pb-1 bg-[#F7F7F8]">
-        <div className="flex bg-[#EFECE6] p-1 rounded-2xl border border-[#DEDBD1]">
+      {/* 1. Selector de pestañas con fondo gris neutral (#EFECE6 / #DEDBD1) y botón QR */}
+      <div className="sticky top-0 z-30 pt-1 pb-1 bg-[#F7F7F8] flex items-center gap-2">
+        <div className="flex-1 flex bg-[#EFECE6] p-1 rounded-2xl border border-[#DEDBD1]">
           <button
             type="button"
             id="tab-datos-generales"
@@ -141,6 +155,18 @@ export const FamiliarResidenteScreen: React.FC = () => {
             Documentos
           </button>
         </div>
+
+        {/* Small circular QR button in the top corner (area >= 44x44px) */}
+        <button
+          id="btn-familiar-resident-qr"
+          type="button"
+          onClick={() => setShowQRScreen(true)}
+          className="touch-target w-11 h-11 min-w-[44px] min-h-[44px] rounded-full bg-white hover:bg-[#EFECE6] border border-[#DEDBD1] flex items-center justify-center text-[#292A24] active:scale-95 transition-all shadow-2xs shrink-0"
+          aria-label="Código QR del residente"
+          title="Código QR del residente"
+        >
+          <QrCode className="w-5 h-5 text-[#068591]" />
+        </button>
       </div>
 
       {/* PESTAÑA 1: DATOS GENERALES */}
@@ -182,27 +208,20 @@ export const FamiliarResidenteScreen: React.FC = () => {
                 </div>
               </div>
 
-              {/* Contacto del responsable */}
+              {/* Familiar o tutor responsable */}
               <div className="pt-2 border-t border-[#DEDBD1]/60 space-y-2">
-                <div className="text-xs font-semibold text-[#5C6058]">Contacto del responsable</div>
+                <div className="text-xs font-semibold text-[#5C6058]">Familiar o tutor responsable</div>
                 {resident.responsible && resident.responsible.length > 0 ? (
                   resident.responsible.map((resp, idx) => (
-                    <div key={idx} className="bg-[#F7F7F8] p-3 rounded-2xl border border-[#DEDBD1] space-y-1">
+                    <div key={idx} className="bg-[#F7F7F8] p-3 rounded-2xl border border-[#DEDBD1]">
                       <div className="font-bold text-[#292A24]">
                         {resp.name} <span className="font-normal text-xs text-[#5C6058]">({resp.relationship})</span>
-                      </div>
-                      <div className="text-xs text-[#292A24] font-medium">
-                        Teléfono: <span className="font-semibold text-[#075158]">{resp.phone}</span>
-                      </div>
-                      <div className="text-xs text-[#5C6058]">
-                        Email: {resp.email}
                       </div>
                     </div>
                   ))
                 ) : (
                   <div className="bg-[#F7F7F8] p-3 rounded-2xl border border-[#DEDBD1] text-xs text-[#292A24]">
                     <div className="font-bold">Familiar responsable asignado</div>
-                    <div className="text-[#5C6058] mt-0.5">Contacto directo registrado en la ficha asistencial.</div>
                   </div>
                 )}
               </div>

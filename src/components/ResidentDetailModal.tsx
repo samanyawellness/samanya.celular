@@ -9,9 +9,11 @@ import {
   AlertTriangle,
   ChevronLeft,
   Check,
-  Calendar as CalendarIcon
+  Calendar as CalendarIcon,
+  QrCode
 } from 'lucide-react';
 import { ClinicalHistorySection } from './common/ClinicalHistorySection';
+import { ResidentQRPlaceholderScreen } from './ResidentQRPlaceholderScreen';
 
 export const ResidentDetailModal: React.FC = () => {
   const {
@@ -31,6 +33,7 @@ export const ResidentDetailModal: React.FC = () => {
 
   // Active tab: 'datos_generales' | 'actividad_hoy' | 'historia_clinica'
   const [activeTab, setActiveTab] = useState<'datos_generales' | 'actividad_hoy' | 'historia_clinica'>('datos_generales');
+  const [showQRScreen, setShowQRScreen] = useState(false);
 
   // Date filter specific to "Actividad de hoy" tab
   const [activityDate, setActivityDate] = useState<string>(
@@ -94,38 +97,69 @@ export const ResidentDetailModal: React.FC = () => {
   return (
     <div className={containerClasses}>
       <div className={cardClasses}>
-        {/* Fullscreen Header or Modal Header */}
-        {isResidentDetailFullScreen ? (
-          <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-[#DEDBD1] px-4 py-3 flex items-center justify-between">
-            <button
-              id="btn-back-resident-detail"
-              type="button"
-              onClick={() => setIsResidentDetailModalOpen(false)}
-              className="touch-target flex items-center gap-1 text-[#068591] font-bold text-sm"
-            >
-              <ChevronLeft className="w-5 h-5" />
-              <span>Mis residentes</span>
-            </button>
-            <span className="text-xs font-bold text-[#5C6058] uppercase">
-              Ficha del Residente
-            </span>
-          </div>
+        {showQRScreen ? (
+          <ResidentQRPlaceholderScreen
+            resident={selectedResident}
+            onBack={() => setShowQRScreen(false)}
+          />
         ) : (
-          <div className="flex items-center justify-between pb-2.5 border-b border-[#DEDBD1]">
-            <h3 className="font-bold text-base text-[#292A24]">
-              Ficha del Residente
-            </h3>
-            <button
-              id="btn-close-resident-modal"
-              type="button"
-              onClick={() => setIsResidentDetailModalOpen(false)}
-              className="touch-target p-1.5 rounded-xl text-[#5C6058] hover:bg-[#F7F7F8]"
-              aria-label="Cerrar ficha"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-        )}
+          <>
+            {/* Fullscreen Header or Modal Header */}
+            {isResidentDetailFullScreen ? (
+              <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-[#DEDBD1] px-4 py-2.5 flex items-center justify-between">
+                <button
+                  id="btn-back-resident-detail"
+                  type="button"
+                  onClick={() => setIsResidentDetailModalOpen(false)}
+                  className="touch-target min-w-[44px] min-h-[44px] flex items-center gap-1 text-[#068591] font-bold text-sm"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                  <span>Mis residentes</span>
+                </button>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-[#5C6058] uppercase hidden sm:inline">
+                    Ficha del Residente
+                  </span>
+                  <button
+                    id="btn-resident-qr-fullscreen"
+                    type="button"
+                    onClick={() => setShowQRScreen(true)}
+                    className="touch-target w-11 h-11 min-w-[44px] min-h-[44px] rounded-full bg-[#F7F7F8] hover:bg-[#EFECE6] border border-[#DEDBD1] flex items-center justify-center text-[#292A24] active:scale-95 transition-all shadow-2xs"
+                    aria-label="Código QR del residente"
+                    title="Código QR del residente"
+                  >
+                    <QrCode className="w-5 h-5 text-[#068591]" />
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center justify-between pb-2.5 border-b border-[#DEDBD1]">
+                <h3 className="font-bold text-base text-[#292A24]">
+                  Ficha del Residente
+                </h3>
+                <div className="flex items-center gap-2">
+                  <button
+                    id="btn-resident-qr-modal"
+                    type="button"
+                    onClick={() => setShowQRScreen(true)}
+                    className="touch-target w-11 h-11 min-w-[44px] min-h-[44px] rounded-full bg-[#F7F7F8] hover:bg-[#EFECE6] border border-[#DEDBD1] flex items-center justify-center text-[#292A24] active:scale-95 transition-all shadow-2xs"
+                    aria-label="Código QR del residente"
+                    title="Código QR del residente"
+                  >
+                    <QrCode className="w-5 h-5 text-[#068591]" />
+                  </button>
+                  <button
+                    id="btn-close-resident-modal"
+                    type="button"
+                    onClick={() => setIsResidentDetailModalOpen(false)}
+                    className="touch-target min-w-[44px] min-h-[44px] p-2 rounded-xl text-[#5C6058] hover:bg-[#F7F7F8] flex items-center justify-center"
+                    aria-label="Cerrar ficha"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+            )}
 
         {/* Fixed Header: Name, Age, Room, Red Alert Chips + Quick Action Buttons (Always visible) */}
         <div className="space-y-3.5">
@@ -341,7 +375,7 @@ export const ResidentDetailModal: React.FC = () => {
               </div>
             </div>
 
-            {/* Familiares / Responsables con sus contactos */}
+            {/* Familiares y Responsables */}
             <div className="bg-white rounded-3xl p-4 sm:p-5 border border-[#DEDBD1] space-y-3 shadow-2xs">
               <h3 className="font-bold text-sm text-[#292A24] border-b border-[#DEDBD1] pb-2">
                 Familiares y Responsables
@@ -351,26 +385,15 @@ export const ResidentDetailModal: React.FC = () => {
                   selectedResident.responsible.map((resp, i) => (
                     <div
                       key={i}
-                      className="p-3 bg-[#F7F7F8] rounded-2xl border border-[#DEDBD1] flex items-center justify-between text-xs shadow-2xs"
+                      className="p-3 bg-[#F7F7F8] rounded-2xl border border-[#DEDBD1] text-xs shadow-2xs"
                     >
-                      <div>
-                        <div className="font-bold text-[#292A24]">{resp.name}</div>
-                        <div className="text-[#5C6058]">{resp.relationship}</div>
-                      </div>
-                      <div className="text-right">
-                        <a
-                          href={`tel:${resp.phone}`}
-                          className="font-bold text-[#068591] block hover:underline"
-                        >
-                          {resp.phone}
-                        </a>
-                        <span className="text-[11px] text-[#5C6058]">{resp.email}</span>
-                      </div>
+                      <div className="font-bold text-[#292A24]">{resp.name}</div>
+                      <div className="text-[#5C6058] mt-0.5">{resp.relationship}</div>
                     </div>
                   ))
                 ) : (
                   <p className="text-xs text-[#5C6058] italic py-1">
-                    No hay contactos familiares registrados.
+                    No hay familiares o responsables registrados.
                   </p>
                 )}
               </div>
@@ -580,6 +603,8 @@ export const ResidentDetailModal: React.FC = () => {
           <div className="pt-2 animate-in fade-in duration-150">
             <ClinicalHistorySection resident={selectedResident} />
           </div>
+        )}
+          </>
         )}
       </div>
     </div>

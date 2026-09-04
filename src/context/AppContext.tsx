@@ -8,13 +8,10 @@ import {
   VitalSigns,
   IncidentReport,
   ConsentRecord,
-  AdmissionRequest,
   AppNotification,
   UserRole,
   ConsentType,
   FamiliarTab,
-  ChatConversation,
-  ChatMessage,
   ClinicalRecord,
   DeletedClinicalRecord,
   SupplyEntry,
@@ -29,7 +26,6 @@ import {
   INITIAL_INCIDENTS,
   INITIAL_CONSENTS,
   INITIAL_NOTIFICATIONS,
-  INITIAL_CONVERSATIONS,
   INITIAL_CLINICAL_RECORDS,
   INITIAL_DELETED_CLINICAL_RECORDS,
   INITIAL_SUPPLIES,
@@ -86,7 +82,6 @@ interface AppContextType {
   clinicalRecords: ClinicalRecord[];
   deletedClinicalRecords: DeletedClinicalRecord[];
   notifications: AppNotification[];
-  conversations: ChatConversation[];
   selectedDate: string;
   setSelectedDate: (date: string) => void;
 
@@ -109,8 +104,6 @@ interface AppContextType {
   setIsResidentDetailModalOpen: (open: boolean) => void;
   isResidentDetailFullScreen: boolean;
   setIsResidentDetailFullScreen: (full: boolean) => void;
-  isAdmissionModalOpen: boolean;
-  setIsAdmissionModalOpen: (open: boolean) => void;
   isBitacoraModalOpen: boolean;
   setIsBitacoraModalOpen: (open: boolean) => void;
   isVitalSignsModalOpen: boolean;
@@ -123,8 +116,6 @@ interface AppContextType {
   setIsNotificationsOpen: (open: boolean) => void;
   isRoleMenuOpen: boolean;
   setIsRoleMenuOpen: (open: boolean) => void;
-  isMessagesOpen: boolean;
-  setIsMessagesOpen: (open: boolean) => void;
 
   // Familiar Modals & Actions
   isConsentSignModalOpen: boolean;
@@ -137,7 +128,6 @@ interface AppContextType {
   setIsFamiliarVitalsModalOpen: (open: boolean) => void;
   isResidentPickerModalOpen: boolean;
   setIsResidentPickerModalOpen: (open: boolean) => void;
-  sendMessage: (conversationId: string, text: string) => void;
 
   // Actions
   markMedicationAdministered: (taskId: string, photoProofUrl?: string) => void;
@@ -170,14 +160,12 @@ interface AppContextType {
   updateClinicalRecord: (id: string, updates: Partial<ClinicalRecord>) => boolean;
   deleteClinicalRecord: (id: string) => boolean;
   canEditOrDeleteClinicalRecord: (record: ClinicalRecord) => boolean;
-  requestResidentAdmission: (req: Omit<AdmissionRequest, 'id' | 'requestedDate' | 'status'>) => void;
   addResidentMedication: (residentId: string, med: Omit<ResidentMedication, 'id' | 'status'>) => void;
   toggleResidentMedicationStatus: (residentId: string, medId: string) => void;
   deleteResidentMedication: (residentId: string, medId: string) => void;
   markNotificationAsRead: (id: string) => void;
   markAllNotificationsAsRead: () => void;
   unreadNotificationsCount: number;
-  unreadMessagesCount: number;
 
   // Toast / Feedback
   toastMessage: string | null;
@@ -260,11 +248,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return saved ? JSON.parse(saved) : INITIAL_NOTIFICATIONS;
   });
 
-  const [conversations, setConversations] = useState<ChatConversation[]>(() => {
-    const saved = localStorage.getItem('samanya_conversations');
-    return saved ? JSON.parse(saved) : INITIAL_CONVERSATIONS;
-  });
-
   const [supplies, setSupplies] = useState<SupplyEntry[]>(() => {
     const saved = localStorage.getItem('samanya_supplies');
     return saved ? JSON.parse(saved) : INITIAL_SUPPLIES;
@@ -280,14 +263,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [isMassRegistrationModalOpen, setIsMassRegistrationModalOpen] = useState(false);
   const [isResidentDetailModalOpen, setIsResidentDetailModalOpen] = useState(false);
   const [isResidentDetailFullScreen, setIsResidentDetailFullScreen] = useState(false);
-  const [isAdmissionModalOpen, setIsAdmissionModalOpen] = useState(false);
   const [isBitacoraModalOpen, setIsBitacoraModalOpen] = useState(false);
   const [isVitalSignsModalOpen, setIsVitalSignsModalOpen] = useState(false);
   const [isIncidentReportOpen, setIsIncidentReportOpen] = useState(false);
   const [isNewConsentModalOpen, setIsNewConsentModalOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isRoleMenuOpen, setIsRoleMenuOpen] = useState(false);
-  const [isMessagesOpen, setIsMessagesOpen] = useState(false);
 
   // Familiar specific modals
   const [isConsentSignModalOpen, setIsConsentSignModalOpen] = useState(false);
@@ -348,10 +329,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   useEffect(() => {
     localStorage.setItem('samanya_notifications', JSON.stringify(notifications));
   }, [notifications]);
-
-  useEffect(() => {
-    localStorage.setItem('samanya_conversations', JSON.stringify(conversations));
-  }, [conversations]);
 
   useEffect(() => {
     localStorage.setItem('samanya_vitals', JSON.stringify(vitalSigns));
@@ -813,26 +790,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setIsNewConsentModalOpen(false);
   };
 
-  const requestResidentAdmission = (req: Omit<AdmissionRequest, 'id' | 'requestedDate' | 'status'>) => {
-    const now = new Date();
-    const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-
-    // Add a notification about the submission
-    const newNotif: AppNotification = {
-      id: `notif-${Date.now()}`,
-      title: 'Solicitud de alta enviada a Administración',
-      message: `La solicitud para ${req.fullName} ha sido enviada al Administrador/Dueño para su revisión en la plataforma Web.`,
-      timestamp: 'Ahora mismo',
-      isRead: false,
-      type: 'alta',
-      targetScreen: 'residents'
-    };
-    setNotifications(prev => [newNotif, ...prev]);
-
-    showToast('Solicitud de alta enviada a Administración', 'success');
-    setIsAdmissionModalOpen(false);
-  };
-
   const addResidentMedication = (residentId: string, med: Omit<ResidentMedication, 'id' | 'status'>) => {
     const newMed: ResidentMedication = {
       ...med,
@@ -963,40 +920,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     );
   };
 
-  const sendMessage = (conversationId: string, text: string) => {
-    if (!text.trim()) return;
-    const now = new Date();
-    const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-
-    const newMsg: ChatMessage = {
-      id: `msg-${Date.now()}`,
-      conversationId,
-      senderId: 'me-familiar',
-      senderName: currentUser.name,
-      senderRole: 'Familiar',
-      text: text.trim(),
-      timestamp: timeStr,
-      isFromMe: true,
-      isRead: true
-    };
-
-    setConversations(prev =>
-      prev.map(conv => {
-        if (conv.id === conversationId) {
-          return {
-            ...conv,
-            hasHistory: true,
-            lastMessage: text.trim(),
-            lastMessageTime: timeStr,
-            messages: [...conv.messages, newMsg]
-          };
-        }
-        return conv;
-      })
-    );
-    showToast('Mensaje enviado', 'info');
-  };
-
   const markNotificationAsRead = (id: string) => {
     setNotifications(prev => prev.map(n => (n.id === id ? { ...n, isRead: true } : n)));
   };
@@ -1121,7 +1044,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const unreadNotificationsCount = notifications.filter(n => !n.isRead).length;
-  const unreadMessagesCount = conversations.reduce((acc, c) => acc + (c.unreadCount || 0), 0);
 
   return (
     <AppContext.Provider
@@ -1154,7 +1076,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         clinicalRecords,
         deletedClinicalRecords,
         notifications,
-        conversations,
         selectedDate,
         setSelectedDate,
         selectedResident,
@@ -1173,8 +1094,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setIsResidentDetailModalOpen,
         isResidentDetailFullScreen,
         setIsResidentDetailFullScreen,
-        isAdmissionModalOpen,
-        setIsAdmissionModalOpen,
         isBitacoraModalOpen,
         setIsBitacoraModalOpen,
         isVitalSignsModalOpen,
@@ -1187,8 +1106,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setIsNotificationsOpen,
         isRoleMenuOpen,
         setIsRoleMenuOpen,
-        isMessagesOpen,
-        setIsMessagesOpen,
         isConsentSignModalOpen,
         setIsConsentSignModalOpen,
         consentToSign,
@@ -1199,7 +1116,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setIsFamiliarVitalsModalOpen,
         isResidentPickerModalOpen,
         setIsResidentPickerModalOpen,
-        sendMessage,
         markMedicationAdministered,
         markTaskCompleted,
         unmarkTaskCompleted,
@@ -1215,14 +1131,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         updateClinicalRecord,
         deleteClinicalRecord,
         canEditOrDeleteClinicalRecord,
-        requestResidentAdmission,
         addResidentMedication,
         toggleResidentMedicationStatus,
         deleteResidentMedication,
         markNotificationAsRead,
         markAllNotificationsAsRead,
         unreadNotificationsCount,
-        unreadMessagesCount,
         toastMessage,
         toastType,
         showToast,

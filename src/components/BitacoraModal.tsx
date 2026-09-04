@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { X, Check } from 'lucide-react';
+import { X, Check, Info } from 'lucide-react';
 import { VoiceInputButton } from './VoiceInputButton';
 
 export const BitacoraModal: React.FC = () => {
@@ -47,6 +47,8 @@ export const BitacoraModal: React.FC = () => {
   const standardCategories = [
     'Visita médica',
     'Observación general',
+    'Gasto adicional',
+    'Visitante',
     'Higiene y confort',
     'Nutrición',
     'Otra'
@@ -119,9 +121,20 @@ export const BitacoraModal: React.FC = () => {
 
           {/* Voice Input Field */}
           <div>
-            <label className="block text-xs font-bold text-[#292A24] mb-1.5" htmlFor="bitacora-text">
-              Descripción de la observación
-            </label>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block text-xs font-bold text-[#292A24]" htmlFor="bitacora-text">
+                {category === 'Visitante'
+                  ? 'Registro de visita (dictado libre)'
+                  : category === 'Gasto adicional'
+                  ? 'Detalle del gasto adicional'
+                  : 'Descripción de la observación'}
+              </label>
+              {recordedByVoice && (
+                <span className="text-[11px] font-bold text-[#068591] bg-[#D9F0F1] px-2 py-0.5 rounded-md">
+                  Voz transcrita (editable)
+                </span>
+              )}
+            </div>
 
             <div className="relative">
               <textarea
@@ -130,17 +143,36 @@ export const BitacoraModal: React.FC = () => {
                 required
                 value={text}
                 onChange={(e) => setText(e.target.value)}
-                placeholder="Escribe o dicta por voz la observación..."
+                placeholder={
+                  category === 'Visitante'
+                    ? 'Ej: la hija de Doña Rosa llegó acompañada de un hombre joven...'
+                    : category === 'Gasto adicional'
+                    ? 'Ej: Compra extraordinaria en farmacia comunitaria de crema emoliente (14,20€)...'
+                    : 'Escribe o dicta por voz la observación...'
+                }
                 className="w-full p-3 pr-12 pb-12 bg-[#F7F7F8] border border-[#DEDBD1] rounded-2xl text-base text-[#292A24] placeholder:text-[#5C6058]/60 focus:outline-none focus:border-[#068591] focus:ring-2 focus:ring-[#068591]/20"
               />
               <div className="absolute right-2.5 bottom-2.5 z-10">
                 <VoiceInputButton
-                  contextHint="bitacora"
+                  contextHint={category === 'Visitante' ? 'visitante' : category === 'Gasto adicional' ? 'gasto_adicional' : 'bitacora'}
                   currentValue={text}
                   onTranscript={handleVoiceTranscript}
                 />
               </div>
             </div>
+
+            {/* Helper guidance note for visitor category */}
+            {category === 'Visitante' && (
+              <div className="mt-2 p-2.5 rounded-2xl bg-[#D9F0F1]/50 border border-[#068591]/20 text-xs text-[#075158] flex items-start gap-2">
+                <Info className="w-4 h-4 text-[#068591] shrink-0 mt-0.5" />
+                <div className="space-y-0.5">
+                  <p className="font-bold text-[#075158]">Orientación para registro libre:</p>
+                  <p className="text-[#292A24] leading-relaxed">
+                    Ej: la hija de Doña Rosa llegó acompañada de un hombre joven. Puedes incluir quién visitó, parentesco, horario o incidencias con total libertad y editar el texto antes de confirmar.
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Actions */}

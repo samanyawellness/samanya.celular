@@ -4,7 +4,7 @@ import { Mic, MicOff } from 'lucide-react';
 interface VoiceInputButtonProps {
   onTranscript: (text: string) => void;
   currentValue?: string;
-  contextHint?: 'excepcion_comida' | 'bitacora' | 'incidente';
+  contextHint?: 'excepcion_comida' | 'bitacora' | 'incidente' | 'visitante' | 'gasto_adicional';
   className?: string;
 }
 
@@ -71,6 +71,10 @@ export const VoiceInputButton: React.FC<VoiceInputButtonProps> = ({
         sampleText = 'Ingesta del 40% del plato principal, refiere inapetencia pero tomó los líquidos con espesante.';
       } else if (contextHint === 'incidente') {
         sampleText = 'Residente resbaló en el baño tras el aseo. Se encontraba consciente, refiere leve molestia en rodilla derecha sin deformidad.';
+      } else if (contextHint === 'visitante') {
+        sampleText = 'La hija de la residente llegó acompañada de un familiar joven. Estuvieron conversando en la sala común y paseando por el jardín. Residente muy animada y contenta.';
+      } else if (contextHint === 'gasto_adicional') {
+        sampleText = 'Adquisición en farmacia de crema hidratante específica para piel sensible y gel de baño dermatológico (15,80€).';
       } else {
         sampleText = 'Residente colaboradora durante el aseo matutino, piel bien hidratada y estado de ánimo alegre.';
       }

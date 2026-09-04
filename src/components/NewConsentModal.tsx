@@ -297,7 +297,7 @@ export const NewConsentModal: React.FC = () => {
                       <div>
                         <div className="text-xs font-bold text-[#292A24]">{resp.name}</div>
                         <div className="text-[11px] text-[#5C6058]">
-                          {resp.relationship} · {resp.email}
+                          {resp.relationship}
                         </div>
                       </div>
                       <div
