@@ -1,6 +1,7 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
 import { Bell } from 'lucide-react';
+import { DarkModeToggle } from './DarkModeToggle';
 
 interface HeaderProps {
   rightAction?: React.ReactNode;
@@ -50,8 +51,9 @@ export const Header: React.FC<HeaderProps> = ({ rightAction }) => {
           </div>
         )}
 
-        {/* Right: Notifications Bell or Custom Action */}
-        <div className="flex items-center gap-1">
+        {/* Right: Dark Mode Toggle & Notifications Bell or Custom Action */}
+        <div className="flex items-center gap-1.5">
+          <DarkModeToggle id="btn-header-dark-mode" />
           {rightAction ? (
             rightAction
           ) : (

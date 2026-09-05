@@ -11,6 +11,7 @@ import {
   X
 } from 'lucide-react';
 import { UserRole } from '../types';
+import { DarkModeToggle } from './DarkModeToggle';
 
 export const ProfileScreen: React.FC = () => {
   const { user: userFromContext, currentUser, switchRole, logout } = useApp();
@@ -181,6 +182,11 @@ export const ProfileScreen: React.FC = () => {
             </div>
             <ChevronRight className="w-4 h-4 text-[#5C6058]" />
           </button>
+
+          {/* Modo Oscuro */}
+          <div className="p-2.5">
+            <DarkModeToggle variant="row" id="toggle-profile-dark-mode" />
+          </div>
 
           {/* Configuración */}
           <button
@@ -387,6 +393,7 @@ export const ProfileScreen: React.FC = () => {
               </button>
             </div>
             <div className="space-y-3 text-xs">
+              <DarkModeToggle variant="row" id="toggle-modal-dark-mode" />
               <div className="flex items-center justify-between p-3.5 bg-[#F7F7F8] rounded-2xl border border-[#DEDBD1]/60">
                 <div>
                   <span className="font-bold text-[#292A24] block">Notificaciones sonoras</span>

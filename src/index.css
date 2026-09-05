@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @layer base {
   :root {
     --color-primary: #068591;
@@ -17,19 +19,206 @@
     --color-text-main: #292A24;
     --color-text-sec: #5C6058;
     --color-border: #DEDBD1;
+    --color-input-bg: #F7F7F8;
+    color-scheme: light;
+  }
+
+  html.dark {
+    --color-primary: #14B8C7;
+    --color-accent: #E5A853;
+    --color-success-bg: rgba(30, 122, 76, 0.22);
+    --color-success-text: #4ADE80;
+    --color-pending-bg: rgba(198, 138, 61, 0.22);
+    --color-pending-text: #FBBF24;
+    --color-alert-bg: rgba(140, 46, 46, 0.22);
+    --color-alert-text: #F87171;
+    --color-special-bg: rgba(20, 184, 199, 0.16);
+    --color-special-text: #38D9E8;
+    --color-page-bg: #101413;
+    --color-card-bg: #181D1B;
+    --color-text-main: #F0F3F1;
+    --color-text-sec: #9EA8A2;
+    --color-border: #2B3430;
+    --color-input-bg: #1B211E;
+    color-scheme: dark;
   }
 
   body {
     font-family: 'Work Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-    color: #292A24;
-    background-color: #F7F7F8;
+    color: var(--color-text-main);
+    background-color: var(--color-page-bg);
     font-size: 16px;
     line-height: 1.5;
+    transition: background-color 0.25s cubic-bezier(0.4, 0, 0.2, 1), color 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-    color: #292A24;
+    color: var(--color-text-main);
+  }
+}
+
+/* ==========================================================================
+   Comprehensive Dark Mode Surface & Contrast Overrides (WCAG AAA Optimized)
+   ========================================================================== */
+html.dark {
+  /* Surface elevations */
+  .bg-white {
+    background-color: #181D1B !important;
+  }
+  .bg-white\/95,
+  .bg-white\/90 {
+    background-color: rgba(24, 29, 27, 0.95) !important;
+  }
+  .bg-white\/80 {
+    background-color: rgba(24, 29, 27, 0.85) !important;
+  }
+  .bg-white\/50 {
+    background-color: rgba(24, 29, 27, 0.50) !important;
+  }
+
+  .bg-\[\#F7F7F8\] {
+    background-color: #101413 !important;
+  }
+  .bg-\[\#EFECE6\] {
+    background-color: #212824 !important;
+  }
+
+  /* Status and badge backgrounds with opacity modifiers */
+  .bg-\[\#D9F0F1\],
+  .bg-\[\#D9F0F1\]\/90,
+  .bg-\[\#D9F0F1\]\/80,
+  .bg-\[\#D9F0F1\]\/70,
+  .bg-\[\#D9F0F1\]\/60,
+  .bg-\[\#D9F0F1\]\/50,
+  .bg-\[\#D9F0F1\]\/40,
+  .bg-\[\#D9F0F1\]\/30,
+  .bg-\[\#D9F0F1\]\/20,
+  .bg-\[\#D9F0F1\]\/10,
+  [class*="bg-[#D9F0F1]"] {
+    background-color: rgba(20, 184, 199, 0.18) !important;
+  }
+  .bg-\[\#DFF3E7\],
+  [class*="bg-[#DFF3E7]"] {
+    background-color: rgba(34, 197, 94, 0.18) !important;
+  }
+  .bg-\[\#FBE9D2\],
+  [class*="bg-[#FBE9D2]"] {
+    background-color: rgba(245, 158, 11, 0.18) !important;
+  }
+  .bg-\[\#FBEAEA\],
+  .bg-\[\#FBEAEA\]\/60,
+  [class*="bg-[#FBEAEA]"] {
+    background-color: rgba(239, 68, 68, 0.18) !important;
+  }
+
+  /* Amber Alert cards (Autorización pendiente, etc.) */
+  .bg-\[\#FEF3EB\],
+  [class*="bg-[#FEF3EB]"] {
+    background-color: #241A10 !important;
+  }
+  .border-\[\#FAD7BC\],
+  [class*="border-[#FAD7BC]"] {
+    border-color: #5C3D1B !important;
+  }
+  .text-\[\#7A3600\],
+  [class*="text-[#7A3600]"] {
+    color: #FBBF24 !important;
+  }
+
+  /* Cyan summary cards (Resumen de hoy, etc.) */
+  .bg-\[\#EBF7F8\],
+  [class*="bg-[#EBF7F8]"] {
+    background-color: #122123 !important;
+  }
+  .border-\[\#BCE4E8\],
+  [class*="border-[#BCE4E8]"] {
+    border-color: #1D3F43 !important;
+  }
+
+  /* High contrast text inside tinted containers in dark mode */
+  [class*="bg-[#FEF3EB]"] .text-\[\#5C6058\],
+  .bg-\[\#FEF3EB\] .text-\[\#5C6058\] {
+    color: #D1D5DB !important;
+  }
+  [class*="bg-[#FEF3EB]"] .text-\[\#292A24\],
+  .bg-\[\#FEF3EB\] .text-\[\#292A24\] {
+    color: #FDE68A !important;
+  }
+  [class*="bg-[#D9F0F1]"] .text-\[\#5C6058\],
+  .bg-\[\#D9F0F1\] .text-\[\#5C6058\] {
+    color: #67E8F9 !important;
+  }
+  [class*="bg-[#DFF3E7]"] .text-\[\#5C6058\] {
+    color: #86EFAC !important;
+  }
+  [class*="bg-[#FBE9D2]"] .text-\[\#5C6058\] {
+    color: #FDE68A !important;
+  }
+  [class*="bg-[#FBEAEA]"] .text-\[\#5C6058\] {
+    color: #FCA5A5 !important;
+  }
+
+  /* Typography contrasts */
+  .text-\[\#292A24\] {
+    color: #F0F3F1 !important;
+  }
+  .text-\[\#5C6058\] {
+    color: #9EA8A2 !important;
+  }
+  .text-\[\#068591\] {
+    color: #14B8C7 !important;
+  }
+  .text-\[\#075158\] {
+    color: #38D9E8 !important;
+  }
+  .text-\[\#1E7A4C\] {
+    color: #4ADE80 !important;
+  }
+  .text-\[\#9A5B12\] {
+    color: #FBBF24 !important;
+  }
+  .text-\[\#8C2E2E\] {
+    color: #F87171 !important;
+  }
+
+  /* Borders and Dividers */
+  .border-\[\#DEDBD1\],
+  .border-\[\#DEDBD1\]\/60,
+  .border-\[\#DEDBD1\]\/80 {
+    border-color: #2B3430 !important;
+  }
+  .divide-\[\#DEDBD1\] > * + * {
+    border-color: #2B3430 !important;
+  }
+
+  /* Ring utility adjustments */
+  .ring-white {
+    --tw-ring-color: #181D1B !important;
+  }
+
+  /* Interactive / Hover overrides */
+  .hover\:bg-\[\#F7F7F8\]:hover {
+    background-color: #202623 !important;
+  }
+  .hover\:bg-black\/5:hover {
+    background-color: rgba(255, 255, 255, 0.08) !important;
+  }
+  .hover\:text-\[\#292A24\]:hover {
+    color: #FFFFFF !important;
+  }
+
+  /* Form Controls */
+  input:not([type="checkbox"]):not([type="radio"]),
+  textarea,
+  select {
+    background-color: #1B211E !important;
+    border-color: #2B3430 !important;
+    color: #F0F3F1 !important;
+  }
+  input::placeholder,
+  textarea::placeholder {
+    color: #6D7771 !important;
   }
 }
 
@@ -47,6 +236,13 @@
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #5C6058;
+}
+
+html.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #2B3430;
+}
+html.dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #414E48;
 }
 
 /* Touch feedback class */

@@ -15,6 +15,7 @@ import {
   Mail
 } from 'lucide-react';
 import { UserRole } from '../../types';
+import { DarkModeToggle } from '../DarkModeToggle';
 
 export const FamiliarProfileScreen: React.FC = () => {
   const { currentUser, switchRole, logout, familiarResidents, selectedFamiliarResident } = useApp();
@@ -165,6 +166,11 @@ export const FamiliarProfileScreen: React.FC = () => {
             </div>
             <ChevronRight className="w-4 h-4 text-[#5C6058]" />
           </button>
+
+          {/* Modo Oscuro */}
+          <div className="p-2.5">
+            <DarkModeToggle variant="row" id="toggle-familiar-profile-dark-mode" />
+          </div>
 
           {/* Configuración */}
           <button
@@ -339,6 +345,7 @@ export const FamiliarProfileScreen: React.FC = () => {
               </button>
             </div>
             <div className="py-4 space-y-3 text-xs">
+              <DarkModeToggle variant="row" id="toggle-familiar-modal-dark-mode" />
               <label className="flex items-center justify-between p-2.5 bg-[#F7F7F8] rounded-xl border border-[#DEDBD1] cursor-pointer">
                 <span className="font-semibold text-[#292A24]">Avisos de consentimientos urgentes</span>
                 <input type="checkbox" defaultChecked className="w-4 h-4 rounded text-[#068591] focus:ring-[#068591]" />

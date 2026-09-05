@@ -79,29 +79,37 @@ export const ResidentSelectorChip: React.FC = () => {
                       setSelectedFamiliarResidentId(resident.id);
                       setIsResidentPickerModalOpen(false);
                     }}
-                    className={`w-full flex items-center justify-between p-3 rounded-2xl border transition-all text-left ${
+                    className={`w-full flex items-center justify-between p-3.5 rounded-2xl border transition-all text-left ${
                       isSelected
-                        ? 'bg-[#D9F0F1]/60 border-[#068591] ring-1 ring-[#068591]'
-                        : 'bg-[#F7F7F8] border-[#DEDBD1] hover:bg-white'
+                        ? 'bg-[#D9F0F1]/70 dark:bg-[#153B3E] border-[#068591] dark:border-[#14B8C7] ring-1 ring-[#068591] dark:ring-[#14B8C7]'
+                        : 'bg-[#F7F7F8] dark:bg-[#181D1B] border-[#DEDBD1] dark:border-[#2B3430] hover:bg-white dark:hover:bg-[#202623]'
                     }`}
                   >
                     <div className="flex items-center gap-3">
                       <div>
-                        <div className="text-sm font-bold text-[#292A24]">
+                        <div className={`text-sm font-bold ${
+                          isSelected
+                            ? 'text-[#075158] dark:text-[#FFFFFF]'
+                            : 'text-[#292A24] dark:text-[#F0F3F1]'
+                        }`}>
                           {resident.name}
                         </div>
-                        <div className="text-xs text-[#5C6058]">
+                        <div className={`text-xs mt-0.5 font-medium ${
+                          isSelected
+                            ? 'text-[#075158] dark:text-[#67E8F9]'
+                            : 'text-[#5C6058] dark:text-[#A3ACA6]'
+                        }`}>
                           {resident.room} · {resident.bed}
                         </div>
                       </div>
                     </div>
 
                     {isSelected ? (
-                      <div className="w-6 h-6 rounded-full bg-[#068591] text-white flex items-center justify-center">
+                      <div className="w-6 h-6 rounded-full bg-[#068591] dark:bg-[#14B8C7] text-white flex items-center justify-center shadow-xs">
                         <Check className="w-3.5 h-3.5 stroke-[3]" />
                       </div>
                     ) : (
-                      <span className="text-xs text-[#5C6058] font-medium">Seleccionar</span>
+                      <span className="text-xs text-[#5C6058] dark:text-[#A3ACA6] font-medium">Seleccionar</span>
                     )}
                   </button>
                 );

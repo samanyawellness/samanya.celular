@@ -70,3 +70,23 @@ FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-04 23:18:16
 ================================================================================
 Subir al repositorio solo los archivos prompts.txt, creacion_modelo_relacional.sql y documentacion_esquema.html y hacer push
 
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-05 06:41:36
+================================================================================
+Subir al repositorio cuando lo indique.
+Comportate como un experto en UIX y adiciona un boton e implementa el modo oscuro para la aplicacion.
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-05 08:05:29
+================================================================================
+En la grafica se muestra que debajo del nombre no se alcanza a leer en modo oscuro la habitacion y la cama
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-05 08:19:54
+================================================================================
+En la autorizacion pendiente de firma no se ve el nombre en modo oscuro
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-05 08:34:41
+================================================================================
+Subir al repositorio y hacer push

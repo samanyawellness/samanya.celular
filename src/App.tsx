@@ -28,6 +28,7 @@ import { FamiliarConsentModal } from './components/familiar/FamiliarConsentModal
 import { FamiliarVitalsModal } from './components/familiar/FamiliarVitalsModal';
 
 import { Smartphone, Monitor, Bell } from 'lucide-react';
+import { DarkModeToggle } from './components/DarkModeToggle';
 
 const MainLayout: React.FC = () => {
   const {
@@ -108,6 +109,7 @@ const MainLayout: React.FC = () => {
             )}
 
             <div className="flex items-center gap-2">
+              <DarkModeToggle id="btn-top-dark-mode" />
               <button
                 id="btn-top-notifications"
                 type="button"

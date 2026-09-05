@@ -10,6 +10,7 @@ import {
   UserCheck,
   HeartHandshake
 } from 'lucide-react';
+import { DarkModeToggle } from './DarkModeToggle';
 
 export const RoleMenu: React.FC = () => {
   const {
@@ -171,6 +172,9 @@ export const RoleMenu: React.FC = () => {
             </div>
             <span>Cambiar Contraseña</span>
           </button>
+
+          {/* Modo Oscuro */}
+          <DarkModeToggle variant="row" id="toggle-role-menu-dark-mode" />
 
           {/* Configuración */}
           <button

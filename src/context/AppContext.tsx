@@ -172,6 +172,11 @@ interface AppContextType {
   toastType: 'success' | 'info' | 'alert';
   showToast: (message: string, type?: 'success' | 'info' | 'alert') => void;
   openResidentHub: (resident: Resident, asModal?: boolean) => void;
+
+  // Dark Mode Theme
+  isDarkMode: boolean;
+  toggleDarkMode: () => void;
+  setDarkMode: (val: boolean) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -196,6 +201,33 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [selectedFamiliarResidentId, setSelectedFamiliarResidentId] = useState<string>('res-1');
   const [currentScreen, setCurrentScreen] = useState<string>('app');
   const [selectedDate, setSelectedDate] = useState<string>('2026-08-19');
+
+  // Dark Mode Theme State
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
+    const saved = localStorage.getItem('samanya_dark_mode');
+    if (saved !== null) {
+      return saved === 'true';
+    }
+    return typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  });
+
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('samanya_dark_mode', 'true');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('samanya_dark_mode', 'false');
+    }
+  }, [isDarkMode]);
+
+  const toggleDarkMode = () => {
+    setIsDarkMode((prev) => !prev);
+  };
+
+  const setDarkMode = (val: boolean) => {
+    setIsDarkMode(val);
+  };
 
   // Persistence keys
   const [residents, setResidents] = useState<Resident[]>(() => {
@@ -1140,7 +1172,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         toastMessage,
         toastType,
         showToast,
-        openResidentHub
+        openResidentHub,
+        isDarkMode,
+        toggleDarkMode,
+        setDarkMode
       }}
     >
       {children}
