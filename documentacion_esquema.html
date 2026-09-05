@@ -1,0 +1,2338 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Documentación Técnica del Esquema Relacional — SAMANYA OS (SMY_)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Source+Sans+3:ital,wght@0,300;0,400;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<!-- Vis.js Network para Diagrama Interactivo de Nodos Arrastrables y Layouts -->
+<script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+<!-- Mermaid.js para diagrama ERD estándar -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'base',
+    themeVariables: {
+      primaryColor: '#274a3f',
+      primaryTextColor: '#ffffff',
+      primaryBorderColor: '#182f28',
+      lineColor: '#b3803f',
+      secondaryColor: '#f1ede3',
+      tertiaryColor: '#ffffff',
+      fontFamily: 'Source Sans 3, sans-serif'
+    }
+  });
+</script>
+<style>
+:root {
+  --ink: #1f2220;
+  --ink-soft: #4a524d;
+  --paper: #f7f5f0;
+  --paper-card: #ffffff;
+  --paper-dark: #ebe5d8;
+  --forest: #274a3f;
+  --forest-deep: #142822;
+  --forest-light: #e8f0ed;
+  --ochre: #b3803f;
+  --ochre-soft: #faeedb;
+  --accent: #2c7a6b;
+  --admin-color: #7a4f9e;
+  --danger: #b93829;
+  --success: #2e7d32;
+  --line: #d8d2c4;
+  --border-radius: 10px;
+  --shadow: 0 4px 20px rgba(0,0,0,0.06);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background-color: var(--paper);
+  color: var(--ink);
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+h1, h2, h3, h4 {
+  font-family: 'Fraunces', serif;
+  color: var(--forest-deep);
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.mono {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.88em;
+}
+
+/* Layout Principal */
+.layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  min-height: 100vh;
+}
+
+/* Sidebar de Navegación */
+aside.sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  background: var(--forest-deep);
+  color: #f1ede3;
+  padding: 30px 20px 50px;
+  border-right: 1px solid #0a1713;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+aside.sidebar::-webkit-scrollbar { width: 6px; }
+aside.sidebar::-webkit-scrollbar-thumb { background: #375349; border-radius: 3px; }
+
+.sidebar-brand {
+  border-bottom: 1px solid rgba(255,255,255,0.12);
+  padding-bottom: 14px;
+}
+.sidebar-brand h2 {
+  color: #fff;
+  font-size: 1.35rem;
+  letter-spacing: 0.5px;
+}
+.sidebar-brand p {
+  color: var(--ochre);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-top: 4px;
+}
+
+.search-box {
+  position: relative;
+}
+.search-box input {
+  width: 100%;
+  padding: 9px 12px;
+  border-radius: 6px;
+  border: 1px solid #375349;
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 0.85rem;
+  outline: none;
+}
+.search-box input::placeholder { color: #8e9e97; }
+.search-box input:focus { border-color: var(--ochre); background: rgba(255,255,255,0.14); }
+
+.nav-menu {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.nav-menu a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #d1cbc0;
+  text-decoration: none;
+  font-size: 0.88rem;
+  padding: 7px 10px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+.nav-menu a:hover {
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+}
+.nav-menu .num {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--ochre);
+  flex-shrink: 0;
+}
+
+.nav-submenu {
+  list-style: none;
+  margin-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.nav-submenu a {
+  font-size: 0.78rem;
+  padding: 3px 8px;
+  color: #9ea8a2;
+}
+.nav-submenu a:hover { color: #e6e3da; }
+
+/* Contenido Principal */
+main.content {
+  padding: 45px 65px 100px;
+  max-width: 1320px;
+}
+
+.header-banner {
+  background: linear-gradient(135deg, #ffffff 0%, #f4eee2 100%);
+  border: 1px solid var(--line);
+  border-radius: var(--border-radius);
+  padding: 36px 40px;
+  margin-bottom: 44px;
+  position: relative;
+  box-shadow: var(--shadow);
+}
+.header-banner .tagline {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.82rem;
+  color: var(--ochre);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+.header-banner h1 {
+  font-size: 2.4rem;
+  margin-bottom: 12px;
+  color: var(--forest-deep);
+}
+.header-banner p.lead {
+  font-size: 1.08rem;
+  color: var(--ink-soft);
+  max-width: 920px;
+}
+
+.meta-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 22px;
+  margin-top: 24px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
+.stat-pill {
+  display: flex;
+  flex-direction: column;
+}
+.stat-pill .num {
+  font-family: 'Fraunces', serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--forest);
+}
+.stat-pill .label {
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #737c76;
+}
+
+/* Secciones */
+section {
+  margin-bottom: 55px;
+  scroll-margin-top: 24px;
+}
+section > h2 {
+  font-size: 1.8rem;
+  border-bottom: 2px solid var(--line);
+  padding-bottom: 10px;
+  margin-bottom: 22px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+section > h2 .sec-id {
+  color: var(--ochre);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 1.1rem;
+}
+
+h3 {
+  font-size: 1.3rem;
+  margin: 30px 0 14px;
+  color: var(--forest);
+  scroll-margin-top: 20px;
+}
+
+p { margin-bottom: 12px; color: var(--ink-soft); }
+
+/* Tarjetas y Paneles */
+.card {
+  background: var(--paper-card);
+  border: 1px solid var(--line);
+  border-radius: var(--border-radius);
+  padding: 22px 26px;
+  margin-bottom: 22px;
+  box-shadow: var(--shadow);
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.feature-box {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--accent);
+  border-radius: 8px;
+  padding: 16px 18px;
+}
+.feature-box.admin { border-left-color: var(--admin-color); }
+.feature-box.ochre { border-left-color: var(--ochre); }
+.feature-box.danger { border-left-color: var(--danger); }
+.feature-box h4 {
+  font-size: 1.02rem;
+  margin-bottom: 6px;
+}
+.feature-box p {
+  font-size: 0.88rem;
+  margin-bottom: 0;
+}
+
+/* Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.badge-pk { background: #fee2e2; color: #991b1b; }
+.badge-fk { background: #dbeafe; color: #1e40af; }
+.badge-req { background: #fef3c7; color: #92400e; }
+.badge-opt { background: #f3f4f6; color: #4b5563; }
+.badge-oracle { background: #e0f2fe; color: #0369a1; font-family: 'IBM Plex Mono', monospace; }
+
+/* Tablas de Diccionario de Datos */
+.table-container {
+  overflow-x: auto;
+  margin: 16px 0 26px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--border-radius);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+}
+
+table.data-dict {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.86rem;
+  text-align: left;
+}
+table.data-dict th {
+  background: var(--forest-deep);
+  color: #fff;
+  padding: 11px 14px;
+  font-family: 'Source Sans 3', sans-serif;
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+table.data-dict td {
+  padding: 9px 14px;
+  border-bottom: 1px solid #ede8dc;
+  vertical-align: top;
+}
+table.data-dict tr:last-child td { border-bottom: none; }
+table.data-dict tr:hover td { background: #fcfbfa; }
+
+.col-name {
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 600;
+  color: var(--forest-deep);
+}
+.col-type {
+  font-family: 'IBM Plex Mono', monospace;
+  color: #4338ca;
+  font-size: 0.82rem;
+}
+
+/* Callouts y Alertas */
+.callout {
+  background: var(--ochre-soft);
+  border-left: 4px solid var(--ochre);
+  padding: 15px 18px;
+  border-radius: 0 8px 8px 0;
+  margin: 18px 0;
+  font-size: 0.9rem;
+}
+.callout-info {
+  background: var(--forest-light);
+  border-left: 4px solid var(--forest);
+}
+
+/* Código SQL y Snippets */
+pre.code-block {
+  background: #18221e;
+  color: #e2e8f0;
+  padding: 16px 20px;
+  border-radius: 8px;
+  overflow-x: auto;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.84rem;
+  line-height: 1.5;
+  margin: 14px 0;
+  border: 1px solid #2d3e38;
+}
+
+/* Botón y Contenedor del Diagrama */
+.diagram-container {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: var(--border-radius);
+  padding: 24px;
+  box-shadow: var(--shadow);
+  margin: 22px 0;
+  text-align: center;
+}
+.btn-primary {
+  background: var(--forest);
+  color: #fff;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+.btn-primary:hover {
+  background: var(--forest-deep);
+  transform: translateY(-1px);
+}
+.btn-primary:active { transform: translateY(0); }
+
+/* Ventana Modal Avanzada con Vis.js Interactive Network y Persistencia Aislada */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(14, 26, 22, 0.88);
+  backdrop-filter: blur(5px);
+  z-index: 9999;
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
+}
+.modal-overlay.active {
+  display: flex;
+}
+.modal-window {
+  background: #ffffff;
+  width: 96vw;
+  height: 92vh;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.45);
+  overflow: hidden;
+}
+.modal-header {
+  background: var(--forest-deep);
+  color: #ffffff;
+  padding: 14px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.modal-header h3 {
+  color: #ffffff;
+  margin: 0;
+  font-size: 1.18rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.modal-toolbar {
+  background: #f1ede3;
+  border-bottom: 1px solid var(--line);
+  padding: 10px 18px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.toolbar-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.toolbar-group label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--forest-deep);
+  text-transform: uppercase;
+}
+.toolbar-select, .toolbar-input {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 0.84rem;
+  background: #fff;
+  outline: none;
+}
+.toolbar-btn {
+  background: #fff;
+  border: 1px solid var(--line);
+  color: var(--forest-deep);
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.15s ease;
+}
+.toolbar-btn:hover {
+  background: var(--forest);
+  color: #fff;
+  border-color: var(--forest);
+}
+.toolbar-btn.btn-save {
+  background: #2c7a6b;
+  color: #fff;
+  border-color: #2c7a6b;
+}
+.toolbar-btn.btn-save:hover {
+  background: #1c5349;
+}
+.toolbar-btn.btn-reset-pos {
+  background: #faeedb;
+  color: #b3803f;
+  border-color: #dcb87f;
+}
+.toolbar-btn.btn-reset-pos:hover {
+  background: #b3803f;
+  color: #fff;
+}
+.close-btn {
+  background: var(--danger);
+  color: #fff;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.close-btn:hover { background: #991b1b; }
+
+.modal-body {
+  flex: 1;
+  background: #faf8f5;
+  position: relative;
+  overflow: hidden;
+}
+#vis-network-container {
+  width: 100%;
+  height: 100%;
+}
+
+/* Toast de notificación de guardado local */
+.save-toast {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  background: rgba(39, 74, 63, 0.95);
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.3s ease;
+  pointer-events: none;
+  z-index: 10000;
+}
+.save-toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Footer */
+footer {
+  margin-top: 70px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+  font-size: 0.85rem;
+  color: #79827c;
+  display: flex;
+  justify-content: space-between;
+}
+
+@media (max-width: 1024px) {
+  .layout { grid-template-columns: 1fr; }
+  aside.sidebar { height: auto; position: relative; }
+  main.content { padding: 25px 18px; }
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- BARRA LATERAL CON NAVEGACIÓN COMPLETA Y VERIFICADA -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <h2>SAMANYA OS</h2>
+      <p>Esquema SMY_ · Oracle v3.3</p>
+    </div>
+
+    <div class="search-box">
+      <input type="text" id="tableSearch" placeholder="Buscar tabla o columna..." onkeyup="filterTables()">
+    </div>
+
+    <ul class="nav-menu">
+      <li><a href="#propuesta"><span class="num">01</span>Propuesta y Estándares</a></li>
+      <li><a href="#gaps"><span class="num">02</span>Evolución de Pantallas</a></li>
+      <li><a href="#diagrama"><span class="num">03</span>Modelo Relacional (ERD)</a></li>
+      <li>
+        <a href="#diccionario"><span class="num">04</span>Diccionario de Datos</a>
+        <ul class="nav-submenu">
+          <li><a href="#mod-lookups">0. Catálogos Maestros (44)</a></li>
+          <li><a href="#mod-seguridad">1. Seguridad y Acceso</a></li>
+          <li><a href="#mod-talento">2. Talento y Turnos</a></li>
+          <li><a href="#mod-residentes">3. Residentes y Admisión</a></li>
+          <li><a href="#mod-historia">4. Historia y Archivos</a></li>
+          <li><a href="#mod-bitacora">5. Bitácora y Signos</a></li>
+          <li><a href="#mod-medicacion">6. Farmacoterapia</a></li>
+          <li><a href="#mod-nutricion">7. Nutrición y Menú</a></li>
+          <li><a href="#mod-tareas">8. Tareas y Calendario</a></li>
+          <li><a href="#mod-suministros">9. Suministros y Gastos</a></li>
+          <li><a href="#mod-consentimientos">10. Consentimientos</a></li>
+          <li><a href="#mod-incidentes">11. Incidentes y Calidad</a></li>
+          <li><a href="#mod-comunicaciones">12. Chat y Notificaciones</a></li>
+          <li><a href="#mod-vistas">13. Vistas del Sistema</a></li>
+        </ul>
+      </li>
+      <li><a href="#oracle-specs"><span class="num">05</span>Triggers y Secuencias</a></li>
+      <li><a href="#indices"><span class="num">06</span>Estrategia de Índices</a></li>
+      <li><a href="#seguridad"><span class="num">07</span>Habeas Data & Auditoría</a></li>
+    </ul>
+  </aside>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="content">
+
+    <div class="header-banner">
+      <div class="tagline">Arquitectura Empresarial Normalizada · Prefijo SMY_</div>
+      <h1>Modelo Relacional de Gestión Geriátrica</h1>
+      <p class="lead">
+        Especificación técnica exhaustiva del esquema de datos para <strong>Oracle Database</strong>. Todas las tablas inician con el prefijo <span class="mono">SMY_</span>, todas las claves foráneas inician con el prefijo <span class="mono">ID_</span>, las fechas por defecto registran la <strong>hora legal de Bogotá, Colombia (UTC-5)</strong> mediante <span class="mono">CAST(SYSTIMESTAMP AT TIME ZONE '-05:00' AS DATE)</span>, y <strong>todas las tablas incluyen los campos de auditoría <span class="mono">FECHA_CREACION</span> e <span class="mono">ID_USUARIO_ULTIMA_MODIFICACION</span></strong>.
+      </p>
+
+      <div class="meta-stats">
+        <div class="stat-pill"><span class="num">72</span><span class="label">Total de Tablas SMY_</span></div>
+        <div class="stat-pill"><span class="num">44</span><span class="label">Catálogos Maestros (Lookups)</span></div>
+        <div class="stat-pill"><span class="num">28</span><span class="label">Tablas Transaccionales</span></div>
+        <div class="stat-pill"><span class="num">1</span><span class="label">Vista Timeline Unificada</span></div>
+        <div class="stat-pill"><span class="num">100%</span><span class="label">Auditoría Completa</span></div>
+        <div class="stat-pill"><span class="num">UTC-5</span><span class="label">Hora Bogotá Colombia</span></div>
+      </div>
+    </div>
+
+    <!-- SECCION 1: PROPUESTA INTEGRAL -->
+    <section id="propuesta">
+      <h2><span class="sec-id">01</span>Propuesta Integral y Estándares de Arquitectura</h2>
+      <p>
+        El modelo de base de datos relacional para SAMANYA OS está normalizado en Tercera Forma Normal (3NF) y diseñado bajo las mejores prácticas de Oracle Database Enterprise:
+      </p>
+
+      <div class="grid-3">
+        <div class="feature-box">
+          <h4>1. Convención Foráneas ID_*</h4>
+          <p>Toda clave foránea comienza obligatoriamente con <span class="mono">ID_</span> (ej. <span class="mono">ID_ROL</span>, <span class="mono">ID_USUARIO</span>, <span class="mono">ID_RESIDENTE</span>, <span class="mono">ID_ESTADO_CONSENTIMIENTO</span>), garantizando consistencia semántica en todo el modelo.</p>
+        </div>
+        <div class="feature-box admin">
+          <h4>2. Hora Oficial Bogotá (UTC-5)</h4>
+          <p>Todos los campos de fecha toman por defecto la hora legal de Bogotá, Colombia mediante <span class="mono">DEFAULT CAST(SYSTIMESTAMP AT TIME ZONE '-05:00' AS DATE)</span>, evitando desfases por la zona horaria del servidor físico.</p>
+        </div>
+        <div class="feature-box ochre">
+          <h4>3. Estándar de Auditoría Total</h4>
+          <p>Todas las tablas contienen <span class="mono">FECHA_CREACION DATE</span> y <span class="mono">ID_USUARIO_ULTIMA_MODIFICACION NUMBER(10)</span>, junto a secuencias dedicadas y triggers <span class="mono">BEFORE INSERT</span>.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECCION 2: EVOLUCION DE PANTALLAS -->
+    <section id="gaps">
+      <h2><span class="sec-id">02</span>Evolución de Pantallas vs Requerimientos Iniciales</h2>
+      <p>
+        Integración de las funcionalidades y optimizaciones implementadas en las pantallas y arquitectura móvil:
+      </p>
+
+      <div class="table-container">
+        <table class="data-dict">
+          <thead>
+            <tr>
+              <th>Funcionalidad / Optimización</th>
+              <th>Tablas SMY_ / Objetos</th>
+              <th>Campos / Foráneas Incorporadas</th>
+              <th>Valor de Negocio y Operación Móvil</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Tokens Push para Celulares</strong></td>
+              <td><span class="mono">SMY_DISPOSITIVOS_PUSH</span></td>
+              <td><span class="mono">ID_USUARIO</span>, <span class="mono">TOKEN_DISPOSITIVO</span>, <span class="mono">PLATAFORMA</span></td>
+              <td>Despacho directo de alertas FCM/APNs a smartphones de cuidadores y familiares.</td>
+            </tr>
+            <tr>
+              <td><strong>Asistencia a Tareas Grupales</strong></td>
+              <td><span class="mono">SMY_TAREA_RESIDENTES</span></td>
+              <td><span class="mono">ID_TAREA_OPERATIVA</span>, <span class="mono">ID_RESIDENTE</span>, <span class="mono">ASISTIO</span></td>
+              <td>Seguimiento individualizado de residentes en talleres, higiene y fisioterapia grupal.</td>
+            </tr>
+            <tr>
+              <td><strong>Trazo Gráfico de Firma Digital</strong></td>
+              <td><span class="mono">SMY_CONSENTIMIENTO_DESTINATARIOS</span></td>
+              <td><span class="mono">FIRMA_IMAGEN_URL</span>, <span class="mono">FIRMA_CANVAS_BASE64</span></td>
+              <td>Captura del trazo manuscrito en pantalla táctil y soporte para actas en PDF.</td>
+            </tr>
+            <tr>
+              <td><strong>Código QR de Residente</strong></td>
+              <td><span class="mono">SMY_RESIDENTES</span></td>
+              <td><span class="mono">CODIGO_QR_TOKEN</span></td>
+              <td>UUID seguro para lectura rápida en cama/habitación desde la cámara del celular.</td>
+            </tr>
+            <tr>
+              <td><strong>Muro / Timeline Unificado</strong></td>
+              <td><span class="mono">V_SMY_TIMELINE_RESIDENTE</span></td>
+              <td>Vista SQL con <span class="mono">UNION ALL</span></td>
+              <td>Alimenta el feed cronológico diario de la ficha y portal familiar en una sola consulta.</td>
+            </tr>
+            <tr>
+              <td><strong>Gestión de Suministros y Gastos</strong></td>
+              <td><span class="mono">SMY_SUMINISTROS_REGISTRO</span>, <span class="mono">SMY_TIPOS_SUMINISTROS</span>, <span class="mono">SMY_ESTADOS_PAGOS</span></td>
+              <td><span class="mono">ID_TIPO_SUMINISTRO</span>, <span class="mono">ID_ESTADO_PAGO</span></td>
+              <td>Control de insumos traídos por familiares y gastos extras.</td>
+            </tr>
+            <tr>
+              <td><strong>Gestor Documental y Papelera</strong></td>
+              <td><span class="mono">SMY_DOCUMENTOS_CLINICOS</span>, <span class="mono">SMY_DOCUMENTOS_ELIMINADOS_LOG</span>, <span class="mono">SMY_CATEGORIAS_DOC_CLINICOS</span></td>
+              <td><span class="mono">ID_CATEGORIA_DOC_CLINICO</span>, <span class="mono">ID_ESTADO_DOC_CLINICO</span></td>
+              <td>Expedientes digitales y protección ante borrado de exámenes.</td>
+            </tr>
+            <tr>
+              <td><strong>Consentimientos Multifirma</strong></td>
+              <td><span class="mono">SMY_CONSENTIMIENTOS</span>, <span class="mono">SMY_CONSENTIMIENTO_DESTINATARIOS</span>, <span class="mono">SMY_ESTADOS_FIRMAS_CONS</span></td>
+              <td><span class="mono">ID_ESTADO_CONSENTIMIENTO</span>, <span class="mono">ID_ESTADO_FIRMA_CONS</span></td>
+              <td>Aprobaciones digitales con hash e IP de acudientes.</td>
+            </tr>
+            <tr>
+              <td><strong>Solicitudes Previas de Admisión</strong></td>
+              <td><span class="mono">SMY_SOLICITUDES_ADMISION</span>, <span class="mono">SMY_SOLICITUD_ADM_CONTACTOS</span>, <span class="mono">SMY_ESTADOS_SOLICITUDES_ADM</span></td>
+              <td><span class="mono">ID_ESTADO_SOLICITUD_ADM</span>, <span class="mono">ID_GENERO</span>, <span class="mono">ID_NIVEL_MOVILIDAD</span></td>
+              <td>Evaluación clínica previa antes del ingreso formal.</td>
+            </tr>
+            <tr>
+              <td><strong>Mensajería Interna y Chat</strong></td>
+              <td><span class="mono">SMY_CONVERSACIONES_CHAT</span>, <span class="mono">SMY_CHAT_PARTICIPANTES</span>, <span class="mono">SMY_MENSAJES_CHAT</span></td>
+              <td><span class="mono">ID_TIPO_CANAL_CHAT</span>, <span class="mono">ID_TIPO_ADJUNTO_CHAT</span></td>
+              <td>Canal directo y seguro entre acudiente y personal asistencial.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- SECCION 3: DIAGRAMA RELACIONAL ERD CON VISOR INTERACTIVO Y PERSISTENCIA AISLADA -->
+    <section id="diagrama">
+      <h2><span class="sec-id">03</span>Modelo Relacional (Visor Interactivo y Persistente)</h2>
+      <p>
+        Haz clic en el botón para abrir el <strong>Visor de Arquitectura Dinámico</strong> en una ventana modal. Cuando organizas las tablas en la opción <strong>Libre / Posiciones Guardadas</strong>, tus coordenadas personalizadas quedan <strong>guardadas en memoria aislada</strong> de forma que puedes cambiar a disposiciones automáticas (Jerárquico, Fuerza) y al regresar a "Libre" tus tablas volverán exactamente a la posición que dejaste:
+      </p>
+
+      <div class="diagram-container">
+        <button class="btn-primary" onclick="openDiagramModal()">
+          <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
+          Abrir Visor Interactivo (Mover y Guardar Posiciones)
+        </button>
+
+        <div style="margin-top:20px; overflow-x:auto;">
+          <pre class="mermaid">
+erDiagram
+    SMY_ROLES ||--o{ SMY_USUARIOS : "ID_ROL"
+    SMY_TIPOS_USUARIOS ||--o{ SMY_USUARIOS : "ID_TIPO_USUARIO"
+    SMY_ESTADOS_USUARIOS ||--o{ SMY_USUARIOS : "ID_ESTADO_USUARIO"
+    SMY_USUARIOS ||--o| SMY_EMPLEADOS : "ID_USUARIO"
+    SMY_USUARIOS ||--o| SMY_ACUDIENTES : "ID_USUARIO"
+    
+    SMY_EMPLEADOS ||--o{ SMY_TURNOS_ASIGNADOS : "ID_EMPLEADO"
+    SMY_PLANTILLAS_TURNO ||--o{ SMY_TURNOS_ASIGNADOS : "ID_PLANTILLA_TURNO"
+    SMY_EMPLEADOS ||--o{ SMY_SOLICITUDES_PERMISOS : "ID_EMPLEADO"
+    
+    SMY_RESIDENTES ||--|{ SMY_RESIDENTE_ACUDIENTE : "ID_RESIDENTE"
+    SMY_ACUDIENTES ||--|{ SMY_RESIDENTE_ACUDIENTE : "ID_ACUDIENTE"
+    
+    SMY_RESIDENTES ||--o| SMY_HISTORIAS_CLINICAS : "ID_RESIDENTE"
+    SMY_RESIDENTES ||--o{ SMY_DOCUMENTOS_CLINICOS : "ID_RESIDENTE"
+    SMY_RESIDENTES ||--o{ SMY_BITACORA_RESIDENTE : "ID_RESIDENTE"
+    SMY_RESIDENTES ||--o{ SMY_SIGNOS_VITALES : "ID_RESIDENTE"
+    
+    SMY_RESIDENTES ||--o{ SMY_MEDICAMENTOS_PRESCRITOS : "ID_RESIDENTE"
+    SMY_MEDICAMENTOS_PRESCRITOS ||--o{ SMY_REGISTROS_ADMIN_MED : "ID_MEDICAMENTO_PRESCRITO"
+    
+    SMY_RESIDENTES ||--o| SMY_PLANES_NUTRICIONALES : "ID_RESIDENTE"
+    SMY_RESIDENTES ||--o{ SMY_REGISTROS_ALIM_DETALLE : "ID_RESIDENTE"
+    SMY_REGISTROS_ALIM_SESION ||--o{ SMY_REGISTROS_ALIM_DETALLE : "ID_SESION_ALIMENTACION"
+    
+    SMY_RESIDENTES ||--o{ SMY_TAREAS_OPERATIVAS : "ID_RESIDENTE"
+    SMY_RESIDENTES ||--o{ SMY_SUMINISTROS_REGISTRO : "ID_RESIDENTE"
+    SMY_RESIDENTES ||--o{ SMY_CONSENTIMIENTOS : "ID_RESIDENTE"
+    SMY_CONSENTIMIENTOS ||--|{ SMY_CONSENTIMIENTO_DESTINATARIOS : "ID_CONSENTIMIENTO"
+    
+    SMY_INCIDENTES ||--|{ SMY_INCIDENTE_RESIDENTES : "ID_INCIDENTE"
+    SMY_RESIDENTES ||--|{ SMY_INCIDENTE_RESIDENTES : "ID_RESIDENTE"
+    
+    SMY_CONVERSACIONES_CHAT ||--|{ SMY_CHAT_PARTICIPANTES : "ID_CONVERSACION_CHAT"
+    SMY_USUARIOS ||--|{ SMY_CHAT_PARTICIPANTES : "ID_USUARIO"
+    SMY_CONVERSACIONES_CHAT ||--o{ SMY_MENSAJES_CHAT : "ID_CONVERSACION_CHAT"
+    SMY_USUARIOS ||--o{ SMY_NOTIFICACIONES_SISTEMA : "ID_USUARIO_DESTINO"
+          </pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- VENTANA MODAL AVANZADA INTERACTIVA CON VIS.JS Y PERSISTENCIA AISLADA -->
+    <div class="modal-overlay" id="diagramModal">
+      <div class="modal-window">
+        <div class="modal-header">
+          <h3>
+            <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+            Visor Relacional Dinámico — SAMANYA OS (Auto-guardado en LocalStorage)
+          </h3>
+          <button class="close-btn" onclick="closeDiagramModal()">✖ Cerrar Visor</button>
+        </div>
+
+        <div class="modal-toolbar">
+          <div class="toolbar-group">
+            <label>Disposición (Layout):</label>
+            <select class="toolbar-select" id="layoutSelect" onchange="changeLayout(this.value)">
+              <option value="free">Libre / Posiciones Guardadas</option>
+              <option value="physics">Orgánico / Fuerza (Physics)</option>
+              <option value="hierarchical-UD">Jerárquico (Vertical)</option>
+              <option value="hierarchical-LR">Jerárquico (Horizontal)</option>
+            </select>
+          </div>
+
+          <div class="toolbar-group">
+            <label>Conectores:</label>
+            <select class="toolbar-select" id="edgeSelect" onchange="changeEdgeType(this.value)">
+              <option value="cubicBezier">Curvas Suaves (Bezier)</option>
+              <option value="straight">Líneas Rectas</option>
+              <option value="discrete">Ángulos Discretos</option>
+            </select>
+          </div>
+
+          <div class="toolbar-group">
+            <input type="text" id="nodeSearchInput" class="toolbar-input" placeholder="Buscar tabla..." onkeyup="searchNodeInNetwork(this.value)">
+            <button class="toolbar-btn btn-save" onclick="saveCustomPositions(true)">💾 Guardar Posición</button>
+            <button class="toolbar-btn btn-reset-pos" onclick="resetSavedPositions()">🔄 Reiniciar Posiciones</button>
+            <button class="toolbar-btn" onclick="zoomInNetwork()">🔍+</button>
+            <button class="toolbar-btn" onclick="zoomOutNetwork()">🔍-</button>
+            <button class="toolbar-btn" onclick="fitNetwork()">🔄 Ajustar</button>
+          </div>
+        </div>
+
+        <div class="modal-body">
+          <div id="vis-network-container"></div>
+          <div class="save-toast" id="saveToast">✓ Posiciones guardadas en el navegador</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECCION 4: DICCIONARIO DE DATOS DETALLADO -->
+    <section id="diccionario">
+      <h2><span class="sec-id">04</span>Diccionario de Datos Detallado (79 Tablas con Auditoría Completa)</h2>
+      <p>Todas las tablas contienen sus claves primarias generadas por secuencias/triggers, foráneas con prefijo <span class="mono">ID_*</span>, valores por defecto de fecha en hora legal de Bogotá (UTC-5) y los campos obligatorios de auditoría <span class="mono">FECHA_CREACION</span> e <span class="mono">ID_USUARIO_ULTIMA_MODIFICACION</span>.</p>
+
+      <!-- 4.0 CATALOGOS MAESTROS -->
+      <h3 id="mod-lookups">4.0 Resumen de Tablas Maestras y Catálogos de Opciones (44 tablas)</h3>
+      <p>Cada una de estas 44 tablas cuenta con columnas <span class="mono">ID</span> (PK), <span class="mono">NOMBRE_*</span> (Descriptor), <span class="mono">FECHA_CREACION</span> e <span class="mono">ID_USUARIO_ULTIMA_MODIFICACION</span>:</p>
+      
+      <div class="table-container">
+        <table class="data-dict">
+          <thead>
+            <tr>
+              <th>Tabla Maestra (Lookup)</th>
+              <th>Campo Clave (PK)</th>
+              <th>Campo Descriptor</th>
+              <th>Tabla Relacionada</th>
+              <th>Clave Foránea (FK)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td class="col-name">SMY_ESTADOS_ROLES</td><td>ID</td><td>NOMBRE_ESTADO_ROL</td><td>SMY_ROLES</td><td>ID_ESTADO_ROL</td></tr>
+            <tr><td class="col-name">SMY_TIPOS_USUARIOS</td><td>ID</td><td>NOMBRE_TIPO_USUARIO</td><td>SMY_USUARIOS</td><td>ID_TIPO_USUARIO</td></tr>
+            <tr><td class="col-name">SMY_ESTADOS_USUARIOS</td><td>ID</td><td>NOMBRE_ESTADO_USUARIO</td><td>SMY_USUARIOS</td><td>ID_ESTADO_USUARIO</td></tr>
+            <tr><td class="col-name">SMY_CANALES_NOTIFICACION</td><td>ID</td><td>NOMBRE_CANAL_NOTIFICACION</td><td>SMY_USUARIOS / SMY_ACUDIENTES</td><td>ID_CANAL_NOTIF_PREF</td></tr>
+            <tr><td class="col-name">SMY_TIPOS_IDENTIFICACION</td><td>ID</td><td>NOMBRE_TIPO_IDENTIFICACION / SIGLA</td><td>SMY_EMPLEADOS / SMY_RESIDENTES / SMY_ACUDIENTES</td><td>ID_TIPO_IDENTIFICACION</td></tr>
+            <tr><td class="col-name">SMY_CARGOS_EMPLEADOS</td><td>ID</td><td>NOMBRE_CARGO_EMPLEADO</td><td>SMY_EMPLEADOS</td><td>ID_CARGO_EMPLEADO</td></tr>
+            <tr><td class="col-name">SMY_AREAS_EMPLEADOS</td><td>ID</td><td>NOMBRE_AREA_EMPLEADO</td><td>SMY_EMPLEADOS</td><td>ID_AREA_EMPLEADO</td></tr>
+            <tr><td class="col-name">SMY_ESTADOS_EMPLEADOS</td><td>ID</td><td>NOMBRE_ESTADO_EMPLEADO</td><td>SMY_EMPLEADOS</td><td>ID_ESTADO_EMPLEADO</td></tr>
+            <tr><td class="col-name">SMY_TIPOS_DOC_EMPLEADOS</td><td>ID</td><td>NOMBRE_TIPO_DOC_EMPLEADO</td><td>SMY_DOCUMENTOS_EMPLEADO</td><td>ID_TIPO_DOCUMENTO_EMPLEADO</td></tr>
+            <tr><td class="col-name">SMY_ESTADOS_PLANTILLAS_TURNO</td><td>ID</td><td>NOMBRE_ESTADO_PLANTILLA</td><td>SMY_PLANTILLAS_TURNO</td><td>ID_ESTADO_PLANTILLA</td></tr>
+            <tr><td class="col-name">SMY_ESTADOS_TURNOS</td><td>ID</td><td>NOMBRE_ESTADO_TURNO</td><td>SMY_TURNOS_ASIGNADOS</td><td>ID_ESTADO_TURNO</td></tr>
+            <tr><td class="col-name">SMY_TIPOS_PERMISOS</td><td>ID</td><td>NOMBRE_TIPO_PERMISO</td><td>SMY_SOLICITUDES_PERMISOS</td><td>ID_TIPO_PERMISO</td></tr>
+            <tr><td class="col-name">SMY_ESTADOS_PERMISOS</td><td>ID</td><td>NOMBRE_ESTADO_PERMISO</td><td>SMY_SOLICITUDES_PERMISOS</td><td>ID_ESTADO_PERMISO</td></tr>
+            <tr><td class="col-name">SMY_GENEROS</td><td>ID</td><td>NOMBRE_GENERO</td><td>SMY_RESIDENTES / SMY_SOLICITUDES_ADM</td><td>ID_GENERO</td></tr>
+            <tr><td class="col-name">SMY_NIVELES_MOVILIDAD</td><td>ID</td><td>NOMBRE_NIVEL_MOVILIDAD</td><td>SMY_RESIDENTES / SMY_SOLICITUDES_ADM</td><td>ID_NIVEL_MOVILIDAD</td></tr>
+            <tr><td class="col-name">SMY_TIPOS_DIETAS</td><td>ID</td><td>NOMBRE_TIPO_DIETA</td><td>SMY_RESIDENTES / SMY_PLANES_NUTRICIONALES</td><td>ID_TIPO_DIETA</td></tr>
+            <tr><td class="col-name">SMY_CONSISTENCIAS_DIETA</td><td>ID</td><td>NOMBRE_CONSISTENCIA_DIETA</td><td>SMY_PLANES_NUTRICIONALES</td><td>ID_CONSISTENCIA_DIETA</td></tr>
+            <tr><td class="col-name">SMY_ESTADOS_RESIDENTES</td><td>ID</td><td>NOMBRE_ESTADO_RESIDENTE</td><td>SMY_RESIDENTES</td><td>ID_ESTADO_RESIDENTE</td></tr>
+            <tr><td class="col-name">SMY_PARENTESCOS</td><td>ID</td><td>NOMBRE_PARENTESCO</td><td>SMY_RESIDENTE_ACUDIENTE / SMY_CONS_DEST</td><td>ID_PARENTESCO</td></tr>
+            <tr><td class="col-name">SMY_ESTADOS_SOLICITUDES_ADM</td><td>ID</td><td>NOMBRE_ESTADO_SOLICITUD_ADM</td><td>SMY_SOLICITUDES_ADMISION</td><td>ID_ESTADO_SOLICITUD_ADM</td></tr>
+            <tr><td class="col-name">SMY_CATEGORIAS_DOC_CLINICOS</td><td>ID</td><td>NOMBRE_CATEGORIA_DOC_CLINICO</td><td>SMY_DOCUMENTOS_CLINICOS</td><td>ID_CATEGORIA_DOC_CLINICO</td></tr>
+            <tr><td class="col-name">SMY_TIPOS_ENTRADAS_DOC</td><td>ID</td><td>NOMBRE_TIPO_ENTRADA_DOC</td><td>SMY_DOCUMENTOS_CLINICOS</td><td>ID_TIPO_ENTRADA_DOC</td></tr>
+            <tr><td class="col-name">SMY_TIPOS_ARCHIVOS_DOC</td><td>ID</td><td>NOMBRE_TIPO_ARCHIVO_DOC</td><td>SMY_DOCUMENTOS_CLINICOS</td><td>ID_TIPO_ARCHIVO_DOC</td></tr>
+            <tr><td class="col-name">SMY_ESTADOS_DOC_CLINICOS</td><td>ID</td><td>NOMBRE_ESTADO_DOC_CLINICO</td><td>SMY_DOCUMENTOS_CLINICOS</td><td>ID_ESTADO_DOC_CLINICO</td></tr>
+            <tr><td class="col-name">SMY_CATEGORIAS_BITACORA</td><td>ID</td><td>NOMBRE_CATEGORIA_BITACORA</td><td>SMY_BITACORA_RESIDENTE</td><td>ID_CATEGORIA_BITACORA</td></tr>
+            <tr><td class="col-name">SMY_VIAS_ADMINISTRACION</td><td>ID</td><td>NOMBRE_VIA_ADMINISTRACION</td><td>SMY_MEDICAMENTOS_PRESCRITOS</td><td>ID_VIA_ADMINISTRACION</td></tr>
+            <tr><td class="col-name">SMY_ESTADOS_MEDICAMENTOS</td><td>ID</td><td>NOMBRE_ESTADO_MEDICAMENTO</td><td>SMY_MEDICAMENTOS_PRESCRITOS</td><td>ID_ESTADO_MEDICAMENTO</td></tr>
+            <tr><td class="col-name">SMY_ESTADOS_ADMIN_MED</td><td>ID</td><td>NOMBRE_ESTADO_ADMIN_MED</td><td>SMY_REGISTROS_ADMIN_MED</td><td>ID_ESTADO_ADMIN_MED</td></tr>
+            <tr><td class="col-name">SMY_TIPOS_COMIDAS</td><td>ID</td><td>NOMBRE_TIPO_COMIDA</td><td>SMY_REGISTROS_ALIM_SESION / DETALLE</td><td>ID_TIPO_COMIDA</td></tr>
+            <tr><td class="col-name">SMY_TIPOS_TAREAS</td><td>ID</td><td>NOMBRE_TIPO_TAREA</td><td>SMY_TAREAS_OPERATIVAS</td><td>ID_TIPO_TAREA</td></tr>
+            <tr><td class="col-name">SMY_ALCANCES_TAREAS</td><td>ID</td><td>NOMBRE_ALCANCE_TAREA</td><td>SMY_TAREAS_OPERATIVAS</td><td>ID_ALCANCE_TAREA</td></tr>
+            <tr><td class="col-name">SMY_ESTADOS_TAREAS</td><td>ID</td><td>NOMBRE_ESTADO_TAREA</td><td>SMY_TAREAS_OPERATIVAS</td><td>ID_ESTADO_TAREA</td></tr>
+            <tr><td class="col-name">SMY_TIPOS_EVENTOS</td><td>ID</td><td>NOMBRE_TIPO_EVENTO</td><td>SMY_EVENTOS_CALENDARIO</td><td>ID_TIPO_EVENTO</td></tr>
+            <tr><td class="col-name">SMY_TIPOS_SUMINISTROS</td><td>ID</td><td>NOMBRE_TIPO_SUMINISTRO</td><td>SMY_SUMINISTROS_REGISTRO</td><td>ID_TIPO_SUMINISTRO</td></tr>
+            <tr><td class="col-name">SMY_ESTADOS_PAGOS</td><td>ID</td><td>NOMBRE_ESTADO_PAGO</td><td>SMY_SUMINISTROS_REGISTRO</td><td>ID_ESTADO_PAGO</td></tr>
+            <tr><td class="col-name">SMY_TIPOS_CONSENTIMIENTOS</td><td>ID</td><td>NOMBRE_TIPO_CONSENTIMIENTO</td><td>SMY_CONSENTIMIENTOS</td><td>ID_TIPO_CONSENTIMIENTO</td></tr>
+            <tr><td class="col-name">SMY_ESTADOS_CONSENTIMIENTOS</td><td>ID</td><td>NOMBRE_ESTADO_CONSENTIMIENTO</td><td>SMY_CONSENTIMIENTOS</td><td>ID_ESTADO_CONSENTIMIENTO</td></tr>
+            <tr><td class="col-name">SMY_ESTADOS_FIRMAS_CONS</td><td>ID</td><td>NOMBRE_ESTADO_FIRMA_CONS</td><td>SMY_CONSENTIMIENTO_DESTINATARIOS</td><td>ID_ESTADO_FIRMA_CONS</td></tr>
+            <tr><td class="col-name">SMY_TIPOS_INCIDENTES</td><td>ID</td><td>NOMBRE_TIPO_INCIDENTE</td><td>SMY_INCIDENTES</td><td>ID_TIPO_INCIDENTE</td></tr>
+            <tr><td class="col-name">SMY_SEVERIDADES_INCIDENTES</td><td>ID</td><td>NOMBRE_SEVERIDAD_INCIDENTE</td><td>SMY_INCIDENTES</td><td>ID_SEVERIDAD_INCIDENTE</td></tr>
+            <tr><td class="col-name">SMY_ESTADOS_INCIDENTES</td><td>ID</td><td>NOMBRE_ESTADO_INCIDENTE</td><td>SMY_INCIDENTES</td><td>ID_ESTADO_INCIDENTE</td></tr>
+            <tr><td class="col-name">SMY_ROLES_EN_INCIDENTE</td><td>ID</td><td>NOMBRE_ROL_INCIDENTE</td><td>SMY_INCIDENTE_RESIDENTES</td><td>ID_ROL_INCIDENTE</td></tr>
+            <tr><td class="col-name">SMY_TIPOS_CANALES_CHAT</td><td>ID</td><td>NOMBRE_TIPO_CANAL_CHAT</td><td>SMY_CONVERSACIONES_CHAT</td><td>ID_TIPO_CANAL_CHAT</td></tr>
+            <tr><td class="col-name">SMY_TIPOS_ADJUNTOS_CHAT</td><td>ID</td><td>NOMBRE_TIPO_ADJUNTO_CHAT</td><td>SMY_MENSAJES_CHAT</td><td>ID_TIPO_ADJUNTO_CHAT</td></tr>
+            <tr><td class="col-name">SMY_TIPOS_NOTIFICACIONES</td><td>ID</td><td>NOMBRE_TIPO_NOTIFICACION</td><td>SMY_NOTIFICACIONES_SISTEMA</td><td>ID_TIPO_NOTIFICACION</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 4.1 SEGURIDAD -->
+      <h3 id="mod-seguridad">4.1 Módulo de Seguridad y Control de Acceso</h3>
+      
+      <div class="card table-block" data-table="SMY_ROLES">
+        <h4>Tabla: SMY_ROLES</h4>
+        <p>Catálogo de perfiles que gobiernan las vistas y permisos del sistema.</p>
+        <div class="table-container">
+          <table class="data-dict">
+            <thead><tr><th>Columna</th><th>Tipo Oracle</th><th>Nulo</th><th>Defecto (Bogotá UTC-5)</th><th>Descripción y Foráneas</th></tr></thead>
+            <tbody>
+              <tr><td class="col-name">ID</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-pk">PK</span></td><td>SEQ_SMY_ROLES</td><td>Identificador único del rol.</td></tr>
+              <tr><td class="col-name">CODIGO</td><td class="col-type">VARCHAR2(30)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Código único (ej. 'ADMIN', 'CUIDADOR').</td></tr>
+              <tr><td class="col-name">NOMBRE</td><td class="col-type">VARCHAR2(80)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Nombre del rol.</td></tr>
+              <tr><td class="col-name">DESCRIPCION</td><td class="col-type">VARCHAR2(255)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Alcance del perfil.</td></tr>
+              <tr><td class="col-name">ID_ESTADO_ROL</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_ESTADOS_ROLES(ID).</td></tr>
+              <tr><td class="col-name">FECHA_CREACION</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>Hora Bogotá (UTC-5)</td><td>Fecha de auditoría de creación.</td></tr>
+              <tr><td class="col-name">ID_USUARIO_ULTIMA_MODIFICACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Usuario que realizó última modificación.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card table-block" data-table="SMY_USUARIOS">
+        <h4>Tabla: SMY_USUARIOS</h4>
+        <p>Cuentas de usuario con credenciales, hash criptográfico y canal preferido.</p>
+        <div class="table-container">
+          <table class="data-dict">
+            <thead><tr><th>Columna</th><th>Tipo Oracle</th><th>Nulo</th><th>Defecto (Bogotá UTC-5)</th><th>Descripción y Foráneas</th></tr></thead>
+            <tbody>
+              <tr><td class="col-name">ID</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-pk">PK</span></td><td>SEQ_SMY_USUARIOS</td><td>ID único de usuario.</td></tr>
+              <tr><td class="col-name">ID_ROL</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_ROLES(ID).</td></tr>
+              <tr><td class="col-name">ID_TIPO_USUARIO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_TIPOS_USUARIOS(ID).</td></tr>
+              <tr><td class="col-name">USERNAME</td><td class="col-type">VARCHAR2(60)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Nombre de usuario único.</td></tr>
+              <tr><td class="col-name">EMAIL</td><td class="col-type">VARCHAR2(120)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Correo electrónico.</td></tr>
+              <tr><td class="col-name">PASSWORD_HASH</td><td class="col-type">VARCHAR2(255)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Hash de contraseña.</td></tr>
+              <tr><td class="col-name">NOMBRE_COMPLETO</td><td class="col-type">VARCHAR2(150)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Nombres y apellidos.</td></tr>
+              <tr><td class="col-name">ID_CANAL_NOTIF_PREF</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_CANALES_NOTIFICACION(ID).</td></tr>
+              <tr><td class="col-name">ID_ESTADO_USUARIO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_ESTADOS_USUARIOS(ID).</td></tr>
+              <tr><td class="col-name">ULTIMO_LOGIN</td><td class="col-type">DATE</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Último acceso al sistema.</td></tr>
+              <tr><td class="col-name">FECHA_CREACION</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>Hora Bogotá (UTC-5)</td><td>Auditoría de creación.</td></tr>
+              <tr><td class="col-name">ID_USUARIO_ULTIMA_MODIFICACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Usuario que modificó.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card table-block" data-table="SMY_ERRORES">
+        <h4>Tabla: SMY_ERRORES</h4>
+        <p>Bitácora centralizada de control, diagnóstico y trazabilidad forense de excepciones y errores del sistema.</p>
+        <div class="table-container">
+          <table class="data-dict">
+            <thead><tr><th>Columna</th><th>Tipo Oracle</th><th>Nulo</th><th>Defecto (Bogotá UTC-5)</th><th>Descripción y Foráneas</th></tr></thead>
+            <tbody>
+              <tr><td class="col-name">ID</td><td class="col-type">NUMBER</td><td><span class="badge badge-pk">PK</span></td><td>SEQ_SMY_ERRORES</td><td>Identificador único del registro de error.</td></tr>
+              <tr><td class="col-name">TIPO</td><td class="col-type">VARCHAR2(1 BYTE)</td><td><span class="badge badge-req">No</span></td><td>'E'</td><td>Tipo/Severidad del evento ('E'=Error, 'W'=Advertencia, 'I'=Información).</td></tr>
+              <tr><td class="col-name">NOMBRE_PROGRAMA</td><td class="col-type">VARCHAR2(50 BYTE)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Módulo, servicio o programa origen del error.</td></tr>
+              <tr><td class="col-name">NOMBRE_METODO</td><td class="col-type">VARCHAR2(50 BYTE)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Método, procedimiento o función donde se produjo la excepción.</td></tr>
+              <tr><td class="col-name">PARAMETROS</td><td class="col-type">CLOB</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Parámetros de entrada o payload capturado al ocurrir el error.</td></tr>
+              <tr><td class="col-name">DIRECCION_IP</td><td class="col-type">VARCHAR2(30)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Dirección IP del cliente o servidor solicitante.</td></tr>
+              <tr><td class="col-name">USUARIO</td><td class="col-type">VARCHAR2(200 BYTE)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Nombre o login de usuario activo en la sesión.</td></tr>
+              <tr><td class="col-name">CODIGO_ERROR</td><td class="col-type">VARCHAR2(100 BYTE)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Código de error (ej. ORA-XXXXX, HTTP 500, etc.).</td></tr>
+              <tr><td class="col-name">TEXTO_ERROR</td><td class="col-type">VARCHAR2(4000 BYTE)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Descripción técnica completa y stack trace del error.</td></tr>
+              <tr><td class="col-name">MENSAJE_ERROR</td><td class="col-type">VARCHAR2(4000 BYTE)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Mensaje descriptivo y amigable procesado para soporte.</td></tr>
+              <tr><td class="col-name">FECHA_CREACION</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>Hora Bogotá (UTC-5)</td><td>Fecha y hora de captura del error.</td></tr>
+              <tr><td class="col-name">ID_USUARIO_CREACION</td><td class="col-type">NUMBER</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>ID del usuario que originó el error (si aplica).</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card table-block" data-table="SMY_AUDITORIA_ACCESOS">
+        <h4>Tabla: SMY_AUDITORIA_ACCESOS</h4>
+        <p>Trazabilidad inmutable de inicios de sesión y acciones críticas en el sistema.</p>
+        <div class="table-container">
+          <table class="data-dict">
+            <thead><tr><th>Columna</th><th>Tipo Oracle</th><th>Nulo</th><th>Defecto (Bogotá UTC-5)</th><th>Descripción y Foráneas</th></tr></thead>
+            <tbody>
+              <tr><td class="col-name">ID</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-pk">PK</span></td><td>SEQ_SMY_AUDITORIA_ACCESOS</td><td>ID de registro de auditoría.</td></tr>
+              <tr><td class="col-name">ID_USUARIO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>FK hacia SMY_USUARIOS(ID).</td></tr>
+              <tr><td class="col-name">ACCION</td><td class="col-type">VARCHAR2(100)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Acción ejecutada (LOGIN, LOGOUT, EXPORT).</td></tr>
+              <tr><td class="col-name">DETALLE</td><td class="col-type">VARCHAR2(500)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Detalle de la operación.</td></tr>
+              <tr><td class="col-name">IP_ORIGEN</td><td class="col-type">VARCHAR2(50)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Dirección IP del cliente.</td></tr>
+              <tr><td class="col-name">FECHA_HORA</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>Hora Bogotá (UTC-5)</td><td>Fecha y hora del evento.</td></tr>
+              <tr><td class="col-name">FECHA_CREACION</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>Hora Bogotá (UTC-5)</td><td>Auditoría de creación.</td></tr>
+              <tr><td class="col-name">ID_USUARIO_ULTIMA_MODIFICACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Usuario que modificó.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 4.2 TALENTO HUMANO -->
+      <h3 id="mod-talento">4.2 Módulo de Talento Humano y Turnos</h3>
+
+      <div class="card table-block" data-table="SMY_EMPLEADOS">
+        <h4>Tabla: SMY_EMPLEADOS</h4>
+        <p>Ficha del colaborador asistencial u operativo.</p>
+        <div class="table-container">
+          <table class="data-dict">
+            <thead><tr><th>Columna</th><th>Tipo Oracle</th><th>Nulo</th><th>Defecto (Bogotá UTC-5)</th><th>Descripción y Foráneas</th></tr></thead>
+            <tbody>
+              <tr><td class="col-name">ID</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-pk">PK</span></td><td>SEQ_SMY_EMPLEADOS</td><td>ID del colaborador.</td></tr>
+              <tr><td class="col-name">ID_USUARIO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK opcional hacia SMY_USUARIOS(ID).</td></tr>
+              <tr><td class="col-name">ID_TIPO_IDENTIFICACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_TIPOS_IDENTIFICACION(ID).</td></tr>
+              <tr><td class="col-name">IDENTIFICACION</td><td class="col-type">VARCHAR2(30)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Número de identificación o documento de identidad oficial.</td></tr>
+              <tr><td class="col-name">NOMBRES</td><td class="col-type">VARCHAR2(80)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Nombres del colaborador.</td></tr>
+              <tr><td class="col-name">APELLIDOS</td><td class="col-type">VARCHAR2(80)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Apellidos del colaborador.</td></tr>
+              <tr><td class="col-name">TELEFONO</td><td class="col-type">VARCHAR2(30)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Teléfono de contacto.</td></tr>
+              <tr><td class="col-name">EMAIL</td><td class="col-type">VARCHAR2(120)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Correo del empleado.</td></tr>
+              <tr><td class="col-name">ID_CARGO_EMPLEADO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_CARGOS_EMPLEADOS(ID).</td></tr>
+              <tr><td class="col-name">ID_AREA_EMPLEADO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_AREAS_EMPLEADOS(ID).</td></tr>
+              <tr><td class="col-name">REGISTRO_PROFESIONAL</td><td class="col-type">VARCHAR2(50)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Tarjeta profesional médica/enfermería.</td></tr>
+              <tr><td class="col-name">FECHA_CONTRATACION</td><td class="col-type">DATE</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Fecha de vinculación.</td></tr>
+              <tr><td class="col-name">ID_ESTADO_EMPLEADO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_ESTADOS_EMPLEADOS(ID).</td></tr>
+              <tr><td class="col-name">FECHA_CREACION</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>Hora Bogotá (UTC-5)</td><td>Fecha de auditoría.</td></tr>
+              <tr><td class="col-name">ID_USUARIO_ULTIMA_MODIFICACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Usuario que modificó.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card table-block" data-table="SMY_DOCUMENTOS_EMPLEADO">
+        <h4>Tabla: SMY_DOCUMENTOS_EMPLEADO</h4>
+        <p>Certificados, hojas de vida y documentos laborales del personal.</p>
+        <div class="table-container">
+          <table class="data-dict">
+            <thead><tr><th>Columna</th><th>Tipo Oracle</th><th>Nulo</th><th>Defecto (Bogotá UTC-5)</th><th>Descripción y Foráneas</th></tr></thead>
+            <tbody>
+              <tr><td class="col-name">ID</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-pk">PK</span></td><td>SEQ_SMY_DOC_EMPLEADO</td><td>ID del documento.</td></tr>
+              <tr><td class="col-name">ID_EMPLEADO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_EMPLEADOS(ID).</td></tr>
+              <tr><td class="col-name">ID_TIPO_DOCUMENTO_EMPLEADO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_TIPOS_DOC_EMPLEADOS(ID).</td></tr>
+              <tr><td class="col-name">TITULO</td><td class="col-type">VARCHAR2(150)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Nombre del archivo o certificado.</td></tr>
+              <tr><td class="col-name">ARCHIVO_URL</td><td class="col-type">VARCHAR2(500)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Ruta en almacenamiento seguro.</td></tr>
+              <tr><td class="col-name">FECHA_SUBIDA</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>Hora Bogotá (UTC-5)</td><td>Fecha de cargue.</td></tr>
+              <tr><td class="col-name">FECHA_VENCIMIENTO</td><td class="col-type">DATE</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Vencimiento de certificaciones.</td></tr>
+              <tr><td class="col-name">FECHA_CREACION</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>Hora Bogotá (UTC-5)</td><td>Fecha de auditoría.</td></tr>
+              <tr><td class="col-name">ID_USUARIO_ULTIMA_MODIFICACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Usuario que modificó.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card table-block" data-table="SMY_PLANTILLAS_TURNO">
+        <h4>Tabla: SMY_PLANTILLAS_TURNO</h4>
+        <p>Definición de turnos estándar (Mañana, Tarde, Noche) con rangos horarios y colores.</p>
+        <div class="table-container">
+          <table class="data-dict">
+            <thead><tr><th>Columna</th><th>Tipo Oracle</th><th>Nulo</th><th>Defecto (Bogotá UTC-5)</th><th>Descripción y Foráneas</th></tr></thead>
+            <tbody>
+              <tr><td class="col-name">ID</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-pk">PK</span></td><td>SEQ_SMY_PLANTILLAS_TURNO</td><td>ID de la plantilla de turno.</td></tr>
+              <tr><td class="col-name">NOMBRE</td><td class="col-type">VARCHAR2(60)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Nombre del turno (Mañana, Noche).</td></tr>
+              <tr><td class="col-name">HORA_INICIO</td><td class="col-type">VARCHAR2(8)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Hora de inicio (ej. '06:00').</td></tr>
+              <tr><td class="col-name">HORA_FIN</td><td class="col-type">VARCHAR2(8)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Hora de culminación (ej. '14:00').</td></tr>
+              <tr><td class="col-name">COLOR_HEX</td><td class="col-type">VARCHAR2(10)</td><td><span class="badge badge-opt">Sí</span></td><td>'#274A3F'</td><td>Color para la grilla visual.</td></tr>
+              <tr><td class="col-name">ID_ESTADO_PLANTILLA</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_ESTADOS_PLANTILLAS_TURNO(ID).</td></tr>
+              <tr><td class="col-name">FECHA_CREACION</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>Hora Bogotá (UTC-5)</td><td>Fecha de auditoría.</td></tr>
+              <tr><td class="col-name">ID_USUARIO_ULTIMA_MODIFICACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Usuario que modificó.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card table-block" data-table="SMY_TURNOS_ASIGNADOS">
+        <h4>Tabla: SMY_TURNOS_ASIGNADOS</h4>
+        <p>Programación de horarios y turnos de trabajo asignados al personal asistencial.</p>
+        <div class="table-container">
+          <table class="data-dict">
+            <thead><tr><th>Columna</th><th>Tipo Oracle</th><th>Nulo</th><th>Defecto (Bogotá UTC-5)</th><th>Descripción y Foráneas</th></tr></thead>
+            <tbody>
+              <tr><td class="col-name">ID</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-pk">PK</span></td><td>SEQ_SMY_TURNOS_ASIGNADOS</td><td>ID del turno asignado.</td></tr>
+              <tr><td class="col-name">ID_EMPLEADO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_EMPLEADOS(ID).</td></tr>
+              <tr><td class="col-name">ID_PLANTILLA_TURNO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_PLANTILLAS_TURNO(ID).</td></tr>
+              <tr><td class="col-name">FECHA_TURNO</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Fecha programada.</td></tr>
+              <tr><td class="col-name">ID_ESTADO_TURNO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_ESTADOS_TURNOS(ID).</td></tr>
+              <tr><td class="col-name">HORA_CHECKIN</td><td class="col-type">DATE</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Hora real de ingreso.</td></tr>
+              <tr><td class="col-name">HORA_CHECKOUT</td><td class="col-type">DATE</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Hora real de salida.</td></tr>
+              <tr><td class="col-name">NOTAS</td><td class="col-type">VARCHAR2(255)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Observaciones del turno.</td></tr>
+              <tr><td class="col-name">FECHA_CREACION</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>Hora Bogotá (UTC-5)</td><td>Fecha de auditoría.</td></tr>
+              <tr><td class="col-name">ID_USUARIO_ULTIMA_MODIFICACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Usuario que modificó.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card table-block" data-table="SMY_SOLICITUDES_PERMISOS">
+        <h4>Tabla: SMY_SOLICITUDES_PERMISOS</h4>
+        <p>Incapacidades, vacaciones y permisos laborales solicitados por el equipo.</p>
+        <div class="table-container">
+          <table class="data-dict">
+            <thead><tr><th>Columna</th><th>Tipo Oracle</th><th>Nulo</th><th>Defecto (Bogotá UTC-5)</th><th>Descripción y Foráneas</th></tr></thead>
+            <tbody>
+              <tr><td class="col-name">ID</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-pk">PK</span></td><td>SEQ_SMY_SOLICITUDES_PERMISOS</td><td>ID de la solicitud.</td></tr>
+              <tr><td class="col-name">ID_EMPLEADO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_EMPLEADOS(ID).</td></tr>
+              <tr><td class="col-name">ID_TIPO_PERMISO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_TIPOS_PERMISOS(ID).</td></tr>
+              <tr><td class="col-name">FECHA_INICIO</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Fecha inicial del permiso.</td></tr>
+              <tr><td class="col-name">FECHA_FIN</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Fecha final del permiso.</td></tr>
+              <tr><td class="col-name">MOTIVO</td><td class="col-type">VARCHAR2(500)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Justificación de la solicitud.</td></tr>
+              <tr><td class="col-name">ID_ESTADO_PERMISO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_ESTADOS_PERMISOS(ID).</td></tr>
+              <tr><td class="col-name">ID_USUARIO_RESPONDE</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>FK hacia SMY_USUARIOS(ID).</td></tr>
+              <tr><td class="col-name">FECHA_RESPUESTA</td><td class="col-type">DATE</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Fecha en que se aprobó o rechazó.</td></tr>
+              <tr><td class="col-name">MOTIVO_RECHAZO</td><td class="col-type">VARCHAR2(255)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Motivo en caso de rechazo.</td></tr>
+              <tr><td class="col-name">FECHA_CREACION</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>Hora Bogotá (UTC-5)</td><td>Fecha de auditoría.</td></tr>
+              <tr><td class="col-name">ID_USUARIO_ULTIMA_MODIFICACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Usuario que modificó.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 4.3 RESIDENTES -->
+      <h3 id="mod-residentes">4.3 Módulo de Residentes, Acudientes y Admisión</h3>
+
+      <div class="card table-block" data-table="SMY_RESIDENTES">
+        <h4>Tabla: SMY_RESIDENTES</h4>
+        <p>Ficha maestra del adulto mayor ingresado en el centro.</p>
+        <div class="table-container">
+          <table class="data-dict">
+            <thead><tr><th>Columna</th><th>Tipo Oracle</th><th>Nulo</th><th>Defecto (Bogotá UTC-5)</th><th>Descripción y Foráneas</th></tr></thead>
+            <tbody>
+              <tr><td class="col-name">ID</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-pk">PK</span></td><td>SEQ_SMY_RESIDENTES</td><td>ID del residente.</td></tr>
+              <tr><td class="col-name">ID_TIPO_IDENTIFICACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_TIPOS_IDENTIFICACION(ID).</td></tr>
+              <tr><td class="col-name">IDENTIFICACION</td><td class="col-type">VARCHAR2(30)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Número de identificación o documento de identidad oficial.</td></tr>
+              <tr><td class="col-name">NOMBRES</td><td class="col-type">VARCHAR2(80)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Nombres del residente.</td></tr>
+              <tr><td class="col-name">APELLIDOS</td><td class="col-type">VARCHAR2(80)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Apellidos del residente.</td></tr>
+              <tr><td class="col-name">FECHA_NACIMIENTO</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Fecha de nacimiento.</td></tr>
+              <tr><td class="col-name">ID_GENERO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_GENEROS(ID).</td></tr>
+              <tr><td class="col-name">EPS_ASEGURADORA</td><td class="col-type">VARCHAR2(80)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>EPS o seguro médico.</td></tr>
+              <tr><td class="col-name">GRUPO_SANGUINEO</td><td class="col-type">VARCHAR2(10)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Grupo y RH (ej. O+).</td></tr>
+              <tr><td class="col-name">HABITACION</td><td class="col-type">VARCHAR2(20)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Número o nombre de habitación.</td></tr>
+              <tr><td class="col-name">CAMA</td><td class="col-type">VARCHAR2(10)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Identificador de cama.</td></tr>
+              <tr><td class="col-name">ID_NIVEL_MOVILIDAD</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_NIVELES_MOVILIDAD(ID).</td></tr>
+              <tr><td class="col-name">ID_TIPO_DIETA</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_TIPOS_DIETAS(ID).</td></tr>
+              <tr><td class="col-name">ID_ESTADO_RESIDENTE</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_ESTADOS_RESIDENTES(ID).</td></tr>
+              <tr><td class="col-name">CODIGO_QR_TOKEN</td><td class="col-type">VARCHAR2(64)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>UUID/Token criptográfico único para generación y escaneo seguro de códigos QR.</td></tr>
+              <tr><td class="col-name">FECHA_INGRESO</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Fecha de admisión formal.</td></tr>
+              <tr><td class="col-name">FECHA_EGRESO</td><td class="col-type">DATE</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Fecha de egreso (si aplica).</td></tr>
+              <tr><td class="col-name">MOTIVO_EGRESO</td><td class="col-type">VARCHAR2(255)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Causa del egreso.</td></tr>
+              <tr><td class="col-name">FOTO_URL</td><td class="col-type">VARCHAR2(500)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Fotografía del residente.</td></tr>
+              <tr><td class="col-name">FECHA_CREACION</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>Hora Bogotá (UTC-5)</td><td>Fecha de auditoría.</td></tr>
+              <tr><td class="col-name">ID_USUARIO_ULTIMA_MODIFICACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Usuario que modificó.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card table-block" data-table="SMY_ACUDIENTES">
+        <h4>Tabla: SMY_ACUDIENTES</h4>
+        <p>Familiares responsables y acudientes legales de los residentes.</p>
+        <div class="table-container">
+          <table class="data-dict">
+            <thead><tr><th>Columna</th><th>Tipo Oracle</th><th>Nulo</th><th>Defecto (Bogotá UTC-5)</th><th>Descripción y Foráneas</th></tr></thead>
+            <tbody>
+              <tr><td class="col-name">ID</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-pk">PK</span></td><td>SEQ_SMY_ACUDIENTES</td><td>ID del acudiente.</td></tr>
+              <tr><td class="col-name">ID_USUARIO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK opcional hacia SMY_USUARIOS(ID).</td></tr>
+              <tr><td class="col-name">ID_TIPO_IDENTIFICACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_TIPOS_IDENTIFICACION(ID).</td></tr>
+              <tr><td class="col-name">IDENTIFICACION</td><td class="col-type">VARCHAR2(30)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Número de identificación o cédula del acudiente/tutor.</td></tr>
+              <tr><td class="col-name">NOMBRES</td><td class="col-type">VARCHAR2(80)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Nombres del acudiente.</td></tr>
+              <tr><td class="col-name">APELLIDOS</td><td class="col-type">VARCHAR2(80)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Apellidos del acudiente.</td></tr>
+              <tr><td class="col-name">TELEFONO_PRINCIPAL</td><td class="col-type">VARCHAR2(30)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Teléfono primario de contacto.</td></tr>
+              <tr><td class="col-name">TELEFONO_SECUNDARIO</td><td class="col-type">VARCHAR2(30)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Teléfono alternativo.</td></tr>
+              <tr><td class="col-name">EMAIL</td><td class="col-type">VARCHAR2(120)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Correo electrónico.</td></tr>
+              <tr><td class="col-name">DIRECCION</td><td class="col-type">VARCHAR2(200)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Dirección de residencia.</td></tr>
+              <tr><td class="col-name">OCUPACION</td><td class="col-type">VARCHAR2(100)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Ocupación profesional.</td></tr>
+              <tr><td class="col-name">ID_CANAL_NOTIF_PREF</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_CANALES_NOTIFICACION(ID).</td></tr>
+              <tr><td class="col-name">FECHA_CREACION</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>Hora Bogotá (UTC-5)</td><td>Fecha de auditoría.</td></tr>
+              <tr><td class="col-name">ID_USUARIO_ULTIMA_MODIFICACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Usuario que modificó.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card table-block" data-table="SMY_RESIDENTE_ACUDIENTE">
+        <h4>Tabla: SMY_RESIDENTE_ACUDIENTE</h4>
+        <p>Relación N:M entre residentes y acudientes con roles y parentesco.</p>
+        <div class="table-container">
+          <table class="data-dict">
+            <thead><tr><th>Columna</th><th>Tipo Oracle</th><th>Nulo</th><th>Defecto (Bogotá UTC-5)</th><th>Descripción y Foráneas</th></tr></thead>
+            <tbody>
+              <tr><td class="col-name">ID</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-pk">PK</span></td><td>SEQ_SMY_RESIDENTE_ACUDIENTE</td><td>ID de la relación.</td></tr>
+              <tr><td class="col-name">ID_RESIDENTE</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_RESIDENTES(ID).</td></tr>
+              <tr><td class="col-name">ID_ACUDIENTE</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_ACUDIENTES(ID).</td></tr>
+              <tr><td class="col-name">ID_PARENTESCO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_PARENTESCOS(ID).</td></tr>
+              <tr><td class="col-name">ES_PRINCIPAL</td><td class="col-type">CHAR(1)</td><td><span class="badge badge-req">No</span></td><td>'N'</td><td>'S' / 'N' (Contacto de emergencia 1).</td></tr>
+              <tr><td class="col-name">ES_RESPONSABLE_ECONOMICO</td><td class="col-type">CHAR(1)</td><td><span class="badge badge-req">No</span></td><td>'N'</td><td>'S' / 'N'.</td></tr>
+              <tr><td class="col-name">PUEDE_RECIBIR_INFORMACION_MEDICA</td><td class="col-type">CHAR(1)</td><td><span class="badge badge-req">No</span></td><td>'S'</td><td>'S' / 'N'.</td></tr>
+              <tr><td class="col-name">NOTAS</td><td class="col-type">VARCHAR2(255)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Observaciones.</td></tr>
+              <tr><td class="col-name">FECHA_CREACION</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>Hora Bogotá (UTC-5)</td><td>Fecha de auditoría.</td></tr>
+              <tr><td class="col-name">ID_USUARIO_ULTIMA_MODIFICACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Usuario que modificó.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card table-block" data-table="SMY_SOLICITUDES_ADMISION">
+        <h4>Tabla: SMY_SOLICITUDES_ADMISION</h4>
+        <p>Pre-registro y valoración médica antes del ingreso formal de un residente.</p>
+        <div class="table-container">
+          <table class="data-dict">
+            <thead><tr><th>Columna</th><th>Tipo Oracle</th><th>Nulo</th><th>Defecto (Bogotá UTC-5)</th><th>Descripción y Foráneas</th></tr></thead>
+            <tbody>
+              <tr><td class="col-name">ID</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-pk">PK</span></td><td>SEQ_SMY_SOLICITUDES_ADMISION</td><td>ID de la postulación.</td></tr>
+              <tr><td class="col-name">NOMBRES_POSTULANTE</td><td class="col-type">VARCHAR2(80)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Nombres del aspirante.</td></tr>
+              <tr><td class="col-name">APELLIDOS_POSTULANTE</td><td class="col-type">VARCHAR2(80)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Apellidos del aspirante.</td></tr>
+              <tr><td class="col-name">FECHA_NACIMIENTO</td><td class="col-type">DATE</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Fecha de nacimiento estimada.</td></tr>
+              <tr><td class="col-name">ID_GENERO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_GENEROS(ID).</td></tr>
+              <tr><td class="col-name">ID_NIVEL_MOVILIDAD</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_NIVELES_MOVILIDAD(ID).</td></tr>
+              <tr><td class="col-name">CONDICIONES_MEDICAS</td><td class="col-type">CLOB</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Resumen diagnóstico inicial.</td></tr>
+              <tr><td class="col-name">MOTIVO_INGRESO</td><td class="col-type">VARCHAR2(500)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Razón de institucionalización.</td></tr>
+              <tr><td class="col-name">ID_ESTADO_SOLICITUD_ADM</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_ESTADOS_SOLICITUDES_ADM(ID).</td></tr>
+              <tr><td class="col-name">NOTAS_EVALUACION</td><td class="col-type">VARCHAR2(1000)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Notas del comité médico.</td></tr>
+              <tr><td class="col-name">ID_USUARIO_REVISO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>FK hacia SMY_USUARIOS(ID).</td></tr>
+              <tr><td class="col-name">FECHA_REVISION</td><td class="col-type">DATE</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Fecha del dictamen.</td></tr>
+              <tr><td class="col-name">FECHA_CREACION</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>Hora Bogotá (UTC-5)</td><td>Fecha de auditoría.</td></tr>
+              <tr><td class="col-name">ID_USUARIO_ULTIMA_MODIFICACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Usuario que modificó.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card table-block" data-table="SMY_SOLICITUD_ADM_CONTACTOS">
+        <h4>Tabla: SMY_SOLICITUD_ADM_CONTACTOS</h4>
+        <p>Familiares que postulan al aspirante en la solicitud de admisión.</p>
+        <div class="table-container">
+          <table class="data-dict">
+            <thead><tr><th>Columna</th><th>Tipo Oracle</th><th>Nulo</th><th>Defecto (Bogotá UTC-5)</th><th>Descripción y Foráneas</th></tr></thead>
+            <tbody>
+              <tr><td class="col-name">ID</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-pk">PK</span></td><td>SEQ_SMY_SOL_ADM_CONTACTOS</td><td>ID del contacto solicitante.</td></tr>
+              <tr><td class="col-name">ID_SOLICITUD_ADMISION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_SOLICITUDES_ADMISION(ID).</td></tr>
+              <tr><td class="col-name">NOMBRE_CONTACTO</td><td class="col-type">VARCHAR2(150)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Nombres y apellidos.</td></tr>
+              <tr><td class="col-name">ID_PARENTESCO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_PARENTESCOS(ID).</td></tr>
+              <tr><td class="col-name">TELEFONO</td><td class="col-type">VARCHAR2(30)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Teléfono de contacto.</td></tr>
+              <tr><td class="col-name">EMAIL</td><td class="col-type">VARCHAR2(120)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Correo del familiar.</td></tr>
+              <tr><td class="col-name">ES_CONTACTO_PRINCIPAL</td><td class="col-type">CHAR(1)</td><td><span class="badge badge-req">No</span></td><td>'S'</td><td>'S' / 'N'.</td></tr>
+              <tr><td class="col-name">FECHA_CREACION</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>Hora Bogotá (UTC-5)</td><td>Fecha de auditoría.</td></tr>
+              <tr><td class="col-name">ID_USUARIO_ULTIMA_MODIFICACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Usuario que modificó.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 4.4 HISTORIA CLINICA -->
+      <h3 id="mod-historia">4.4 Módulo de Historia Clínica y Gestor Documental Digital</h3>
+
+      <div class="card table-block" data-table="SMY_HISTORIAS_CLINICAS">
+        <h4>Tabla: SMY_HISTORIAS_CLINICAS</h4>
+        <p>Expediente clínico base del adulto mayor conforme a la Resolución 1995 de 1999.</p>
+        <div class="table-container">
+          <table class="data-dict">
+            <thead><tr><th>Columna</th><th>Tipo Oracle</th><th>Nulo</th><th>Defecto (Bogotá UTC-5)</th><th>Descripción y Foráneas</th></tr></thead>
+            <tbody>
+              <tr><td class="col-name">ID</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-pk">PK</span></td><td>SEQ_SMY_HISTORIAS_CLINICAS</td><td>ID de historia clínica.</td></tr>
+              <tr><td class="col-name">ID_RESIDENTE</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK única hacia SMY_RESIDENTES(ID).</td></tr>
+              <tr><td class="col-name">NUMERO_HISTORIA</td><td class="col-type">VARCHAR2(30)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Código de historia clínica único.</td></tr>
+              <tr><td class="col-name">ANTECEDENTES_PATOLOGICOS</td><td class="col-type">CLOB</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>HTA, Diabetes, etc.</td></tr>
+              <tr><td class="col-name">ANTECEDENTES_QUIRURGICOS</td><td class="col-type">CLOB</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Cirugías previas.</td></tr>
+              <tr><td class="col-name">ANTECEDENTES_FARMACOLOGICOS</td><td class="col-type">CLOB</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Tratamientos crónicos.</td></tr>
+              <tr><td class="col-name">ANTECEDENTES_ALERGICOS</td><td class="col-type">CLOB</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Alergias conocidas.</td></tr>
+              <tr><td class="col-name">DIAGNOSTICOS_CIE10</td><td class="col-type">VARCHAR2(500)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Códigos CIE-10 principales.</td></tr>
+              <tr><td class="col-name">OBSERVACIONES_GENERALES</td><td class="col-type">CLOB</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Notas del médico tratante.</td></tr>
+              <tr><td class="col-name">FECHA_APERTURA</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>Hora Bogotá (UTC-5)</td><td>Fecha de apertura.</td></tr>
+              <tr><td class="col-name">ID_MEDICO_TRATANTE</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>FK hacia SMY_EMPLEADOS(ID).</td></tr>
+              <tr><td class="col-name">FECHA_CREACION</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>Hora Bogotá (UTC-5)</td><td>Fecha de auditoría.</td></tr>
+              <tr><td class="col-name">ID_USUARIO_ULTIMA_MODIFICACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Usuario que modificó.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card table-block" data-table="SMY_DOCUMENTOS_CLINICOS">
+        <h4>Tabla: SMY_DOCUMENTOS_CLINICOS</h4>
+        <p>Exámenes médicos, recetas, notas clínicas y archivos adjuntos digitales.</p>
+        <div class="table-container">
+          <table class="data-dict">
+            <thead><tr><th>Columna</th><th>Tipo Oracle</th><th>Nulo</th><th>Defecto (Bogotá UTC-5)</th><th>Descripción y Foráneas</th></tr></thead>
+            <tbody>
+              <tr><td class="col-name">ID</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-pk">PK</span></td><td>SEQ_SMY_DOCUMENTOS_CLINICOS</td><td>ID del documento.</td></tr>
+              <tr><td class="col-name">ID_RESIDENTE</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_RESIDENTES(ID).</td></tr>
+              <tr><td class="col-name">TITULO</td><td class="col-type">VARCHAR2(150)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Título descriptivo.</td></tr>
+              <tr><td class="col-name">ID_CATEGORIA_DOC_CLINICO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_CATEGORIAS_DOC_CLINICOS(ID).</td></tr>
+              <tr><td class="col-name">ID_TIPO_ENTRADA_DOC</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_TIPOS_ENTRADAS_DOC(ID).</td></tr>
+              <tr><td class="col-name">ID_TIPO_ARCHIVO_DOC</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_TIPOS_ARCHIVOS_DOC(ID).</td></tr>
+              <tr><td class="col-name">ARCHIVO_URL</td><td class="col-type">VARCHAR2(500)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>URL en almacenamiento digital.</td></tr>
+              <tr><td class="col-name">ARCHIVO_BYTES</td><td class="col-type">NUMBER(12)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Tamaño en bytes.</td></tr>
+              <tr><td class="col-name">CONTENIDO_TEXTO</td><td class="col-type">CLOB</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Texto transcrito o nota clínica.</td></tr>
+              <tr><td class="col-name">ID_ESTADO_DOC_CLINICO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_ESTADOS_DOC_CLINICOS(ID).</td></tr>
+              <tr><td class="col-name">ID_USUARIO_REGISTRA</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_USUARIOS(ID).</td></tr>
+              <tr><td class="col-name">FECHA_DOCUMENTO</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Fecha de expedición del examen.</td></tr>
+              <tr><td class="col-name">FECHA_CREACION</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>Hora Bogotá (UTC-5)</td><td>Fecha de auditoría.</td></tr>
+              <tr><td class="col-name">ID_USUARIO_ULTIMA_MODIFICACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Usuario que modificó.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card table-block" data-table="SMY_DOCUMENTOS_ELIMINADOS_LOG">
+        <h4>Tabla: SMY_DOCUMENTOS_ELIMINADOS_LOG</h4>
+        <p>Papelera y registro forense de documentos eliminados (protección ante borrado accidental).</p>
+        <div class="table-container">
+          <table class="data-dict">
+            <thead><tr><th>Columna</th><th>Tipo Oracle</th><th>Nulo</th><th>Defecto (Bogotá UTC-5)</th><th>Descripción y Foráneas</th></tr></thead>
+            <tbody>
+              <tr><td class="col-name">ID</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-pk">PK</span></td><td>SEQ_SMY_DOC_ELIM_LOG</td><td>ID del registro log.</td></tr>
+              <tr><td class="col-name">ID_DOCUMENTO_ORIGINAL</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>ID que tenía en SMY_DOCUMENTOS_CLINICOS.</td></tr>
+              <tr><td class="col-name">ID_RESIDENTE</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>ID del residente titular.</td></tr>
+              <tr><td class="col-name">TITULO</td><td class="col-type">VARCHAR2(150)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Título del documento borrado.</td></tr>
+              <tr><td class="col-name">ID_CATEGORIA_DOC_CLINICO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_CATEGORIAS_DOC_CLINICOS(ID).</td></tr>
+              <tr><td class="col-name">ARCHIVO_URL</td><td class="col-type">VARCHAR2(500)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>URL del archivo archivado.</td></tr>
+              <tr><td class="col-name">MOTIVO_ELIMINACION</td><td class="col-type">VARCHAR2(500)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Justificación obligatoria de eliminación.</td></tr>
+              <tr><td class="col-name">ID_USUARIO_ELIMINO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_USUARIOS(ID).</td></tr>
+              <tr><td class="col-name">FECHA_ELIMINACION</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>Hora Bogotá (UTC-5)</td><td>Momento del borrado.</td></tr>
+              <tr><td class="col-name">FECHA_CREACION</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>Hora Bogotá (UTC-5)</td><td>Fecha de auditoría.</td></tr>
+              <tr><td class="col-name">ID_USUARIO_ULTIMA_MODIFICACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Usuario que modificó.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 4.5 BITACORA Y SIGNOS -->
+      <h3 id="mod-bitacora">4.5 Módulo de Bitácora Diaria y Signos Vitales</h3>
+
+      <div class="card table-block" data-table="SMY_BITACORA_RESIDENTE">
+        <h4>Tabla: SMY_BITACORA_RESIDENTE</h4>
+        <p>Registro cronológico de novedades diarias con dictado por voz y visibilidad familiar.</p>
+        <div class="table-container">
+          <table class="data-dict">
+            <thead><tr><th>Columna</th><th>Tipo Oracle</th><th>Nulo</th><th>Defecto (Bogotá UTC-5)</th><th>Descripción y Foráneas</th></tr></thead>
+            <tbody>
+              <tr><td class="col-name">ID</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-pk">PK</span></td><td>SEQ_SMY_BITACORA_RESIDENTE</td><td>ID de la entrada de bitácora.</td></tr>
+              <tr><td class="col-name">ID_RESIDENTE</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_RESIDENTES(ID).</td></tr>
+              <tr><td class="col-name">ID_EMPLEADO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK opcional hacia SMY_EMPLEADOS(ID).</td></tr>
+              <tr><td class="col-name">ID_USUARIO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_USUARIOS(ID) creador.</td></tr>
+              <tr><td class="col-name">FECHA</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Fecha de la novedad.</td></tr>
+              <tr><td class="col-name">HORA</td><td class="col-type">VARCHAR2(8)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Hora del suceso (ej. '08:30').</td></tr>
+              <tr><td class="col-name">ID_CATEGORIA_BITACORA</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_CATEGORIAS_BITACORA(ID).</td></tr>
+              <tr><td class="col-name">CONTENIDO</td><td class="col-type">CLOB</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Descripción detallada de la novedad.</td></tr>
+              <tr><td class="col-name">GRABADO_POR_VOZ</td><td class="col-type">CHAR(1)</td><td><span class="badge badge-req">No</span></td><td>'N'</td><td>'S' / 'N' (Si se usó dictado).</td></tr>
+              <tr><td class="col-name">AUDIO_URL</td><td class="col-type">VARCHAR2(500)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Enlace a la nota de voz.</td></tr>
+              <tr><td class="col-name">FOTO_ADJUNTA_URL</td><td class="col-type">VARCHAR2(500)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Foto de la actividad o suceso.</td></tr>
+              <tr><td class="col-name">ID_TURNO_ASIGNADO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_TURNOS_ASIGNADOS(ID).</td></tr>
+              <tr><td class="col-name">VISIBLE_ACUDIENTE</td><td class="col-type">CHAR(1)</td><td><span class="badge badge-req">No</span></td><td>'S'</td><td>'S' / 'N' (Visibilidad en portal familiar).</td></tr>
+              <tr><td class="col-name">FECHA_CREACION</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>Hora Bogotá (UTC-5)</td><td>Fecha de auditoría de creación.</td></tr>
+              <tr><td class="col-name">ID_USUARIO_ULTIMA_MODIFICACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Usuario que realizó última modificación.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card table-block" data-table="SMY_SIGNOS_VITALES">
+        <h4>Tabla: SMY_SIGNOS_VITALES</h4>
+        <p>Tomas biomédicas periódicas (tensión, pulso, oximetría, glucemia, peso).</p>
+        <div class="table-container">
+          <table class="data-dict">
+            <thead><tr><th>Columna</th><th>Tipo Oracle</th><th>Nulo</th><th>Defecto (Bogotá UTC-5)</th><th>Descripción y Foráneas</th></tr></thead>
+            <tbody>
+              <tr><td class="col-name">ID</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-pk">PK</span></td><td>SEQ_SMY_SIGNOS_VITALES</td><td>ID de la toma.</td></tr>
+              <tr><td class="col-name">ID_RESIDENTE</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_RESIDENTES(ID).</td></tr>
+              <tr><td class="col-name">ID_EMPLEADO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>FK hacia SMY_EMPLEADOS(ID).</td></tr>
+              <tr><td class="col-name">ID_USUARIO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_USUARIOS(ID).</td></tr>
+              <tr><td class="col-name">FECHA_HORA</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>Hora Bogotá (UTC-5)</td><td>Momento de la toma.</td></tr>
+              <tr><td class="col-name">PRESION_SISTOLICA</td><td class="col-type">NUMBER(3)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>mmHg (ej. 120).</td></tr>
+              <tr><td class="col-name">PRESION_DIASTOLICA</td><td class="col-type">NUMBER(3)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>mmHg (ej. 80).</td></tr>
+              <tr><td class="col-name">FRECUENCIA_CARDIACA</td><td class="col-type">NUMBER(3)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>LPM (ej. 72).</td></tr>
+              <tr><td class="col-name">FRECUENCIA_RESPIRATORIA</td><td class="col-type">NUMBER(2)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>RPM (ej. 18).</td></tr>
+              <tr><td class="col-name">TEMPERATURA_C</td><td class="col-type">NUMBER(4,1)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>°C (ej. 36.5).</td></tr>
+              <tr><td class="col-name">SATURACION_O2</td><td class="col-type">NUMBER(3)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>% SpO2 (ej. 98).</td></tr>
+              <tr><td class="col-name">GLUCEMIA_MGDL</td><td class="col-type">NUMBER(4,1)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>mg/dL (ej. 95.0).</td></tr>
+              <tr><td class="col-name">PESO_KG</td><td class="col-type">NUMBER(5,2)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Kilogramos.</td></tr>
+              <tr><td class="col-name">NOTAS</td><td class="col-type">VARCHAR2(255)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Observaciones.</td></tr>
+              <tr><td class="col-name">ALERTA_PARAMETRO_ANORMAL</td><td class="col-type">CHAR(1)</td><td><span class="badge badge-req">No</span></td><td>'N'</td><td>'S' / 'N' (Bandera de alarma médica).</td></tr>
+              <tr><td class="col-name">FECHA_CREACION</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>Hora Bogotá (UTC-5)</td><td>Fecha de auditoría.</td></tr>
+              <tr><td class="col-name">ID_USUARIO_ULTIMA_MODIFICACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Usuario que modificó.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 4.6 FARMACOTERAPIA -->
+      <h3 id="mod-medicacion">4.6 Módulo de Farmacoterapia y Administración</h3>
+
+      <div class="card table-block" data-table="SMY_MEDICAMENTOS_PRESCRITOS">
+        <h4>Tabla: SMY_MEDICAMENTOS_PRESCRITOS</h4>
+        <p>Prescripciones médicas con dosis, horarios, foto comprobante y stock.</p>
+        <div class="table-container">
+          <table class="data-dict">
+            <thead><tr><th>Columna</th><th>Tipo Oracle</th><th>Nulo</th><th>Defecto (Bogotá UTC-5)</th><th>Descripción y Foráneas</th></tr></thead>
+            <tbody>
+              <tr><td class="col-name">ID</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-pk">PK</span></td><td>SEQ_SMY_MEDICAMENTOS_PRESCRITOS</td><td>ID de prescripción.</td></tr>
+              <tr><td class="col-name">ID_RESIDENTE</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_RESIDENTES(ID).</td></tr>
+              <tr><td class="col-name">NOMBRE_COMERCIAL</td><td class="col-type">VARCHAR2(100)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Nombre comercial del fármaco.</td></tr>
+              <tr><td class="col-name">PRINCIPIO_ACTIVO</td><td class="col-type">VARCHAR2(100)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Molécula activa.</td></tr>
+              <tr><td class="col-name">DOSIS</td><td class="col-type">VARCHAR2(50)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Dosis (ej. '50 mg', '1 tableta').</td></tr>
+              <tr><td class="col-name">ID_VIA_ADMINISTRACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_VIAS_ADMINISTRACION(ID).</td></tr>
+              <tr><td class="col-name">HORARIOS_JSON</td><td class="col-type">VARCHAR2(255)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Horarios en JSON (ej. '["08:00","20:00"]').</td></tr>
+              <tr><td class="col-name">FRECUENCIA_HORAS</td><td class="col-type">NUMBER(3)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Frecuencia en horas (ej. 8, 12).</td></tr>
+              <tr><td class="col-name">INDICACIONES_ESPECIALES</td><td class="col-type">VARCHAR2(500)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Tomar con las comidas, etc.</td></tr>
+              <tr><td class="col-name">FECHA_INICIO</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Inicio de prescripción.</td></tr>
+              <tr><td class="col-name">FECHA_FIN</td><td class="col-type">DATE</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Fin de tratamiento.</td></tr>
+              <tr><td class="col-name">ES_USO_CONTINUO</td><td class="col-type">CHAR(1)</td><td><span class="badge badge-req">No</span></td><td>'S'</td><td>'S' / 'N'.</td></tr>
+              <tr><td class="col-name">REQUIERE_FOTO_COMPROBANTE</td><td class="col-type">CHAR(1)</td><td><span class="badge badge-req">No</span></td><td>'N'</td><td>'S' / 'N' (Para trazabilidad fotográfica).</td></tr>
+              <tr><td class="col-name">CANTIDAD_STOCK_ACTUAL</td><td class="col-type">NUMBER(6)</td><td><span class="badge badge-opt">Sí</span></td><td>0</td><td>Unidades disponibles.</td></tr>
+              <tr><td class="col-name">STOCK_MINIMO_ALERTA</td><td class="col-type">NUMBER(6)</td><td><span class="badge badge-opt">Sí</span></td><td>5</td><td>Umbral para pedir reposición.</td></tr>
+              <tr><td class="col-name">ID_ESTADO_MEDICAMENTO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_ESTADOS_MEDICAMENTOS(ID).</td></tr>
+              <tr><td class="col-name">ID_USUARIO_PRESCRIBE</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>FK hacia SMY_USUARIOS(ID).</td></tr>
+              <tr><td class="col-name">FECHA_CREACION</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>Hora Bogotá (UTC-5)</td><td>Fecha de auditoría.</td></tr>
+              <tr><td class="col-name">ID_USUARIO_ULTIMA_MODIFICACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Usuario que modificó.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card table-block" data-table="SMY_REGISTROS_ADMIN_MED">
+        <h4>Tabla: SMY_REGISTROS_ADMIN_MED</h4>
+        <p>Kardex de administración de dosis con verificación y justificación de no administración.</p>
+        <div class="table-container">
+          <table class="data-dict">
+            <thead><tr><th>Columna</th><th>Tipo Oracle</th><th>Nulo</th><th>Defecto (Bogotá UTC-5)</th><th>Descripción y Foráneas</th></tr></thead>
+            <tbody>
+              <tr><td class="col-name">ID</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-pk">PK</span></td><td>SEQ_SMY_REG_ADMIN_MED</td><td>ID del registro de administración.</td></tr>
+              <tr><td class="col-name">ID_MEDICAMENTO_PRESCRITO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_MEDICAMENTOS_PRESCRITOS(ID).</td></tr>
+              <tr><td class="col-name">ID_RESIDENTE</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_RESIDENTES(ID).</td></tr>
+              <tr><td class="col-name">FECHA_PROGRAMADA</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Fecha pautada.</td></tr>
+              <tr><td class="col-name">HORA_PROGRAMADA</td><td class="col-type">VARCHAR2(8)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Hora pautada (ej. '08:00').</td></tr>
+              <tr><td class="col-name">FECHA_REAL_ADMIN</td><td class="col-type">DATE</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Momento real en que se suministró.</td></tr>
+              <tr><td class="col-name">ID_EMPLEADO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>FK hacia SMY_EMPLEADOS(ID).</td></tr>
+              <tr><td class="col-name">ID_USUARIO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>FK hacia SMY_USUARIOS(ID).</td></tr>
+              <tr><td class="col-name">ID_ESTADO_ADMIN_MED</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_ESTADOS_ADMIN_MED(ID).</td></tr>
+              <tr><td class="col-name">MOTIVO_NO_ADMIN</td><td class="col-type">VARCHAR2(255)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Rechazo del paciente, vómito, etc.</td></tr>
+              <tr><td class="col-name">FOTO_COMPROBANTE_URL</td><td class="col-type">VARCHAR2(500)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Foto de la toma si se requería.</td></tr>
+              <tr><td class="col-name">OBSERVACIONES</td><td class="col-type">VARCHAR2(255)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Notas adicionales.</td></tr>
+              <tr><td class="col-name">FECHA_CREACION</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>Hora Bogotá (UTC-5)</td><td>Fecha de auditoría.</td></tr>
+              <tr><td class="col-name">ID_USUARIO_ULTIMA_MODIFICACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Usuario que modificó.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 4.7 NUTRICION -->
+      <h3 id="mod-nutricion">4.7 Módulo de Nutrición, Menú y Consumo</h3>
+
+      <div class="card table-block" data-table="SMY_PLANES_NUTRICIONALES">
+        <h4>Tabla: SMY_PLANES_NUTRICIONALES</h4>
+        <p>Plan nutricional, consistencia de dieta, restricciones y alergias por residente.</p>
+        <div class="table-container">
+          <table class="data-dict">
+            <thead><tr><th>Columna</th><th>Tipo Oracle</th><th>Nulo</th><th>Defecto (Bogotá UTC-5)</th><th>Descripción y Foráneas</th></tr></thead>
+            <tbody>
+              <tr><td class="col-name">ID</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-pk">PK</span></td><td>SEQ_SMY_PLANES_NUTRICIONALES</td><td>ID del plan.</td></tr>
+              <tr><td class="col-name">ID_RESIDENTE</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK única hacia SMY_RESIDENTES(ID).</td></tr>
+              <tr><td class="col-name">ID_TIPO_DIETA</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_TIPOS_DIETAS(ID).</td></tr>
+              <tr><td class="col-name">ID_CONSISTENCIA_DIETA</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_CONSISTENCIAS_DIETA(ID).</td></tr>
+              <tr><td class="col-name">RESTRICCIONES_ALIMENTARIAS</td><td class="col-type">VARCHAR2(500)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Hiposódica, baja en azúcar, etc.</td></tr>
+              <tr><td class="col-name">ALERGIAS_ALIMENTARIAS</td><td class="col-type">VARCHAR2(500)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Lactosa, gluten, mariscos, etc.</td></tr>
+              <tr><td class="col-name">OBSERVACIONES</td><td class="col-type">CLOB</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Instrucciones para cocina.</td></tr>
+              <tr><td class="col-name">FECHA_VALORACION</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>Hora Bogotá (UTC-5)</td><td>Fecha de evaluación.</td></tr>
+              <tr><td class="col-name">ID_NUTRICIONISTA</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>FK hacia SMY_EMPLEADOS(ID).</td></tr>
+              <tr><td class="col-name">FECHA_CREACION</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>Hora Bogotá (UTC-5)</td><td>Fecha de auditoría.</td></tr>
+              <tr><td class="col-name">ID_USUARIO_ULTIMA_MODIFICACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Usuario que modificó.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card table-block" data-table="SMY_REGISTROS_ALIM_SESION">
+        <h4>Tabla: SMY_REGISTROS_ALIM_SESION</h4>
+        <p>Sesión grupal de comida (Desayuno, Almuerzo, Cena) para el comedor general.</p>
+        <div class="table-container">
+          <table class="data-dict">
+            <thead><tr><th>Columna</th><th>Tipo Oracle</th><th>Nulo</th><th>Defecto (Bogotá UTC-5)</th><th>Descripción y Foráneas</th></tr></thead>
+            <tbody>
+              <tr><td class="col-name">ID</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-pk">PK</span></td><td>SEQ_SMY_REG_ALIM_SESION</td><td>ID de la sesión de comida.</td></tr>
+              <tr><td class="col-name">FECHA</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Fecha de la comida.</td></tr>
+              <tr><td class="col-name">ID_TIPO_COMIDA</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_TIPOS_COMIDAS(ID).</td></tr>
+              <tr><td class="col-name">DESCRIPCION_MENU</td><td class="col-type">VARCHAR2(500)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Plato servido del día.</td></tr>
+              <tr><td class="col-name">ID_USUARIO_REGISTRA</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_USUARIOS(ID).</td></tr>
+              <tr><td class="col-name">FECHA_CREACION</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>Hora Bogotá (UTC-5)</td><td>Fecha de auditoría.</td></tr>
+              <tr><td class="col-name">ID_USUARIO_ULTIMA_MODIFICACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Usuario que modificó.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card table-block" data-table="SMY_REGISTROS_ALIM_DETALLE">
+        <h4>Tabla: SMY_REGISTROS_ALIM_DETALLE</h4>
+        <p>Monitoreo individual de porcentaje de ingesta y líquidos por residente.</p>
+        <div class="table-container">
+          <table class="data-dict">
+            <thead><tr><th>Columna</th><th>Tipo Oracle</th><th>Nulo</th><th>Defecto (Bogotá UTC-5)</th><th>Descripción y Foráneas</th></tr></thead>
+            <tbody>
+              <tr><td class="col-name">ID</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-pk">PK</span></td><td>SEQ_SMY_REG_ALIM_DET</td><td>ID del registro individual.</td></tr>
+              <tr><td class="col-name">ID_SESION_ALIMENTACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_REGISTROS_ALIM_SESION(ID).</td></tr>
+              <tr><td class="col-name">ID_RESIDENTE</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_RESIDENTES(ID).</td></tr>
+              <tr><td class="col-name">PORCENTAJE_CONSUMIDO</td><td class="col-type">NUMBER(3)</td><td><span class="badge badge-req">No</span></td><td>100</td><td>0 a 100%.</td></tr>
+              <tr><td class="col-name">RECHAZO_ALIMENTOS</td><td class="col-type">CHAR(1)</td><td><span class="badge badge-req">No</span></td><td>'N'</td><td>'S' / 'N'.</td></tr>
+              <tr><td class="col-name">CONSUMIO_LIQUIDOS_ML</td><td class="col-type">NUMBER(5)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Mililitros ingeridos.</td></tr>
+              <tr><td class="col-name">NOTAS</td><td class="col-type">VARCHAR2(255)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Observaciones de apetito.</td></tr>
+              <tr><td class="col-name">ID_EMPLEADO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>FK hacia SMY_EMPLEADOS(ID).</td></tr>
+              <tr><td class="col-name">FECHA_CREACION</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>Hora Bogotá (UTC-5)</td><td>Fecha de auditoría.</td></tr>
+              <tr><td class="col-name">ID_USUARIO_ULTIMA_MODIFICACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Usuario que modificó.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 4.8 TAREAS Y CALENDARIO -->
+      <h3 id="mod-tareas">4.8 Módulo de Tareas Operativas y Calendario de Eventos</h3>
+
+      <div class="card table-block" data-table="SMY_TAREAS_OPERATIVAS">
+        <h4>Tabla: SMY_TAREAS_OPERATIVAS</h4>
+        <p>Tareas grupales o individuales de enfermería, higiene y fisioterapia.</p>
+        <div class="table-container">
+          <table class="data-dict">
+            <thead><tr><th>Columna</th><th>Tipo Oracle</th><th>Nulo</th><th>Defecto (Bogotá UTC-5)</th><th>Descripción y Foráneas</th></tr></thead>
+            <tbody>
+              <tr><td class="col-name">ID</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-pk">PK</span></td><td>SEQ_SMY_TAREAS_OPERATIVAS</td><td>ID de la tarea.</td></tr>
+              <tr><td class="col-name">ID_TIPO_TAREA</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_TIPOS_TAREAS(ID).</td></tr>
+              <tr><td class="col-name">TITULO</td><td class="col-type">VARCHAR2(150)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Nombre de la tarea.</td></tr>
+              <tr><td class="col-name">DESCRIPCION</td><td class="col-type">VARCHAR2(500)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Procedimiento a realizar.</td></tr>
+              <tr><td class="col-name">ID_ALCANCE_TAREA</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_ALCANCES_TAREAS(ID).</td></tr>
+              <tr><td class="col-name">ID_RESIDENTE</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>FK opcional hacia SMY_RESIDENTES(ID).</td></tr>
+              <tr><td class="col-name">FECHA_PROGRAMADA</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Fecha fijada.</td></tr>
+              <tr><td class="col-name">HORA_LIMITE</td><td class="col-type">VARCHAR2(8)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Hora tope (ej. '11:00').</td></tr>
+              <tr><td class="col-name">ID_ESTADO_TAREA</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_ESTADOS_TAREAS(ID).</td></tr>
+              <tr><td class="col-name">ID_USUARIO_ASIGNADO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>FK hacia SMY_USUARIOS(ID).</td></tr>
+              <tr><td class="col-name">ID_USUARIO_COMPLETO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>FK hacia SMY_USUARIOS(ID).</td></tr>
+              <tr><td class="col-name">FECHA_HORA_COMPLETO</td><td class="col-type">DATE</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Momento de finalización.</td></tr>
+              <tr><td class="col-name">NOTAS_EJECUCION</td><td class="col-type">VARCHAR2(500)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Notas del ejecutor.</td></tr>
+              <tr><td class="col-name">FECHA_CREACION</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>Hora Bogotá (UTC-5)</td><td>Fecha de auditoría.</td></tr>
+              <tr><td class="col-name">ID_USUARIO_ULTIMA_MODIFICACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Usuario que modificó.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card table-block" data-table="SMY_TAREA_RESIDENTES">
+        <h4>Tabla: SMY_TAREA_RESIDENTES</h4>
+        <p>Control nominal de asistencia y excepciones de residentes en tareas asistenciales o terapéuticas grupales.</p>
+        <div class="table-container">
+          <table class="data-dict">
+            <thead><tr><th>Columna</th><th>Tipo Oracle</th><th>Nulo</th><th>Defecto (Bogotá UTC-5)</th><th>Descripción y Foráneas</th></tr></thead>
+            <tbody>
+              <tr><td class="col-name">ID</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-pk">PK</span></td><td>SEQ_SMY_TAREA_RESIDENTES</td><td>ID del registro.</td></tr>
+              <tr><td class="col-name">ID_TAREA_OPERATIVA</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_TAREAS_OPERATIVAS(ID).</td></tr>
+              <tr><td class="col-name">ID_RESIDENTE</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_RESIDENTES(ID).</td></tr>
+              <tr><td class="col-name">ASISTIO</td><td class="col-type">CHAR(1)</td><td><span class="badge badge-req">No</span></td><td>'S'</td><td>'S' / 'N' (Cumplimiento individual).</td></tr>
+              <tr><td class="col-name">OBSERVACIONES</td><td class="col-type">VARCHAR2(255)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Motivo de inasistencia o excepción.</td></tr>
+              <tr><td class="col-name">FECHA_CREACION</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>Hora Bogotá (UTC-5)</td><td>Fecha de auditoría.</td></tr>
+              <tr><td class="col-name">ID_USUARIO_ULTIMA_MODIFICACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Usuario que modificó.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card table-block" data-table="SMY_EVENTOS_CALENDARIO">
+        <h4>Tabla: SMY_EVENTOS_CALENDARIO</h4>
+        <p>Actividades lúdicas, visitas de familiares y eventos comunitarios del centro.</p>
+        <div class="table-container">
+          <table class="data-dict">
+            <thead><tr><th>Columna</th><th>Tipo Oracle</th><th>Nulo</th><th>Defecto (Bogotá UTC-5)</th><th>Descripción y Foráneas</th></tr></thead>
+            <tbody>
+              <tr><td class="col-name">ID</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-pk">PK</span></td><td>SEQ_SMY_EVENTOS_CALENDARIO</td><td>ID del evento.</td></tr>
+              <tr><td class="col-name">TITULO</td><td class="col-type">VARCHAR2(150)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Título de la actividad.</td></tr>
+              <tr><td class="col-name">DESCRIPCION</td><td class="col-type">VARCHAR2(500)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Detalle del evento.</td></tr>
+              <tr><td class="col-name">ID_TIPO_EVENTO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_TIPOS_EVENTOS(ID).</td></tr>
+              <tr><td class="col-name">FECHA_INICIO</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Inicio de la actividad.</td></tr>
+              <tr><td class="col-name">FECHA_FIN</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Fin de la actividad.</td></tr>
+              <tr><td class="col-name">ES_TODO_EL_DIA</td><td class="col-type">CHAR(1)</td><td><span class="badge badge-req">No</span></td><td>'N'</td><td>'S' / 'N'.</td></tr>
+              <tr><td class="col-name">LUGAR</td><td class="col-type">VARCHAR2(100)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Jardín, Sala de estar, etc.</td></tr>
+              <tr><td class="col-name">ES_EVENTO_FAMILIAS</td><td class="col-type">CHAR(1)</td><td><span class="badge badge-req">No</span></td><td>'N'</td><td>'S' / 'N' (Abierto a familiares).</td></tr>
+              <tr><td class="col-name">ID_USUARIO_CREADOR</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_USUARIOS(ID).</td></tr>
+              <tr><td class="col-name">FECHA_CREACION</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>Hora Bogotá (UTC-5)</td><td>Fecha de auditoría.</td></tr>
+              <tr><td class="col-name">ID_USUARIO_ULTIMA_MODIFICACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Usuario que modificó.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 4.9 SUMINISTROS -->
+      <h3 id="mod-suministros">4.9 Módulo de Suministros, Entregas y Gastos Adicionales</h3>
+
+      <div class="card table-block" data-table="SMY_SUMINISTROS_REGISTRO">
+        <h4>Tabla: SMY_SUMINISTROS_REGISTRO</h4>
+        <p>Insumos personales traídos por acudientes y registro de gastos adicionales con estado de pago.</p>
+        <div class="table-container">
+          <table class="data-dict">
+            <thead><tr><th>Columna</th><th>Tipo Oracle</th><th>Nulo</th><th>Defecto (Bogotá UTC-5)</th><th>Descripción y Foráneas</th></tr></thead>
+            <tbody>
+              <tr><td class="col-name">ID</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-pk">PK</span></td><td>SEQ_SMY_SUMINISTROS_REGISTRO</td><td>ID del registro.</td></tr>
+              <tr><td class="col-name">ID_RESIDENTE</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_RESIDENTES(ID).</td></tr>
+              <tr><td class="col-name">ID_TIPO_SUMINISTRO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_TIPOS_SUMINISTROS(ID).</td></tr>
+              <tr><td class="col-name">DESCRIPCION</td><td class="col-type">VARCHAR2(200)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Detalle de los insumos o gasto.</td></tr>
+              <tr><td class="col-name">CANTIDAD</td><td class="col-type">NUMBER(6)</td><td><span class="badge badge-req">No</span></td><td>1</td><td>Unidades recibidas o consumidas.</td></tr>
+              <tr><td class="col-name">UNIDAD_MEDIDA</td><td class="col-type">VARCHAR2(30)</td><td><span class="badge badge-opt">Sí</span></td><td>'Unidades'</td><td>Paquete, frasco, caja.</td></tr>
+              <tr><td class="col-name">COSTO_UNITARIO</td><td class="col-type">NUMBER(12,2)</td><td><span class="badge badge-opt">Sí</span></td><td>0</td><td>Valor unitario COP.</td></tr>
+              <tr><td class="col-name">MONTO_TOTAL</td><td class="col-type">NUMBER(12,2)</td><td><span class="badge badge-opt">Sí</span></td><td>0</td><td>Total a cobrar.</td></tr>
+              <tr><td class="col-name">ID_ESTADO_PAGO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_ESTADOS_PAGOS(ID).</td></tr>
+              <tr><td class="col-name">FECHA_RECEPCION_GASTO</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>Hora Bogotá (UTC-5)</td><td>Fecha del evento.</td></tr>
+              <tr><td class="col-name">FACTURA_COMPROBANTE_URL</td><td class="col-type">VARCHAR2(500)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Soporte fotográfico o PDF.</td></tr>
+              <tr><td class="col-name">NOTAS</td><td class="col-type">VARCHAR2(255)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Observaciones.</td></tr>
+              <tr><td class="col-name">ID_TRABAJADOR_RECIBE</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>FK hacia SMY_EMPLEADOS(ID).</td></tr>
+              <tr><td class="col-name">ID_USUARIO_REGISTRA</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_USUARIOS(ID).</td></tr>
+              <tr><td class="col-name">FECHA_CREACION</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>Hora Bogotá (UTC-5)</td><td>Fecha de auditoría.</td></tr>
+              <tr><td class="col-name">ID_USUARIO_ULTIMA_MODIFICACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Usuario que modificó.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 4.10 CONSENTIMIENTOS -->
+      <h3 id="mod-consentimientos">4.10 Módulo de Consentimientos Informados y Firmas</h3>
+
+      <div class="card table-block" data-table="SMY_CONSENTIMIENTOS">
+        <h4>Tabla: SMY_CONSENTIMIENTOS</h4>
+        <p>Autorizaciones médicas y legales emitidas para firma digital de la familia.</p>
+        <div class="table-container">
+          <table class="data-dict">
+            <thead><tr><th>Columna</th><th>Tipo Oracle</th><th>Nulo</th><th>Defecto (Bogotá UTC-5)</th><th>Descripción y Foráneas</th></tr></thead>
+            <tbody>
+              <tr><td class="col-name">ID</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-pk">PK</span></td><td>SEQ_SMY_CONSENTIMIENTOS</td><td>ID del consentimiento.</td></tr>
+              <tr><td class="col-name">TITULO</td><td class="col-type">VARCHAR2(150)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Título del documento legal.</td></tr>
+              <tr><td class="col-name">ID_TIPO_CONSENTIMIENTO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_TIPOS_CONSENTIMIENTOS(ID).</td></tr>
+              <tr><td class="col-name">DESCRIPCION_PROCEDIMIENTO</td><td class="col-type">CLOB</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Texto del procedimiento a autorizar.</td></tr>
+              <tr><td class="col-name">RIESGOS_BENEFICIOS_TEXTO</td><td class="col-type">CLOB</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Detalle de riesgos y alternativas.</td></tr>
+              <tr><td class="col-name">ARCHIVO_PLANTILLA_URL</td><td class="col-type">VARCHAR2(500)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Plantilla base en PDF.</td></tr>
+              <tr><td class="col-name">ID_RESIDENTE</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_RESIDENTES(ID).</td></tr>
+              <tr><td class="col-name">ID_ESTADO_CONSENTIMIENTO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_ESTADOS_CONSENTIMIENTOS(ID).</td></tr>
+              <tr><td class="col-name">ID_USUARIO_CREADOR</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_USUARIOS(ID).</td></tr>
+              <tr><td class="col-name">FECHA_EXPIRACION</td><td class="col-type">DATE</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Límite para recolección de firmas.</td></tr>
+              <tr><td class="col-name">FECHA_CREACION</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>Hora Bogotá (UTC-5)</td><td>Fecha de auditoría.</td></tr>
+              <tr><td class="col-name">ID_USUARIO_ULTIMA_MODIFICACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Usuario que modificó.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card table-block" data-table="SMY_CONSENTIMIENTO_DESTINATARIOS">
+        <h4>Tabla: SMY_CONSENTIMIENTO_DESTINATARIOS</h4>
+        <p>Destinatarios de consentimientos con hash e IP de firma digital.</p>
+        <div class="table-container">
+          <table class="data-dict">
+            <thead><tr><th>Columna</th><th>Tipo Oracle</th><th>Nulo</th><th>Defecto (Bogotá UTC-5)</th><th>Descripción y Foráneas</th></tr></thead>
+            <tbody>
+              <tr><td class="col-name">ID</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-pk">PK</span></td><td>SEQ_SMY_CONS_DESTINATARIOS</td><td>ID del firmante.</td></tr>
+              <tr><td class="col-name">ID_CONSENTIMIENTO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_CONSENTIMIENTOS(ID).</td></tr>
+              <tr><td class="col-name">ID_ACUDIENTE</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_ACUDIENTES(ID).</td></tr>
+              <tr><td class="col-name">ID_PARENTESCO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_PARENTESCOS(ID).</td></tr>
+              <tr><td class="col-name">EMAIL_ENVIO</td><td class="col-type">VARCHAR2(120)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Correo al que se notificó.</td></tr>
+              <tr><td class="col-name">ID_ESTADO_FIRMA_CONS</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_ESTADOS_FIRMAS_CONS(ID).</td></tr>
+              <tr><td class="col-name">FECHA_FIRMA</td><td class="col-type">DATE</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Momento de la firma electrónica.</td></tr>
+              <tr><td class="col-name">IP_FIRMA</td><td class="col-type">VARCHAR2(50)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>IP origen de la firma.</td></tr>
+              <tr><td class="col-name">FIRMA_DIGITAL_HASH</td><td class="col-type">VARCHAR2(255)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Hash criptográfico de validez.</td></tr>
+              <tr><td class="col-name">FIRMA_IMAGEN_URL</td><td class="col-type">VARCHAR2(500)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Trazo manuscrito capturado (PNG/WebP).</td></tr>
+              <tr><td class="col-name">FIRMA_CANVAS_BASE64</td><td class="col-type">CLOB</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Trazo vectorial/Base64 para visualización directa en pantalla e impresión de actas.</td></tr>
+              <tr><td class="col-name">FECHA_CREACION</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>Hora Bogotá (UTC-5)</td><td>Fecha de auditoría.</td></tr>
+              <tr><td class="col-name">ID_USUARIO_ULTIMA_MODIFICACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Usuario que modificó.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 4.11 INCIDENTES -->
+      <h3 id="mod-incidentes">4.11 Módulo de Incidentes, Eventos Adversos y Calidad</h3>
+
+      <div class="card table-block" data-table="SMY_INCIDENTES">
+        <h4>Tabla: SMY_INCIDENTES</h4>
+        <p>Registro de eventos adversos (caídas, cambios de salud) con severidad y cierre.</p>
+        <div class="table-container">
+          <table class="data-dict">
+            <thead><tr><th>Columna</th><th>Tipo Oracle</th><th>Nulo</th><th>Defecto (Bogotá UTC-5)</th><th>Descripción y Foráneas</th></tr></thead>
+            <tbody>
+              <tr><td class="col-name">ID</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-pk">PK</span></td><td>SEQ_SMY_INCIDENTES</td><td>ID del incidente.</td></tr>
+              <tr><td class="col-name">FECHA_INCIDENTE</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Fecha de ocurrencia.</td></tr>
+              <tr><td class="col-name">HORA_INCIDENTE</td><td class="col-type">VARCHAR2(8)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Hora del evento (ej. '14:15').</td></tr>
+              <tr><td class="col-name">LUGAR</td><td class="col-type">VARCHAR2(100)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Habitación 102, Baño, Pasillo.</td></tr>
+              <tr><td class="col-name">ID_TIPO_INCIDENTE</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_TIPOS_INCIDENTES(ID).</td></tr>
+              <tr><td class="col-name">ID_SEVERIDAD_INCIDENTE</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_SEVERIDADES_INCIDENTES(ID).</td></tr>
+              <tr><td class="col-name">DESCRIPCION</td><td class="col-type">CLOB</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Relato pormenorizado de lo ocurrido.</td></tr>
+              <tr><td class="col-name">ACCIONES_INMEDIATAS_TOMADAS</td><td class="col-type">CLOB</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Primeros auxilios o asistencia brindada.</td></tr>
+              <tr><td class="col-name">ID_USUARIO_REPORTO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_USUARIOS(ID).</td></tr>
+              <tr><td class="col-name">REQUIERE_TRASLADO_HOSPITAL</td><td class="col-type">CHAR(1)</td><td><span class="badge badge-req">No</span></td><td>'N'</td><td>'S' / 'N'.</td></tr>
+              <tr><td class="col-name">REQUIERE_NOTIF_FAMILIA</td><td class="col-type">CHAR(1)</td><td><span class="badge badge-req">No</span></td><td>'S'</td><td>'S' / 'N'.</td></tr>
+              <tr><td class="col-name">FAMILIA_NOTIFICADA</td><td class="col-type">CHAR(1)</td><td><span class="badge badge-req">No</span></td><td>'N'</td><td>'S' / 'N'.</td></tr>
+              <tr><td class="col-name">ID_ESTADO_INCIDENTE</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_ESTADOS_INCIDENTES(ID).</td></tr>
+              <tr><td class="col-name">CONCLUSIONES_CIERRE</td><td class="col-type">CLOB</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Dictamen final y acciones preventivas.</td></tr>
+              <tr><td class="col-name">ID_USUARIO_CERRO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>FK hacia SMY_USUARIOS(ID).</td></tr>
+              <tr><td class="col-name">FECHA_CIERRE</td><td class="col-type">DATE</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Momento del cierre formal.</td></tr>
+              <tr><td class="col-name">FECHA_CREACION</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>Hora Bogotá (UTC-5)</td><td>Fecha de auditoría.</td></tr>
+              <tr><td class="col-name">ID_USUARIO_ULTIMA_MODIFICACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Usuario que modificó.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card table-block" data-table="SMY_INCIDENTE_RESIDENTES">
+        <h4>Tabla: SMY_INCIDENTE_RESIDENTES</h4>
+        <p>Residentes involucrados en un evento adverso y descripción de lesiones.</p>
+        <div class="table-container">
+          <table class="data-dict">
+            <thead><tr><th>Columna</th><th>Tipo Oracle</th><th>Nulo</th><th>Defecto (Bogotá UTC-5)</th><th>Descripción y Foráneas</th></tr></thead>
+            <tbody>
+              <tr><td class="col-name">ID</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-pk">PK</span></td><td>SEQ_SMY_INC_RESIDENTES</td><td>ID de la relación.</td></tr>
+              <tr><td class="col-name">ID_INCIDENTE</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_INCIDENTES(ID).</td></tr>
+              <tr><td class="col-name">ID_RESIDENTE</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_RESIDENTES(ID).</td></tr>
+              <tr><td class="col-name">ID_ROL_INCIDENTE</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_ROLES_EN_INCIDENTE(ID).</td></tr>
+              <tr><td class="col-name">LESIONES_DESCRIPCION</td><td class="col-type">VARCHAR2(500)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Trauma, laceración, sin lesiones.</td></tr>
+              <tr><td class="col-name">FECHA_CREACION</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>Hora Bogotá (UTC-5)</td><td>Fecha de auditoría.</td></tr>
+              <tr><td class="col-name">ID_USUARIO_ULTIMA_MODIFICACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Usuario que modificó.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 4.12 CHAT Y NOTIFICACIONES -->
+      <h3 id="mod-comunicaciones">4.12 Módulo de Comunicaciones, Chat y Notificaciones</h3>
+
+      <div class="card table-block" data-table="SMY_CONVERSACIONES_CHAT">
+        <h4>Tabla: SMY_CONVERSACIONES_CHAT</h4>
+        <p>Hilos de conversación directa o grupal entre acudientes y el personal.</p>
+        <div class="table-container">
+          <table class="data-dict">
+            <thead><tr><th>Columna</th><th>Tipo Oracle</th><th>Nulo</th><th>Defecto (Bogotá UTC-5)</th><th>Descripción y Foráneas</th></tr></thead>
+            <tbody>
+              <tr><td class="col-name">ID</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-pk">PK</span></td><td>SEQ_SMY_CONVERSACIONES_CHAT</td><td>ID de conversación.</td></tr>
+              <tr><td class="col-name">ID_TIPO_CANAL_CHAT</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_TIPOS_CANALES_CHAT(ID).</td></tr>
+              <tr><td class="col-name">TITULO</td><td class="col-type">VARCHAR2(100)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Nombre del canal o tema.</td></tr>
+              <tr><td class="col-name">ID_RESIDENTE</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>FK opcional hacia SMY_RESIDENTES(ID).</td></tr>
+              <tr><td class="col-name">FECHA_ULTIMO_MENSAJE</td><td class="col-type">DATE</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Timestamp del mensaje más reciente.</td></tr>
+              <tr><td class="col-name">FECHA_CREACION</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>Hora Bogotá (UTC-5)</td><td>Fecha de auditoría.</td></tr>
+              <tr><td class="col-name">ID_USUARIO_ULTIMA_MODIFICACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Usuario que modificó.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card table-block" data-table="SMY_CHAT_PARTICIPANTES">
+        <h4>Tabla: SMY_CHAT_PARTICIPANTES</h4>
+        <p>Usuarios miembros de cada canal de mensajería con registro de lecturas.</p>
+        <div class="table-container">
+          <table class="data-dict">
+            <thead><tr><th>Columna</th><th>Tipo Oracle</th><th>Nulo</th><th>Defecto (Bogotá UTC-5)</th><th>Descripción y Foráneas</th></tr></thead>
+            <tbody>
+              <tr><td class="col-name">ID</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-pk">PK</span></td><td>SEQ_SMY_CHAT_PARTICIPANTES</td><td>ID del participante.</td></tr>
+              <tr><td class="col-name">ID_CONVERSACION_CHAT</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_CONVERSACIONES_CHAT(ID).</td></tr>
+              <tr><td class="col-name">ID_USUARIO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_USUARIOS(ID).</td></tr>
+              <tr><td class="col-name">FECHA_UNION</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>Hora Bogotá (UTC-5)</td><td>Momento de ingreso al canal.</td></tr>
+              <tr><td class="col-name">ES_ADMIN_GRUPO</td><td class="col-type">CHAR(1)</td><td><span class="badge badge-req">No</span></td><td>'N'</td><td>'S' / 'N'.</td></tr>
+              <tr><td class="col-name">NOTIFICACIONES_ACTIVAS</td><td class="col-type">CHAR(1)</td><td><span class="badge badge-req">No</span></td><td>'S'</td><td>'S' / 'N'.</td></tr>
+              <tr><td class="col-name">ULTIMA_LECTURA_FECHA</td><td class="col-type">DATE</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Última vez que abrió el chat.</td></tr>
+              <tr><td class="col-name">FECHA_CREACION</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>Hora Bogotá (UTC-5)</td><td>Fecha de auditoría.</td></tr>
+              <tr><td class="col-name">ID_USUARIO_ULTIMA_MODIFICACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Usuario que modificó.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card table-block" data-table="SMY_MENSAJES_CHAT">
+        <h4>Tabla: SMY_MENSAJES_CHAT</h4>
+        <p>Mensajes de texto, audios e imágenes intercambiados en la plataforma.</p>
+        <div class="table-container">
+          <table class="data-dict">
+            <thead><tr><th>Columna</th><th>Tipo Oracle</th><th>Nulo</th><th>Defecto (Bogotá UTC-5)</th><th>Descripción y Foráneas</th></tr></thead>
+            <tbody>
+              <tr><td class="col-name">ID</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-pk">PK</span></td><td>SEQ_SMY_MENSAJES_CHAT</td><td>ID del mensaje.</td></tr>
+              <tr><td class="col-name">ID_CONVERSACION_CHAT</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_CONVERSACIONES_CHAT(ID).</td></tr>
+              <tr><td class="col-name">ID_USUARIO_REMITENTE</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_USUARIOS(ID).</td></tr>
+              <tr><td class="col-name">MENSAJE_TEXTO</td><td class="col-type">CLOB</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Cuerpo del mensaje.</td></tr>
+              <tr><td class="col-name">ID_TIPO_ADJUNTO_CHAT</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>FK hacia SMY_TIPOS_ADJUNTOS_CHAT(ID).</td></tr>
+              <tr><td class="col-name">ADJUNTO_URL</td><td class="col-type">VARCHAR2(500)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Foto, audio o PDF adjunto.</td></tr>
+              <tr><td class="col-name">FECHA_ENVIO</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>Hora Bogotá (UTC-5)</td><td>Timestamp de envío.</td></tr>
+              <tr><td class="col-name">LEIDO_POR_TODOS</td><td class="col-type">CHAR(1)</td><td><span class="badge badge-req">No</span></td><td>'N'</td><td>'S' / 'N'.</td></tr>
+              <tr><td class="col-name">FECHA_CREACION</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>Hora Bogotá (UTC-5)</td><td>Fecha de auditoría.</td></tr>
+              <tr><td class="col-name">ID_USUARIO_ULTIMA_MODIFICACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Usuario que modificó.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card table-block" data-table="SMY_NOTIFICACIONES_SISTEMA">
+        <h4>Tabla: SMY_NOTIFICACIONES_SISTEMA</h4>
+        <p>Campana de avisos (push, in-app) para alertas médicas, turnos y aprobaciones.</p>
+        <div class="table-container">
+          <table class="data-dict">
+            <thead><tr><th>Columna</th><th>Tipo Oracle</th><th>Nulo</th><th>Defecto (Bogotá UTC-5)</th><th>Descripción y Foráneas</th></tr></thead>
+            <tbody>
+              <tr><td class="col-name">ID</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-pk">PK</span></td><td>SEQ_SMY_NOTIFICACIONES_SISTEMA</td><td>ID de la notificación.</td></tr>
+              <tr><td class="col-name">ID_USUARIO_DESTINO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_USUARIOS(ID).</td></tr>
+              <tr><td class="col-name">ID_TIPO_NOTIFICACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_TIPOS_NOTIFICACIONES(ID).</td></tr>
+              <tr><td class="col-name">TITULO</td><td class="col-type">VARCHAR2(150)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Encabezado del aviso.</td></tr>
+              <tr><td class="col-name">MENSAJE</td><td class="col-type">VARCHAR2(500)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Cuerpo descriptivo.</td></tr>
+              <tr><td class="col-name">RUTA_DESTINO</td><td class="col-type">VARCHAR2(255)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Deep link a la vista de la app.</td></tr>
+              <tr><td class="col-name">LEIDO</td><td class="col-type">CHAR(1)</td><td><span class="badge badge-req">No</span></td><td>'N'</td><td>'S' / 'N'.</td></tr>
+              <tr><td class="col-name">FECHA_LEIDO</td><td class="col-type">DATE</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Momento en que se visualizó.</td></tr>
+              <tr><td class="col-name">FECHA_CREACION</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>Hora Bogotá (UTC-5)</td><td>Fecha de auditoría.</td></tr>
+              <tr><td class="col-name">ID_USUARIO_ULTIMA_MODIFICACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Usuario que modificó.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card table-block" data-table="SMY_DISPOSITIVOS_PUSH">
+        <h4>Tabla: SMY_DISPOSITIVOS_PUSH</h4>
+        <p>Registro de tokens de dispositivos móviles (FCM/APNs) para envío de notificaciones push a cuidadores y familiares.</p>
+        <div class="table-container">
+          <table class="data-dict">
+            <thead><tr><th>Columna</th><th>Tipo Oracle</th><th>Nulo</th><th>Defecto (Bogotá UTC-5)</th><th>Descripción y Foráneas</th></tr></thead>
+            <tbody>
+              <tr><td class="col-name">ID</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-pk">PK</span></td><td>SEQ_SMY_DISPOSITIVOS_PUSH</td><td>ID del registro.</td></tr>
+              <tr><td class="col-name">ID_USUARIO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_USUARIOS(ID).</td></tr>
+              <tr><td class="col-name">TOKEN_DISPOSITIVO</td><td class="col-type">VARCHAR2(500)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Token push criptográfico de Firebase o Apple.</td></tr>
+              <tr><td class="col-name">PLATAFORMA</td><td class="col-type">VARCHAR2(20)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>'ANDROID', 'IOS', 'WEB'.</td></tr>
+              <tr><td class="col-name">FECHA_ULTIMO_USO</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>Hora Bogotá (UTC-5)</td><td>Fecha de última entrega/apertura.</td></tr>
+              <tr><td class="col-name">ACTIVO</td><td class="col-type">CHAR(1)</td><td><span class="badge badge-req">No</span></td><td>'S'</td><td>'S' / 'N' (Estado del token).</td></tr>
+              <tr><td class="col-name">FECHA_CREACION</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>Hora Bogotá (UTC-5)</td><td>Fecha de auditoría.</td></tr>
+              <tr><td class="col-name">ID_USUARIO_ULTIMA_MODIFICACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Usuario que modificó.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 4.13 VISTAS DEL SISTEMA -->
+      <h3 id="mod-vistas">4.13 Vistas del Sistema (Frontend Optimization)</h3>
+
+      <div class="card table-block" data-table="V_SMY_TIMELINE_RESIDENTE">
+        <h4>Vista: V_SMY_TIMELINE_RESIDENTE</h4>
+        <p>Muro cronológico unificado de novedades del residente (Bitácora, Signos Vitales, Medicación, Alimentación, Incidentes y Consentimientos) para alimentar el Timeline en una sola consulta.</p>
+        <div class="table-container">
+          <table class="data-dict">
+            <thead><tr><th>Columna de la Vista</th><th>Tipo / Formato</th><th>Origen SQL</th><th>Descripción de Negocio</th></tr></thead>
+            <tbody>
+              <tr><td class="col-name">EVENTO_ID</td><td class="col-type">VARCHAR2(50)</td><td>Prefijo + ID tabla</td><td>Identificador único del evento (ej. 'BITACORA-12', 'SIGNOS-4').</td></tr>
+              <tr><td class="col-name">ID_RESIDENTE</td><td class="col-type">NUMBER(10)</td><td>ID_RESIDENTE</td><td>Identificador del residente involucrado.</td></tr>
+              <tr><td class="col-name">TIPO_EVENTO</td><td class="col-type">VARCHAR2(30)</td><td>Literal fijo</td><td>'bitacora', 'signos_vitales', 'medicacion', 'alimentacion', 'incidente', 'consentimiento'.</td></tr>
+              <tr><td class="col-name">TITULO</td><td class="col-type">VARCHAR2(150)</td><td>Título generado</td><td>Encabezado del card para la vista móvil.</td></tr>
+              <tr><td class="col-name">RESUMEN</td><td class="col-type">VARCHAR2(500)</td><td>Substr / Concatenación</td><td>Texto sintetizado con valores clínicos relevantes (TA, dosis, observaciones).</td></tr>
+              <tr><td class="col-name">FECHA_EVENTO</td><td class="col-type">DATE</td><td>Fecha origen</td><td>Fecha del suceso para ordenamiento cronológico inverso.</td></tr>
+              <tr><td class="col-name">HORA_EVENTO</td><td class="col-type">VARCHAR2(8)</td><td>Hora origen (HH24:MI)</td><td>Hora de la novedad asistencial.</td></tr>
+              <tr><td class="col-name">REGISTRADO_POR</td><td class="col-type">VARCHAR2(150)</td><td>U.NOMBRE_COMPLETO</td><td>Nombre del cuidador, profesional o acudiente que reportó.</td></tr>
+              <tr><td class="col-name">FOTO_URL</td><td class="col-type">VARCHAR2(500)</td><td>URL adjunto</td><td>Fotografía o soporte del evento (si aplica).</td></tr>
+              <tr><td class="col-name">VISIBLE_ACUDIENTE</td><td class="col-type">CHAR(1)</td><td>'S' / 'N'</td><td>Filtro de seguridad para el portal de familias.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- SECCION 5: TRIGGERS Y SECUENCIAS -->
+    <section id="oracle-specs">
+      <h2><span class="sec-id">05</span>Especificación de Triggers y Secuencias en Oracle</h2>
+      <p>
+        Para garantizar la compatibilidad con todas las versiones de Oracle (11g a 23c), cada una de las 79 tablas cuenta con una secuencia y un trigger <span class="mono">BEFORE INSERT</span> asociado:
+      </p>
+
+      <pre class="code-block">
+-- Patrón estándar implementado para todas las tablas SMY_:
+CREATE SEQUENCE SEQ_SMY_CONSENTIMIENTOS START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
+
+CREATE OR REPLACE TRIGGER TRG_SMY_CONSENTIMIENTOS_BI
+BEFORE INSERT ON SMY_CONSENTIMIENTOS
+FOR EACH ROW
+BEGIN
+    IF :NEW.ID IS NULL THEN
+        SELECT SEQ_SMY_CONSENTIMIENTOS.NEXTVAL INTO :NEW.ID FROM DUAL;
+    END IF;
+END;
+/
+      </pre>
+    </section>
+
+    <!-- SECCION 6: INDICES -->
+    <section id="indices">
+      <h2><span class="sec-id">06</span>Estrategia de Índices y Rendimiento</h2>
+      <p>
+        Se estructuraron índices compuestos sobre las claves foráneas de estado y fechas para optimizar las consultas operativas más frecuentes:
+      </p>
+
+      <div class="grid-2">
+        <div class="card">
+          <h4>Índices para Rondas Clínicas y Medicación</h4>
+          <ul style="padding-left: 18px; font-size: 0.88rem; color: var(--ink-soft); margin-top: 8px;">
+            <li><span class="mono">IDX_SMY_BIT_RES_FEC</span>: Consultas cronológicas de bitácora por residente y fecha.</li>
+            <li><span class="mono">IDX_SMY_SV_RES_FEC</span>: Gráficas biomédicas de signos vitales.</li>
+            <li><span class="mono">IDX_SMY_RAM_PRES_FEC</span>: Control de dosis de medicamentos pendientes por turno.</li>
+            <li><span class="mono">IDX_SMY_RAD_RES_FEC</span>: Reporte de ingesta nutricional por comida.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h4>Índices para Portal de Acudientes y Chat</h4>
+          <ul style="padding-left: 18px; font-size: 0.88rem; color: var(--ink-soft); margin-top: 8px;">
+            <li><span class="mono">IDX_SMY_MC_CONV</span>: Hilo de mensajes de chat en tiempo real.</li>
+            <li><span class="mono">IDX_SMY_NOTIF_USER_LEI</span>: Conteo instantáneo de notificaciones no leídas.</li>
+            <li><span class="mono">IDX_SMY_SUM_RES_FEC</span>: Historial de entregas de insumos y pagos.</li>
+            <li><span class="mono">IDX_SMY_CONS_RES_EST</span>: Consentimientos pendientes por acudiente.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECCION 7: SEGURIDAD -->
+    <section id="seguridad">
+      <h2><span class="sec-id">07</span>Habeas Data (Ley 1581) y Auditoría</h2>
+      <p>
+        El modelo relacional garantiza el cumplimiento normativo para historias clínicas y datos médicos sensibles mediante auditoría imborrable en <span class="mono">SMY_AUDITORIA_ACCESOS</span> y control de borrado en <span class="mono">SMY_DOCUMENTOS_ELIMINADOS_LOG</span>.
+      </p>
+    </section>
+
+    <footer>
+      <span>SAMANYA OS · Sistema de Gestión Geriátrica Integral</span>
+      <span>Base de Datos Oracle — Prefijo SMY_ · UTC-5 Bogotá Colombia</span>
+    </footer>
+
+  </main>
+</div>
+
+<script>
+// Filtro de búsqueda en tiempo real de tablas
+function filterTables() {
+  const input = document.getElementById('tableSearch').value.toUpperCase();
+  const tableBlocks = document.querySelectorAll('.table-block');
+  
+  tableBlocks.forEach(block => {
+    const tableName = block.getAttribute('data-table') || '';
+    const textContent = block.textContent.toUpperCase();
+    if (tableName.includes(input) || textContent.includes(input)) {
+      block.style.display = '';
+    } else {
+      block.style.display = 'none';
+    }
+  });
+}
+
+// Variables y Datos para Vis.js Network con Almacenamiento Aislado
+const STORAGE_KEY_CUSTOM_POSITIONS = 'smy_erd_custom_positions_v3';
+const STORAGE_KEY_CONFIG = 'smy_erd_config_v3';
+
+let network = null;
+let networkNodes = null;
+let networkEdges = null;
+
+const initialNodesData = [
+  { id: 1, label: "SMY_ROLES", group: "seguridad", shape: "box", color: { background: "#7a4f9e", border: "#583475" }, font: { color: "#fff", face: "IBM Plex Mono", size: 14 } },
+  { id: 2, label: "SMY_USUARIOS", group: "seguridad", shape: "box", color: { background: "#274a3f", border: "#142822" }, font: { color: "#fff", face: "IBM Plex Mono", size: 15, bold: true } },
+  { id: 3, label: "SMY_EMPLEADOS", group: "talento", shape: "box", color: { background: "#2c7a6b", border: "#1c5349" }, font: { color: "#fff", face: "IBM Plex Mono", size: 14 } },
+  { id: 4, label: "SMY_TURNOS_ASIGNADOS", group: "talento", shape: "box", color: { background: "#3d9685", border: "#2c7a6b" }, font: { color: "#fff", face: "IBM Plex Mono", size: 13 } },
+  { id: 5, label: "SMY_PLANTILLAS_TURNO", group: "talento", shape: "box", color: { background: "#3d9685", border: "#2c7a6b" }, font: { color: "#fff", face: "IBM Plex Mono", size: 13 } },
+  { id: 6, label: "SMY_SOLICITUDES_PERMISOS", group: "talento", shape: "box", color: { background: "#3d9685", border: "#2c7a6b" }, font: { color: "#fff", face: "IBM Plex Mono", size: 13 } },
+  
+  { id: 7, label: "SMY_RESIDENTES", group: "clinico", shape: "box", color: { background: "#b3803f", border: "#7d5420" }, font: { color: "#fff", face: "IBM Plex Mono", size: 16, bold: true } },
+  { id: 8, label: "SMY_ACUDIENTES", group: "familiar", shape: "box", color: { background: "#d99b4e", border: "#b3803f" }, font: { color: "#fff", face: "IBM Plex Mono", size: 14 } },
+  { id: 9, label: "SMY_RESIDENTE_ACUDIENTE", group: "familiar", shape: "box", color: { background: "#d99b4e", border: "#b3803f" }, font: { color: "#fff", face: "IBM Plex Mono", size: 13 } },
+  
+  { id: 10, label: "SMY_HISTORIAS_CLINICAS", group: "clinico", shape: "box", color: { background: "#274a3f", border: "#142822" }, font: { color: "#fff", face: "IBM Plex Mono", size: 13 } },
+  { id: 11, label: "SMY_DOCUMENTOS_CLINICOS", group: "clinico", shape: "box", color: { background: "#274a3f", border: "#142822" }, font: { color: "#fff", face: "IBM Plex Mono", size: 13 } },
+  { id: 12, label: "SMY_BITACORA_RESIDENTE", group: "clinico", shape: "box", color: { background: "#2c7a6b", border: "#142822" }, font: { color: "#fff", face: "IBM Plex Mono", size: 13 } },
+  { id: 13, label: "SMY_SIGNOS_VITALES", group: "clinico", shape: "box", color: { background: "#2c7a6b", border: "#142822" }, font: { color: "#fff", face: "IBM Plex Mono", size: 13 } },
+  
+  { id: 14, label: "SMY_MEDICAMENTOS_PRESCRITOS", group: "farmacia", shape: "box", color: { background: "#0284c7", border: "#0369a1" }, font: { color: "#fff", face: "IBM Plex Mono", size: 13 } },
+  { id: 15, label: "SMY_REGISTROS_ADMIN_MED", group: "farmacia", shape: "box", color: { background: "#38bdf8", border: "#0284c7" }, font: { color: "#000", face: "IBM Plex Mono", size: 13 } },
+  
+  { id: 16, label: "SMY_PLANES_NUTRICIONALES", group: "nutricion", shape: "box", color: { background: "#16a34a", border: "#15803d" }, font: { color: "#fff", face: "IBM Plex Mono", size: 13 } },
+  { id: 17, label: "SMY_REGISTROS_ALIM_SESION", group: "nutricion", shape: "box", color: { background: "#22c55e", border: "#16a34a" }, font: { color: "#fff", face: "IBM Plex Mono", size: 13 } },
+  { id: 18, label: "SMY_REGISTROS_ALIM_DETALLE", group: "nutricion", shape: "box", color: { background: "#4ade80", border: "#22c55e" }, font: { color: "#000", face: "IBM Plex Mono", size: 13 } },
+  
+  { id: 19, label: "SMY_TAREAS_OPERATIVAS", group: "operaciones", shape: "box", color: { background: "#e11d48", border: "#be123c" }, font: { color: "#fff", face: "IBM Plex Mono", size: 13 } },
+  { id: 20, label: "SMY_EVENTOS_CALENDARIO", group: "operaciones", shape: "box", color: { background: "#f43f5e", border: "#e11d48" }, font: { color: "#fff", face: "IBM Plex Mono", size: 13 } },
+  { id: 21, label: "SMY_SUMINISTROS_REGISTRO", group: "logistica", shape: "box", color: { background: "#d97706", border: "#b45309" }, font: { color: "#fff", face: "IBM Plex Mono", size: 13 } },
+  
+  { id: 22, label: "SMY_CONSENTIMIENTOS", group: "legal", shape: "box", color: { background: "#9333ea", border: "#7e22ce" }, font: { color: "#fff", face: "IBM Plex Mono", size: 13 } },
+  { id: 23, label: "SMY_CONSENTIMIENTO_DESTINATARIOS", group: "legal", shape: "box", color: { background: "#a855f7", border: "#9333ea" }, font: { color: "#fff", face: "IBM Plex Mono", size: 13 } },
+  
+  { id: 24, label: "SMY_INCIDENTES", group: "calidad", shape: "box", color: { background: "#dc2626", border: "#b91c1c" }, font: { color: "#fff", face: "IBM Plex Mono", size: 13 } },
+  { id: 25, label: "SMY_INCIDENTE_RESIDENTES", group: "calidad", shape: "box", color: { background: "#ef4444", border: "#dc2626" }, font: { color: "#fff", face: "IBM Plex Mono", size: 13 } },
+  
+  { id: 26, label: "SMY_CONVERSACIONES_CHAT", group: "chat", shape: "box", color: { background: "#4f46e5", border: "#4338ca" }, font: { color: "#fff", face: "IBM Plex Mono", size: 13 } },
+  { id: 27, label: "SMY_CHAT_PARTICIPANTES", group: "chat", shape: "box", color: { background: "#6366f1", border: "#4f46e5" }, font: { color: "#fff", face: "IBM Plex Mono", size: 13 } },
+  { id: 28, label: "SMY_MENSAJES_CHAT", group: "chat", shape: "box", color: { background: "#818cf8", border: "#6366f1" }, font: { color: "#000", face: "IBM Plex Mono", size: 13 } },
+  { id: 29, label: "SMY_NOTIFICACIONES_SISTEMA", group: "chat", shape: "box", color: { background: "#6366f1", border: "#4f46e5" }, font: { color: "#fff", face: "IBM Plex Mono", size: 13 } },
+  { id: 30, label: "SMY_ERRORES", group: "seguridad", shape: "box", color: { background: "#dc2626", border: "#991b1b" }, font: { color: "#fff", face: "IBM Plex Mono", size: 13 } },
+  { id: 31, label: "SMY_TAREA_RESIDENTES", group: "operaciones", shape: "box", color: { background: "#f43f5e", border: "#e11d48" }, font: { color: "#fff", face: "IBM Plex Mono", size: 13 } },
+  { id: 32, label: "SMY_DISPOSITIVOS_PUSH", group: "chat", shape: "box", color: { background: "#818cf8", border: "#6366f1" }, font: { color: "#000", face: "IBM Plex Mono", size: 13 } },
+  { id: 33, label: "V_SMY_TIMELINE_RESIDENTE", group: "clinico", shape: "ellipse", color: { background: "#142822", border: "#b3803f" }, font: { color: "#fff", face: "IBM Plex Mono", size: 13 } }
+];
+
+const initialEdgesData = [
+  { from: 1, to: 2, label: "ID_ROL", arrows: "to", color: { color: "#7a4f9e" } },
+  { from: 2, to: 3, label: "ID_USUARIO", arrows: "to", color: { color: "#2c7a6b" } },
+  { from: 2, to: 8, label: "ID_USUARIO", arrows: "to", color: { color: "#b3803f" } },
+  
+  { from: 3, to: 4, label: "ID_EMPLEADO", arrows: "to" },
+  { from: 5, to: 4, label: "ID_PLANTILLA", arrows: "to" },
+  { from: 3, to: 6, label: "ID_EMPLEADO", arrows: "to" },
+  
+  { from: 7, to: 9, label: "ID_RESIDENTE", arrows: "to" },
+  { from: 8, to: 9, label: "ID_ACUDIENTE", arrows: "to" },
+  
+  { from: 7, to: 10, label: "ID_RESIDENTE", arrows: "to" },
+  { from: 7, to: 11, label: "ID_RESIDENTE", arrows: "to" },
+  { from: 7, to: 12, label: "ID_RESIDENTE", arrows: "to" },
+  { from: 7, to: 13, label: "ID_RESIDENTE", arrows: "to" },
+  
+  { from: 7, to: 14, label: "ID_RESIDENTE", arrows: "to" },
+  { from: 14, to: 15, label: "ID_MEDICAMENTO", arrows: "to" },
+  { from: 7, to: 15, label: "ID_RESIDENTE", arrows: "to" },
+  
+  { from: 7, to: 16, label: "ID_RESIDENTE", arrows: "to" },
+  { from: 7, to: 18, label: "ID_RESIDENTE", arrows: "to" },
+  { from: 17, to: 18, label: "ID_SESION", arrows: "to" },
+  
+  { from: 7, to: 19, label: "ID_RESIDENTE", arrows: "to" },
+  { from: 19, to: 31, label: "ID_TAREA", arrows: "to" },
+  { from: 7, to: 31, label: "ID_RESIDENTE", arrows: "to" },
+  { from: 7, to: 20, label: "ID_RESIDENTE", arrows: "to" },
+  { from: 7, to: 21, label: "ID_RESIDENTE", arrows: "to" },
+  
+  { from: 7, to: 22, label: "ID_RESIDENTE", arrows: "to" },
+  { from: 22, to: 23, label: "ID_CONSENTIMIENTO", arrows: "to" },
+  { from: 8, to: 23, label: "ID_ACUDIENTE", arrows: "to" },
+  
+  { from: 24, to: 25, label: "ID_INCIDENTE", arrows: "to" },
+  { from: 7, to: 25, label: "ID_RESIDENTE", arrows: "to" },
+  
+  { from: 26, to: 27, label: "ID_CONVERSACION", arrows: "to" },
+  { from: 2, to: 27, label: "ID_USUARIO", arrows: "to" },
+  { from: 26, to: 28, label: "ID_CONVERSACION", arrows: "to" },
+  { from: 2, to: 28, label: "ID_REMITENTE", arrows: "to" },
+  { from: 2, to: 29, label: "ID_USUARIO_DEST", arrows: "to" },
+  { from: 2, to: 30, label: "ID_USUARIO_CREACION", arrows: "to", color: { color: "#dc2626" } },
+  { from: 2, to: 32, label: "ID_USUARIO", arrows: "to", color: { color: "#818cf8" } },
+  { from: 7, to: 33, label: "ID_RESIDENTE", arrows: "to", dashes: true, color: { color: "#b3803f" } }
+];
+
+function getCustomPositions() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_CUSTOM_POSITIONS);
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) {
+    return null;
+  }
+}
+
+function showSaveToast(msg) {
+  const toast = document.getElementById('saveToast');
+  if (toast) {
+    toast.textContent = msg || '✓ Posiciones guardadas en el navegador';
+    toast.classList.add('show');
+    setTimeout(() => {
+      toast.classList.remove('show');
+    }, 2200);
+  }
+}
+
+// Guarda las posiciones personalizadas EXCLUSIVAMENTE cuando el usuario las mueve o hace clic en Guardar
+function saveCustomPositions(showFeedback = false) {
+  if (!network) return;
+  
+  const positions = network.getPositions();
+  const scale = network.getScale();
+  const viewPosition = network.getViewPosition();
+
+  const dataToSave = {
+    positions: positions,
+    scale: scale,
+    viewPosition: viewPosition,
+    updatedAt: new Date().toISOString()
+  };
+
+  try {
+    localStorage.setItem(STORAGE_KEY_CUSTOM_POSITIONS, JSON.stringify(dataToSave));
+    if (showFeedback) {
+      showSaveToast('✓ Posiciones guardadas en "Libre / Posiciones Guardadas"');
+    }
+  } catch (e) {
+    console.error("Error guardando en LocalStorage", e);
+  }
+}
+
+function saveConfigState() {
+  const layout = document.getElementById('layoutSelect').value;
+  const edgeType = document.getElementById('edgeSelect').value;
+  try {
+    localStorage.setItem(STORAGE_KEY_CONFIG, JSON.stringify({ layout, edgeType }));
+  } catch (e) {}
+}
+
+function resetSavedPositions() {
+  localStorage.removeItem(STORAGE_KEY_CUSTOM_POSITIONS);
+  document.getElementById('layoutSelect').value = 'physics';
+  saveConfigState();
+  initVisNetwork('physics', document.getElementById('edgeSelect').value);
+  showSaveToast('🔄 Posiciones personalizadas eliminadas. Modo Orgánico activado.');
+}
+
+function initVisNetwork(layoutType, edgeType) {
+  const container = document.getElementById('vis-network-container');
+  const savedCustom = getCustomPositions();
+
+  let nodesCopy = JSON.parse(JSON.stringify(initialNodesData));
+
+  // Si estamos en modo 'free', cargar las posiciones guardadas si existen
+  if (layoutType === 'free') {
+    if (savedCustom && savedCustom.positions) {
+      nodesCopy.forEach(node => {
+        if (savedCustom.positions[node.id]) {
+          node.x = savedCustom.positions[node.id].x;
+          node.y = savedCustom.positions[node.id].y;
+          node.physics = false;
+        }
+      });
+    }
+  }
+
+  networkNodes = new vis.DataSet(nodesCopy);
+  networkEdges = new vis.DataSet(initialEdgesData);
+
+  let options = {
+    nodes: {
+      borderWidth: 2,
+      shadow: true,
+      margin: 10
+    },
+    edges: {
+      width: 2,
+      smooth: {
+        type: edgeType || 'cubicBezier',
+        roundness: 0.4
+      },
+      font: {
+        face: "IBM Plex Mono",
+        size: 11,
+        color: "#4a524d",
+        background: "#ffffff"
+      }
+    },
+    physics: {
+      enabled: layoutType === 'physics',
+      solver: 'forceAtlas2Based',
+      forceAtlas2Based: {
+        gravitationalConstant: -70,
+        centralGravity: 0.01,
+        springLength: 140,
+        springConstant: 0.08,
+        damping: 0.4
+      }
+    },
+    interaction: {
+      dragNodes: true,
+      dragView: true,
+      zoomView: true,
+      hover: true,
+      navigationButtons: true,
+      keyboard: true
+    }
+  };
+
+  if (layoutType === 'hierarchical-UD') {
+    options.layout = {
+      hierarchical: {
+        direction: 'UD',
+        sortMethod: 'directed',
+        nodeSpacing: 180,
+        levelSeparation: 150
+      }
+    };
+    options.physics = { enabled: false };
+  } else if (layoutType === 'hierarchical-LR') {
+    options.layout = {
+      hierarchical: {
+        direction: 'LR',
+        sortMethod: 'directed',
+        nodeSpacing: 150,
+        levelSeparation: 220
+      }
+    };
+    options.physics = { enabled: false };
+  } else if (layoutType === 'free') {
+    options.physics = { enabled: false };
+  }
+
+  if (network) {
+    network.destroy();
+  }
+
+  network = new vis.Network(container, { nodes: networkNodes, edges: networkEdges }, options);
+
+  // Escuchar cuando el usuario termina de arrastrar un nodo
+  network.on("dragEnd", function(params) {
+    const currentLayout = document.getElementById('layoutSelect').value;
+    if (currentLayout === 'free') {
+      saveCustomPositions(false);
+    }
+  });
+
+  // Si estamos en modo libre y tenemos vista guardada, enfocarla
+  if (layoutType === 'free' && savedCustom && savedCustom.viewPosition && savedCustom.scale) {
+    network.once("afterDrawing", function() {
+      network.moveTo({
+        position: savedCustom.viewPosition,
+        scale: savedCustom.scale,
+        animation: false
+      });
+    });
+  }
+}
+
+function openDiagramModal() {
+  const modal = document.getElementById('diagramModal');
+  modal.classList.add('active');
+  
+  let savedConfig = null;
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_CONFIG);
+    if (raw) savedConfig = JSON.parse(raw);
+  } catch(e) {}
+
+  const hasCustomPositions = getCustomPositions() !== null;
+  const defaultLayout = savedConfig ? savedConfig.layout : (hasCustomPositions ? 'free' : 'physics');
+  const defaultEdge = savedConfig ? savedConfig.edgeType : 'cubicBezier';
+
+  document.getElementById('layoutSelect').value = defaultLayout;
+  document.getElementById('edgeSelect').value = defaultEdge;
+
+  setTimeout(() => {
+    initVisNetwork(defaultLayout, defaultEdge);
+  }, 120);
+}
+
+function closeDiagramModal() {
+  const currentLayout = document.getElementById('layoutSelect').value;
+  if (currentLayout === 'free') {
+    saveCustomPositions(false);
+  }
+  saveConfigState();
+  const modal = document.getElementById('diagramModal');
+  modal.classList.remove('active');
+}
+
+function changeLayout(val) {
+  saveConfigState();
+  const edgeType = document.getElementById('edgeSelect').value;
+  initVisNetwork(val, edgeType);
+}
+
+function changeEdgeType(val) {
+  saveConfigState();
+  if (network) {
+    network.setOptions({
+      edges: {
+        smooth: {
+          type: val
+        }
+      }
+    });
+  }
+}
+
+function zoomInNetwork() {
+  if (network) {
+    const scale = network.getScale() * 1.3;
+    network.moveTo({ scale: scale, animation: true });
+  }
+}
+
+function zoomOutNetwork() {
+  if (network) {
+    const scale = network.getScale() * 0.7;
+    network.moveTo({ scale: scale, animation: true });
+  }
+}
+
+function fitNetwork() {
+  if (network) {
+    network.fit({ animation: true });
+  }
+}
+
+function searchNodeInNetwork(query) {
+  if (!network || !query) return;
+  const match = initialNodesData.find(n => n.label.toLowerCase().includes(query.toLowerCase()));
+  if (match) {
+    network.focus(match.id, {
+      scale: 1.2,
+      animation: { duration: 800, easingFunction: 'easeInOutQuad' }
+    });
+    network.selectNodes([match.id]);
+  }
+}
+
+// Cerrar modal con ESC y guardar
+window.addEventListener('keydown', function(event) {
+  if (event.key === 'Escape') {
+    closeDiagramModal();
+  }
+});
+</script>
+
+</body>
+</html>
