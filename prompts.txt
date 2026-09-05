@@ -90,3 +90,14 @@ En la autorizacion pendiente de firma no se ve el nombre en modo oscuro
 FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-05 08:34:41
 ================================================================================
 Subir al repositorio y hacer push
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-05 09:25:10
+================================================================================
+Subir al repositorio cuando lo indique.
+En el proyecto coloque una carpeta llamada Tempo donde se encuentra otra carpeta llamada skills deseo implementar el skill llamado oracle-plsql-architecture en este proyecto, despues de implementarlo borrare la carpeta Tempo
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-05 09:42:31
+================================================================================
+>Subir al repositorio y hacer push
