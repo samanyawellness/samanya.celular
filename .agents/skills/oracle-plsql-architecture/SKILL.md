@@ -178,10 +178,10 @@ AS
         p_json_smy_tabla OUT CLOB
     ) RETURN NUMBER;
 
-    -- 18. Obtener JSON por PK (VARCHAR2 o CLOB según tamaño)
+    -- 18. Obtener JSON por PK (Retorna CLOB nativo)
     FUNCTION f_json (
         p_id IN smy_tabla.id%TYPE
-    ) RETURN VARCHAR2;
+    ) RETURN CLOB;
 
 END PKGSMY_TABLA_DAO;
 /

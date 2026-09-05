@@ -101,3 +101,76 @@ En el proyecto coloque una carpeta llamada Tempo donde se encuentra otra carpeta
 FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-05 09:42:31
 ================================================================================
 >Subir al repositorio y hacer push
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-05 10:26:22
+================================================================================
+Subir al repositorio cuando lo indique.
+Actúa como arquitecto de software senior especializado en React Native y Node.js. Vas a construir la aplicación móvil de SAMANYA OS, un sistema de gestión integral para centros geriátricos.
+
+CONTEXTO
+Ya existe un modelo de base de datos Oracle completo y normalizado (79 tablas con prefijo SMY_), con catálogos maestros para cada estado/tipo y auditoría total (FECHA_CREACION, ID_USUARIO_ULTIMA_MODIFICACION) en cada tabla. Cubre tres dominios: gestión administrativa (empleados, turnos, permisos), gestión clínica del residente (bitácora, medicamentos, alimentación, signos vitales, incidentes, consentimientos) y portal de acudientes (notificaciones, chat, calendario de eventos). Adjunto el script DDL completo (creacion_modelo_relacional.sql) y su documentación técnica (documentacion_esquema.html).
+
+El sistema tiene tres roles de acceso definidos en SMY_ROLES: ADMIN (administrador del centro), CUIDADOR (personal asistencial/empleado) y FAMILIAR (acudiente).
+
+INSUMOS QUE DEBES REVISAR ANTES DE ESCRIBIR CÓDIGO
+1. creacion_modelo_relacional.sql (adjunto) — DDL completo del esquema.
+2. documentacion_esquema.html (adjunto) — diccionario de datos y ERD.
+3. El skill "oracle-plsql-architecture" en la carpeta del proyecto — estándar obligatorio para cualquier PL/SQL nuevo (paquetes _DAO, pkgca_, pkgcn_, pkgln_; manejo de excepciones específico; SYSREFCURSOR para resultados multi-fila; JSON_OBJECT/JSON_ARRAYAGG...RETURNING CLOB para salidas JSON).
+4. Los prototipos de pantallas en la carpeta del proyecto — son la referencia visual y de flujo de UX obligatoria. Impleméntalas, no las rediseñes.
+
+REGLAS NO NEGOCIABLES
+- La app React Native NUNCA se conecta directamente a Oracle. Toda comunicación pasa por una API intermedia en Node.js + Express, que expone endpoints REST/JSON. Esa API es la única capa que abre conexión con la base de datos (vía node-oracledb).
+- Ningún objeto de base de datos se compila ni se migra automáticamente. Cualquier tabla, trigger o paquete PL/SQL que propongas se entrega como script para que yo lo revise y compile manualmente — nunca lo ejecutes ni lo apliques tú directamente contra el esquema.
+- Todo PL/SQL nuevo sigue estrictamente el estándar del skill oracle-plsql-architecture, sin excepciones.
+- No modifiques la estructura de creacion_modelo_relacional.sql sin justificarlo explícitamente.
+- La arquitectura debe ser escalable: separación clara por capas (api / servicios / hooks / navegación por rol / pantallas / componentes compartidos), pensada para crecer en número de módulos sin reescritura.
+
+CONEXIÓN A BASE DE DATOS (entorno de desarrollo, solo para la API backend)
+DB_USER=SAMANYA
+DB_PASSWORD=T3k3r_2025_DEV
+DB_CONNECT_STRING=tekersalud-db.maxapex.net:1521/orclpdb1
+Configúralas como variables de entorno del servidor Node/Express. Nunca las incluyas en el bundle de la app móvil ni en el cliente.
+
+QUÉ QUIERO QUE ENTREGUES PRIMERO (antes de generar código extenso)
+1. Un plan de estructura de carpetas para el proyecto React Native (evalúa Expo + TypeScript) y para la API Node/Express intermedia.
+2. Un mapa de navegación por rol (ADMIN / CUIDADOR / FAMILIAR) basado en los módulos del esquema SMY_ y en los prototipos de pantallas ya existentes.
+3. La definición de la capa de API: endpoints REST agrupados por dominio (autenticación, empleados, turnos, residentes, bitácora, medicamentos, alimentación, incidentes, consentimientos, chat, notificaciones).
+4. Un plan de manejo de estado, autenticación por rol/token, y notificaciones push (FCM/APNs), coherente con la tabla SMY_DISPOSITIVOS_PUSH.
+
+No generes el scaffolding de código todavía. Preséntame este plan primero para que lo valide contigo antes de que empieces a construir.
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-05 10:31:10
+================================================================================
+Confirmo  para proceder con el siguiente paso.
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-05 11:06:21
+================================================================================
+Crear un script dentro de la carpeta de backend/db/script con el nombre de build_all.sql y dentro debe estar el script para mandar a compilar todos los objetos de base de datos que se encuentren en la carpeta, si se adiciona in objeto de base de datos mas adelante adicionarlo al archivo.
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-05 11:09:25
+================================================================================
+Deseo que en el archivo build_all.sql, &&_DATE corresponda siempre a la hora de bogota colombia, mostrar el tiempo de compilacion de cada objeto y el tiempo total de todo el script
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-05 11:20:34
+================================================================================
+Puedes crear todos los paquetes _DAO de todas las tablas que se encuentran en el archivo creacion_modelo_relacional.sql sin pedirme autorizacion de darle submit archivo por archivo
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-05 11:28:54
+================================================================================
+Deseo que se hago una modificacion en el skill en la generacion de los _DAO que la funcion f_json que no devuelva un VARCHAR2 sino un CLOB y corregir los archivos _DAO generados con este cambio sin pedirme autorizacion de darle submit archivo por archivo
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-05 11:35:29
+================================================================================
+Crear en el repositorio una rama llamada dev y subir este proyecto a esa rama sin pasar nada a la rama main hasta que lo indique
+
+
+
+
+

@@ -101,10 +101,9 @@ AS
         p_json_smy_usuarios OUT CLOB
     ) RETURN NUMBER;
 
-    -- 18. Obtener JSON por PK
     FUNCTION f_json (
         p_id IN smy_usuarios.id%TYPE
-    ) RETURN VARCHAR2;
+    ) RETURN CLOB;
 
 END pkgsmy_usuarios_dao;
 /

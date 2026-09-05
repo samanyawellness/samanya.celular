@@ -1,0 +1,44 @@
+{
+  "expo": {
+    "name": "SAMANYA OS",
+    "slug": "samanya-os",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#101413"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.samanya.os.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#068591"
+      },
+      "package": "com.samanya.os.app"
+    },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Permite el acceso a la cámara para escanear las manillas QR de los residentes."
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "color": "#068591"
+        }
+      ]
+    ],
+    "extra": {
+      "apiUrl": "http://10.0.2.2:4000/api/v1"
+    }
+  }
+}

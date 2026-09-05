@@ -33,7 +33,7 @@ pkg + <nombre_tabla> + _dao
 | 15| `p_actualizar_registros` | `(pro_smy_tabla IN smy_tabla%ROWTYPE)` | Actualización masiva de registros. |
 | 16| `p_valores_defecto` | `(pro_smy_tabla IN OUT smy_tabla%ROWTYPE)` | Completa valores por defecto de la tabla. |
 | 17| `f_existe_json` | `(p_id IN smy_tabla.id%TYPE, p_json_smy_tabla OUT CLOB) RETURN NUMBER` | Determina si existe (1 o 0) y retorna JSON CLOB. |
-| 18| `f_json` | `(p_id IN smy_tabla.id%TYPE) RETURN VARCHAR2` | Retorna representación JSON por PK (`RETURNING CLOB` si excede). |
+| 18| `f_json` | `(p_id IN smy_tabla.id%TYPE) RETURN CLOB` | Retorna representación JSON completa del registro por PK en formato CLOB nativo. |
 
 ## Reglas Innegociables
 - **Sin Transacciones**: No colocar `COMMIT` ni `ROLLBACK` en ningún método DAO.

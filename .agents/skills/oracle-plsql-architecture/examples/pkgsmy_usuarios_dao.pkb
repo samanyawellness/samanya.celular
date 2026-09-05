@@ -247,16 +247,16 @@ AS
     -- 18. Obtener JSON por PK
     FUNCTION f_json (
         p_id IN smy_usuarios.id%TYPE
-    ) RETURN VARCHAR2
+    ) RETURN CLOB
     IS
-        v_json VARCHAR2(4000);
+        v_json CLOB;
     BEGIN
         SELECT JSON_OBJECT(
                    'id' VALUE u.id,
                    'nombre' VALUE u.nombre,
                    'correo' VALUE u.correo,
                    'estado' VALUE u.estado
-                   RETURNING VARCHAR2(4000)
+                   RETURNING CLOB
                )
           INTO v_json
           FROM smy_usuarios u
