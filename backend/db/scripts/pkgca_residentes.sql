@@ -101,7 +101,7 @@ AS
                         'email'         VALUE a.email
                     ) RETURNING CLOB
                 )
-                FROM smy_residentes_acudientes ra
+                FROM smy_residente_acudiente ra
                 INNER JOIN smy_acudientes a ON ra.id_acudiente = a.id
                 INNER JOIN smy_parentescos p ON ra.id_parentesco = p.id
                 WHERE ra.id_residente = r.id

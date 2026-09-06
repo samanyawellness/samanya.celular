@@ -234,10 +234,15 @@ AS
     ) RETURN BOOLEAN
     IS
     BEGIN
-        SELECT t.*, ROWIDTOCHAR(t.ROWID)
-          INTO pro_smy_dispositivos_push, p_rowid
-          FROM smy_dispositivos_push t
-         WHERE t.id = pty_id;
+        SELECT ROWIDTOCHAR(ROWID)
+          INTO p_rowid
+          FROM smy_dispositivos_push
+         WHERE id = pty_id;
+
+        SELECT *
+          INTO pro_smy_dispositivos_push
+          FROM smy_dispositivos_push
+         WHERE ROWID = CHARTOROWID(p_rowid);
 
         RETURN TRUE;
     EXCEPTION

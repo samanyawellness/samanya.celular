@@ -234,10 +234,15 @@ AS
     ) RETURN BOOLEAN
     IS
     BEGIN
-        SELECT t.*, ROWIDTOCHAR(t.ROWID)
-          INTO pro_smy_mensajes_chat, p_rowid
-          FROM smy_mensajes_chat t
-         WHERE t.id = pty_id;
+        SELECT ROWIDTOCHAR(ROWID)
+          INTO p_rowid
+          FROM smy_mensajes_chat
+         WHERE id = pty_id;
+
+        SELECT *
+          INTO pro_smy_mensajes_chat
+          FROM smy_mensajes_chat
+         WHERE ROWID = CHARTOROWID(p_rowid);
 
         RETURN TRUE;
     EXCEPTION

@@ -51,13 +51,19 @@ AS
         EXCEPTION
             WHEN NO_DATA_FOUND THEN
                 -- Registrar intento fallido
-                INSERT INTO smy_auditoria_accesos (
-                    id_usuario, direccion_ip, dispositivo_info, exitoso, detalle, fecha_creacion
-                ) VALUES (
-                    NULL, SUBSTR(p_direccion_ip, 1, 45), SUBSTR(p_dispositivo_info, 1, 255), 'N',
-                    'Usuario o correo no encontrado', CAST(SYSTIMESTAMP AT TIME ZONE '-05:00' AS DATE)
-                );
-                COMMIT;
+                BEGIN
+                    INSERT INTO smy_auditoria_accesos (
+                        id_usuario, accion, direccion_ip, detalles, fecha_creacion
+                    ) VALUES (
+                        NULL, 'LOGIN_FALLIDO', SUBSTR(p_direccion_ip, 1, 45),
+                        'Dispositivo: ' || SUBSTR(p_dispositivo_info, 1, 200) || ' | Identificador: ' || p_usuario_o_email || ' | Motivo: Usuario o correo no encontrado',
+                        CAST(SYSTIMESTAMP AT TIME ZONE '-05:00' AS DATE)
+                    );
+                    COMMIT;
+                EXCEPTION
+                    WHEN OTHERS THEN
+                        NULL; -- Manejo defensivo en caso de que ID_USUARIO tenga restricción NOT NULL
+                END;
                 RAISE_APPLICATION_ERROR(-20001, 'Credenciales inválidas');
         END;
 
@@ -68,10 +74,11 @@ AS
 
         -- Registrar acceso exitoso
         INSERT INTO smy_auditoria_accesos (
-            id_usuario, direccion_ip, dispositivo_info, exitoso, detalle, fecha_creacion
+            id_usuario, accion, direccion_ip, detalles, fecha_creacion
         ) VALUES (
-            l_id_usuario, SUBSTR(p_direccion_ip, 1, 45), SUBSTR(p_dispositivo_info, 1, 255), 'S',
-            'Autenticación exitosa', CAST(SYSTIMESTAMP AT TIME ZONE '-05:00' AS DATE)
+            l_id_usuario, 'LOGIN_EXITOSO', SUBSTR(p_direccion_ip, 1, 45),
+            'Dispositivo: ' || SUBSTR(p_dispositivo_info, 1, 200) || ' | Autenticación exitosa',
+            CAST(SYSTIMESTAMP AT TIME ZONE '-05:00' AS DATE)
         );
 
         -- Retornar datos completos vía SYS_REFCURSOR

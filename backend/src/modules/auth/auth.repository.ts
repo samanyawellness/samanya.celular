@@ -104,34 +104,37 @@ export class AuthRepository {
     detail?: string
   ): Promise<void> {
     return withConnection(async (connection) => {
-      const sql = `
-        INSERT INTO SMY_AUDITORIA_ACCESOS (
-            ID_USUARIO,
-            DIRECCION_IP,
-            DISPOSITIVO_INFO,
-            EXITOSO,
-            DETALLE,
-            FECHA_CREACION
-        ) VALUES (
-            :userId,
-            :ip,
-            :deviceInfo,
-            :successChar,
-            :detail,
-            CAST(SYSTIMESTAMP AT TIME ZONE '-05:00' AS DATE)
-        )
-      `;
-      await connection.execute(
-        sql,
-        {
-          userId,
-          ip: ip.substring(0, 45),
-          deviceInfo: deviceInfo.substring(0, 255),
-          successChar: success ? 'S' : 'N',
-          detail: detail ? detail.substring(0, 255) : null
-        },
-        { autoCommit: true }
-      );
+      try {
+        const sql = `
+          INSERT INTO SMY_AUDITORIA_ACCESOS (
+              ID_USUARIO,
+              ACCION,
+              DIRECCION_IP,
+              DETALLES,
+              FECHA_CREACION
+          ) VALUES (
+              :userId,
+              :accion,
+              :ip,
+              :detalles,
+              CAST(SYSTIMESTAMP AT TIME ZONE '-05:00' AS DATE)
+          )
+        `;
+        const detalles = `Dispositivo: ${deviceInfo.substring(0, 200)}${detail ? ' | ' + detail : ''}`;
+        await connection.execute(
+          sql,
+          {
+            userId,
+            accion: success ? 'LOGIN_EXITOSO' : 'LOGIN_FALLIDO',
+            ip: ip.substring(0, 45),
+            detalles
+          },
+          { autoCommit: true }
+        );
+      } catch (err) {
+        // En caso de que userId sea null y la restricción NOT NULL de ID_USUARIO impida registrar intento fallido
+        console.warn('Advertencia registrando auditoría de acceso:', err);
+      }
     });
   }
 }

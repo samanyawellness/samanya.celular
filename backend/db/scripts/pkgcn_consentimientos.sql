@@ -43,9 +43,9 @@ AS
         BEGIN
             SELECT id INTO vn_id_estado_aprobado
               FROM smy_estados_consentimientos
-             WHERE UPPER(nombre_estado_consentimiento) LIKE '%APROBADO%'
-                OR UPPER(nombre_estado_consentimiento) LIKE '%FIRMADO%'
-             FETCH FIRST 1 ROWS ONLY;
+             WHERE (UPPER(nombre_estado_consentimiento) LIKE '%APROBADO%'
+                 OR UPPER(nombre_estado_consentimiento) LIKE '%FIRMADO%')
+               AND ROWNUM = 1;
         EXCEPTION
             WHEN NO_DATA_FOUND THEN
                 RAISE_APPLICATION_ERROR(-20001, 'No se encontró el estado de consentimiento aprobado en el catálogo.');
@@ -55,9 +55,9 @@ AS
         BEGIN
             SELECT id INTO vn_id_estado_firmado_dest
               FROM smy_estados_firmas_cons
-             WHERE UPPER(nombre_estado_firma_cons) LIKE '%FIRMADO%'
-                OR UPPER(nombre_estado_firma_cons) LIKE '%APROBADO%'
-             FETCH FIRST 1 ROWS ONLY;
+             WHERE (UPPER(nombre_estado_firma_cons) LIKE '%FIRMADO%'
+                 OR UPPER(nombre_estado_firma_cons) LIKE '%APROBADO%')
+               AND ROWNUM = 1;
         EXCEPTION
             WHEN NO_DATA_FOUND THEN
                 RAISE_APPLICATION_ERROR(-20002, 'No se encontró el estado de firma en el catálogo.');
@@ -93,11 +93,16 @@ AS
     EXCEPTION
         WHEN OTHERS THEN
             ROLLBACK;
-            vro_error.fecha_error := CAST(SYSTIMESTAMP AT TIME ZONE '-05:00' AS DATE);
-            vro_error.procedimiento := 'PKGCN_CONSENTIMIENTOS.p_firmar_consentimiento';
-            vro_error.mensaje_error := SQLERRM;
-            vro_error.pila_error := DBMS_UTILITY.format_error_backtrace;
-            vro_error.id_usuario := p_id_usuario_accion;
+            IF SQLCODE BETWEEN -20999 AND -20001 THEN
+                RAISE;
+            END IF;
+            vro_error.nombre_programa     := 'PKGCN_CONSENTIMIENTOS';
+            vro_error.nombre_metodo       := 'P_FIRMAR_CONSENTIMIENTO';
+            vro_error.parametros          := 'p_id_consentimiento: ' || p_id_consentimiento || CHR(10) ||
+                                             'p_id_acudiente: ' || p_id_acudiente || CHR(10) ||
+                                             'p_id_usuario_accion: ' || p_id_usuario_accion;
+            vro_error.direccion_ip        := SUBSTR(p_ip_firma, 1, 30);
+            vro_error.id_usuario_creacion := p_id_usuario_accion;
 
             uti_ge_excepciones_pkg.p_grabar_log(vro_error);
 

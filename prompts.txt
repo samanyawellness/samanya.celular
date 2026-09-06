@@ -170,7 +170,53 @@ FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-05 11:35:29
 ================================================================================
 Crear en el repositorio una rama llamada dev y subir este proyecto a esa rama sin pasar nada a la rama main hasta que lo indique
 
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-05 20:30:57
+================================================================================
+Subir al repositorio cuando lo indique.
+Crea un archivo con un script para correr en la base de datos para llenar las tablas con datos dummy y poder probar la aplicacion con datos, por lo menos 10 residentes, 4 empleados y 14 famiiares para que por lo menos 2 residentes tengan 2 familiares.
 
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-05 21:27:12
+================================================================================
+Al compilar los DAO me sale error en:
+FUNCTION f_existe (
+        pty_id       IN  smy_estados_pagos.id%TYPE,
+        pro_smy_estados_pagos  OUT smy_estados_pagos%ROWTYPE,
+        p_rowid      OUT VARCHAR2
+    ) RETURN BOOLEAN
+    IS
+    BEGIN
+        SELECT t.*, ROWIDTOCHAR(t.ROWID)
+          INTO pro_smy_estados_pagos, p_rowid
+          FROM smy_estados_pagos t
+         WHERE t.id = pty_id;
 
+        RETURN TRUE;
+    EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+            RETURN FALSE;
+    END f_existe;
+el error es:
+[Error] Compilation (120: 9): PLS-00494: coercion into multiple record targets not supported
+[Error] Compilation (121: 16): PL/SQL: ORA-03056: invalid expression in SELECT INTO clause
 
+Cuando este solucionado, corrige el archivo PKGSMY_ESTADOS_PAGOS_DAO solamente para yo compilarlo para ver que quedo bien
 
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-05 21:31:06
+================================================================================
+Prueba exitosa aplicar a la plantilla generadora y corregir los archivos _DAO generados con este cambio sin pedirme autorizacion de darle submit archivo por archivo
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-05 21:52:51
+================================================================================
+Al compilar PKGCA_RESIDENTES aparece el error:
+[Error] Compilation (76: 22): PL/SQL: ORA-00942: table or view does not exist
+
+revisar la tabla smy_residentes_acudientes si debe estar en el archivo creacion_modelo_relacional.sql y en documentacion_esquema.sql, adicionarla si es necesaria
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-05 22:06:48
+================================================================================
+subir al repositorio de dev incluyendo los archivos uti_ge_excepciones_pkg.sql, f_fecha_actual, datos_prueba_dummy.sql
