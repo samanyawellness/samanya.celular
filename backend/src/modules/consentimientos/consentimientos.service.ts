@@ -47,7 +47,26 @@ export class ConsentimientosService {
         outFormat: oracledb.OUT_FORMAT_OBJECT
       });
 
-      return result.rows || [];
+      const rows = (result.rows || []) as any[];
+      return rows.map((c) => ({
+        id: String(c.ID),
+        residentId: String(c.ID_RESIDENTE),
+        residentName: c.NOMBRE_RESIDENTE,
+        title: c.TIPO || 'Consentimiento Informado',
+        type: c.TIPO || 'Tratamiento médico',
+        description: c.DESCRIPCION,
+        status: (c.ESTADO || '').toLowerCase().includes('aprob') || (c.ESTADO || '').toLowerCase().includes('firm') ? 'firmado' : 'pendiente',
+        sentDate: c.FECHA_ENVIO || 'Hoy',
+        responseDate: c.FECHA_RESPUESTA,
+        requestedBy: c.SOLICITADO_POR || 'Centro Asistencial',
+        recipients: [
+          {
+            name: c.NOMBRE_RESIDENTE,
+            relationship: 'Familiar Responsable',
+            status: (c.ESTADO || '').toLowerCase().includes('aprob') ? 'firmado' : 'enviado'
+          }
+        ]
+      }));
     });
   }
 

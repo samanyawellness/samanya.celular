@@ -17,9 +17,38 @@ export const MassRegistrationModal: React.FC = () => {
     completeMassRegistration
   } = useApp();
 
+  // Determinar el tipo de tarea grupal
+  const isFoodTask =
+    selectedTaskForMassRegistration?.type === 'alimentacion' ||
+    selectedTaskForMassRegistration?.title.toLowerCase().includes('alimen') ||
+    selectedTaskForMassRegistration?.title.toLowerCase().includes('desayun') ||
+    selectedTaskForMassRegistration?.title.toLowerCase().includes('almuerz') ||
+    selectedTaskForMassRegistration?.title.toLowerCase().includes('meriend') ||
+    selectedTaskForMassRegistration?.title.toLowerCase().includes('cena') ||
+    selectedTaskForMassRegistration?.title.toLowerCase().includes('comida');
+
+  const isActivityTask =
+    selectedTaskForMassRegistration?.type === 'actividad' ||
+    selectedTaskForMassRegistration?.title.toLowerCase().includes('taller') ||
+    selectedTaskForMassRegistration?.title.toLowerCase().includes('memoria') ||
+    selectedTaskForMassRegistration?.title.toLowerCase().includes('music') ||
+    selectedTaskForMassRegistration?.title.toLowerCase().includes('recrea');
+
+  const defaultNote = isFoodTask
+    ? 'Ingesta completa del menú según pauta nutricional sin incidencias.'
+    : isActivityTask
+    ? 'Participación activa y adecuada en el taller lúdico/terapéutico sin novedades.'
+    : 'Procedimiento asistencial completado satisfactoriamente según pauta.';
+
+  const defaultReason = isFoodTask
+    ? 'Excepción de alimentación'
+    : isActivityTask
+    ? 'Excepción / Inasistencia al taller'
+    : 'Excepción de procedimiento';
+
   // Primary (General) registration selected resident IDs
   const [primarySelectedIds, setPrimarySelectedIds] = useState<string[]>([]);
-  const [primaryNote, setPrimaryNote] = useState<string>('Ingesta completa del menú según pauta nutricional sin incidencias.');
+  const [primaryNote, setPrimaryNote] = useState<string>(defaultNote);
 
   // Secondary (Exceptions) note
   const [exceptionNote, setExceptionNote] = useState<string>('');
@@ -30,14 +59,13 @@ export const MassRegistrationModal: React.FC = () => {
   // Initialize selections when modal opens
   useEffect(() => {
     if (isMassRegistrationModalOpen) {
-      // If task had pending residents or previous meal details, pre-populate
       const allIds = residents.map(r => r.id);
       setPrimarySelectedIds(allIds);
-      setPrimaryNote('Ingesta completa del menú según pauta nutricional sin incidencias.');
+      setPrimaryNote(defaultNote);
       setExceptionNote('');
       setShowMissingConfirmation(false);
     }
-  }, [isMassRegistrationModalOpen, residents]);
+  }, [isMassRegistrationModalOpen, residents, selectedTaskForMassRegistration]);
 
   if (!isMassRegistrationModalOpen || !selectedTaskForMassRegistration) return null;
 
@@ -72,7 +100,7 @@ export const MassRegistrationModal: React.FC = () => {
           residentId: res.id,
           residentName: res.name,
           note: exceptionNote.trim(),
-          reason: 'Excepción de alimentación'
+          reason: defaultReason
         }))
       : [];
 
@@ -107,11 +135,20 @@ export const MassRegistrationModal: React.FC = () => {
         aria-label="Registro de Alimentación"
         className="w-full max-w-lg bg-white rounded-3xl p-5 sm:p-6 shadow-2xl border border-[#DEDBD1] max-h-[90vh] overflow-y-auto space-y-4 custom-scrollbar animate-in zoom-in-95"
       >
-        {/* Header - Simple title without extra text or icons */}
+        {/* Header con título dinámico */}
         <div className="flex items-center justify-between pb-3 border-b border-[#DEDBD1]">
-          <h2 className="text-lg font-bold text-[#292A24]">
-            Registro de Alimentación
-          </h2>
+          <div>
+            <h2 className="text-lg font-bold text-[#292A24]">
+              {isFoodTask
+                ? 'Registro de Alimentación'
+                : isActivityTask
+                ? 'Registro de Actividad / Taller'
+                : `Registro: ${selectedTaskForMassRegistration.title}`}
+            </h2>
+            <p className="text-xs text-[#5C6058] mt-0.5">
+              {selectedTaskForMassRegistration.title} ({selectedTaskForMassRegistration.time})
+            </p>
+          </div>
           <button
             id="btn-close-mass-reg"
             type="button"
@@ -183,7 +220,7 @@ export const MassRegistrationModal: React.FC = () => {
           {/* Notes Field with Voice Transcription */}
           <div className="pt-2 border-t border-[#DEDBD1]">
             <label className="block text-xs font-bold text-[#292A24] mb-1" htmlFor="textarea-primary-note">
-              Observación de alimentación general *
+              {isFoodTask ? 'Observación de alimentación general *' : isActivityTask ? 'Observación del taller / actividad *' : 'Observación general *'}
             </label>
             <div className="relative">
               <textarea
@@ -191,7 +228,7 @@ export const MassRegistrationModal: React.FC = () => {
                 rows={3}
                 value={primaryNote}
                 onChange={(e) => setPrimaryNote(e.target.value)}
-                placeholder="Escribe o dicta la observación de alimentación general..."
+                placeholder={isFoodTask ? 'Escribe o dicta la observación de alimentación general...' : isActivityTask ? 'Escribe o dicta la observación del taller o actividad...' : 'Escribe o dicta la observación general...'}
                 className="w-full p-3 pr-12 pb-10 bg-white border border-[#DEDBD1] rounded-xl text-sm text-[#292A24] placeholder:text-[#5C6058]/70 focus:outline-none focus:border-[#068591]"
               />
               <div className="absolute right-2.5 bottom-2.5 z-10">

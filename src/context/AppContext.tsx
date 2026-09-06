@@ -31,6 +31,7 @@ import {
   INITIAL_SUPPLIES,
   STAFF_WORKERS
 } from '../data/mockData';
+import { api, removeAuthToken } from '../services/api';
 
 interface AppContextType {
   // Authentication & Role
@@ -51,7 +52,7 @@ interface AppContextType {
     unit: string;
     avatar: string;
   };
-  login: (email: string, pass: string) => boolean;
+  login: (email: string, pass: string) => Promise<boolean>;
   logout: () => void;
   switchRole: (newRole: UserRole) => void;
 
@@ -182,17 +183,15 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(() => {
-    const saved = localStorage.getItem('samanya_logged_in');
-    return saved !== null ? JSON.parse(saved) : true;
-  });
+  // Arrancar por la pantalla de login como requiere el usuario
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 
   const [currentUser, setCurrentUser] = useState({
-    name: 'Elena Morales',
-    email: 'elena.morales@samanya.es',
+    name: 'María Rodríguez',
+    email: 'mrodriguez@samanya.com.co',
     role: 'cuidador' as UserRole,
     shift: 'Turno Mañana (07:00 - 15:00)',
-    unit: 'Planta 1 — Cuidados Asistenciales',
+    unit: 'Ala Norte — Cuidados Asistenciales',
     avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=250'
   });
 
@@ -308,8 +307,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [isFamiliarVitalsModalOpen, setIsFamiliarVitalsModalOpen] = useState(false);
   const [isResidentPickerModalOpen, setIsResidentPickerModalOpen] = useState(false);
 
-  // Familiar residents list: primary and secondary for testing multi-resident switching
-  const familiarResidents = residents.filter(r => r.id === 'res-1' || r.id === 'res-2');
+  // Familiar residents list: si es familiar, utiliza directamente los residentes vinculados de la BD
+  const familiarResidents = currentUser.role === 'familiar' ? residents : residents.slice(0, 2);
   const selectedFamiliarResident =
     residents.find(r => r.id === selectedFamiliarResidentId) || familiarResidents[0] || residents[0];
 
@@ -378,20 +377,80 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     localStorage.setItem('samanya_deleted_clinical_records', JSON.stringify(deletedClinicalRecords));
   }, [deletedClinicalRecords]);
 
-  const login = (email: string) => {
-    setIsLoggedIn(true);
-    setCurrentUser(prev => ({
-      ...prev,
-      name: email.includes('familiar') ? 'Javier Pérez (Familiar)' : 'Elena Morales',
-      role: email.includes('familiar') ? 'familiar' : 'cuidador'
-    }));
-    showToast('Sesión iniciada correctamente', 'success');
-    return true;
+  // Cargar datos de la Base de Datos Oracle
+  const loadDatabaseData = async () => {
+    try {
+      const [resList, taskList, vitalsList, bitacoraList, consentsList, notifsList] = await Promise.all([
+        api.getResidents().catch(() => []),
+        api.getTasks().catch(() => []),
+        api.getVitalSigns().catch(() => []),
+        api.getBitacora().catch(() => []),
+        api.getConsents().catch(() => []),
+        api.getNotifications().catch(() => [])
+      ]);
+
+      if (resList && resList.length > 0) {
+        setResidents(resList);
+        setSelectedFamiliarResidentId(resList[0].id);
+      }
+      if (taskList && taskList.length > 0) {
+        setTasks(taskList);
+      }
+      if (vitalsList && vitalsList.length > 0) {
+        setVitalSigns(vitalsList);
+      }
+      if (bitacoraList && bitacoraList.length > 0) {
+        setBitacoraEntries(bitacoraList);
+      }
+      if (consentsList && consentsList.length > 0) {
+        setConsents(consentsList);
+      }
+      if (notifsList && notifsList.length > 0) {
+        setNotifications(notifsList);
+      }
+    } catch (err) {
+      console.error('Error al cargar datos desde Oracle DB:', err);
+    }
+  };
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      loadDatabaseData();
+    }
+  }, [isLoggedIn]);
+
+  const login = async (usernameOrEmail: string, pass: string): Promise<boolean> => {
+    try {
+      const result = await api.login(usernameOrEmail, pass);
+      const dbUser = result.user;
+      const isFam = dbUser.role === 'FAMILIAR';
+      const roleMapped: UserRole = isFam ? 'familiar' : 'cuidador';
+
+      setCurrentUser({
+        name: dbUser.nombreCompleto,
+        email: dbUser.email,
+        role: roleMapped,
+        shift: isFam ? 'Familiar Responsable Vinculado' : 'Turno Mañana (07:00 - 15:00)',
+        unit: isFam ? 'Portal Familiar' : 'Ala Principal — Cuidados Asistenciales',
+        avatar: dbUser.avatarUrl || (isFam
+          ? 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'
+          : 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150')
+      });
+
+      setIsLoggedIn(true);
+      showToast(`¡Bienvenido(a), ${dbUser.nombreCompleto}! Conectado a Oracle DB.`, 'success');
+      return true;
+    } catch (err: any) {
+      showToast(err.message || 'Credenciales inválidas', 'alert');
+      throw err;
+    }
   };
 
   const logout = () => {
+    removeAuthToken();
+    localStorage.removeItem('samanya_logged_in');
     setIsLoggedIn(false);
-    showToast('Sesión cerrada', 'info');
+    showToast('Sesión cerrada correctamente', 'info');
   };
 
   const switchRole = (newRole: UserRole) => {
@@ -583,6 +642,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     setBitacoraEntries(prev => [newEntry, ...prev]);
 
+    // Persistir en Oracle DB
+    const resIdNum = parseInt(entryData.residentId?.replace(/\D/g, '') || '1', 10);
+    api.addBitacoraEntry({
+      residentId: resIdNum,
+      contenido: entryData.text,
+      grabadoPorVoz: entryData.recordedByVoice,
+      audioUrl: entryData.audioUrl,
+      fotoAdjuntaUrl: entryData.photoUrl
+    }).catch(err => console.error('Error al persistir bitácora en Oracle DB:', err));
+
     // Timeline event
     const newEvent: ActivityEvent = {
       id: `act-${Date.now()}`,
@@ -695,6 +764,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
 
     setVitalSigns(prev => [newVitals, ...prev]);
+
+    // Persistir en Oracle DB
+    const vitalsResId = parseInt(vitalsData.residentId?.replace(/\D/g, '') || '1', 10);
+    api.addVitalSigns({
+      residentId: vitalsResId,
+      bloodPressure: `${vitalsData.systolic}/${vitalsData.diastolic}`,
+      systolic: vitalsData.systolic,
+      diastolic: vitalsData.diastolic,
+      heartRate: vitalsData.heartRate,
+      temperature: vitalsData.temperature,
+      oxygenSaturation: vitalsData.spO2 || 98,
+      glucose: vitalsData.glucose,
+      weight: vitalsData.weight,
+      notes: vitalsData.observations
+    }).catch(err => console.error('Error al persistir signos vitales en Oracle DB:', err));
 
     const newEvent: ActivityEvent = {
       id: `act-${Date.now()}`,
@@ -915,6 +999,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         return c;
       })
     );
+
+    // Persistir firma en Oracle DB
+    const cIdNum = parseInt(consentId.replace(/\D/g, '') || '1', 10);
+    api.signConsent(cIdNum, {
+      firmaDigitalHash: `SHA256-DIGITAL-SIGN-${Date.now()}`
+    }).catch(err => console.error('Error al firmar consentimiento en Oracle DB:', err));
 
     const targetConsent = consents.find(c => c.id === consentId);
     if (targetConsent) {

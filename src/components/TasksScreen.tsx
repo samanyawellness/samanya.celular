@@ -28,6 +28,8 @@ export const TasksScreen: React.FC = () => {
     unmarkTaskCompleted,
     setSelectedTaskForMassRegistration,
     setIsMassRegistrationModalOpen,
+    setSelectedResident,
+    setIsVitalSignsModalOpen,
     openResidentHub
   } = useApp();
 
@@ -70,11 +72,35 @@ export const TasksScreen: React.FC = () => {
         return <Utensils className="w-5 h-5 text-[#C68A3D]" />;
       case 'fisioterapia':
         return <Activity className="w-5 h-5 text-[#068591]" />;
+      case 'signos_vitales':
+        return <Activity className="w-5 h-5 text-[#8C2E2E]" />;
       case 'actividad':
         return <Users className="w-5 h-5 text-[#075158]" />;
       default:
         return <Clock className="w-5 h-5 text-[#5C6058]" />;
     }
+  };
+
+  const handleStartTask = (task: TaskItem) => {
+    const isVitals =
+      task.type === 'signos_vitales' ||
+      task.title.toLowerCase().includes('tensión') ||
+      task.title.toLowerCase().includes('tension') ||
+      task.title.toLowerCase().includes('signos') ||
+      task.title.toLowerCase().includes('glucometr');
+
+    if (isVitals) {
+      setSelectedTaskForMassRegistration(task);
+      const target = task.residentId
+        ? residents.find(r => r.id === task.residentId) || residents[0]
+        : residents[0];
+      if (target) setSelectedResident(target);
+      setIsVitalSignsModalOpen(true);
+      return;
+    }
+
+    setSelectedTaskForMassRegistration(task);
+    setIsMassRegistrationModalOpen(true);
   };
 
   return (
@@ -279,16 +305,13 @@ export const TasksScreen: React.FC = () => {
                     </>
                   )}
 
-                  {/* 2. Tarea grupal (alimentación / actividad) */}
+                  {/* 2. Tarea grupal (alimentación / actividad / signos vitales) */}
                   {isGroup && (
                     <div className="w-full">
                       <button
                         type="button"
                         id={`btn-group-action-${task.id}`}
-                        onClick={() => {
-                          setSelectedTaskForMassRegistration(task);
-                          setIsMassRegistrationModalOpen(true);
-                        }}
+                        onClick={() => handleStartTask(task)}
                         className="touch-target w-full py-2.5 px-4 bg-[#D9F0F1] hover:bg-[#c6e6e8] text-[#075158] border border-[#068591]/30 text-xs font-bold rounded-xl shadow-xs active:scale-[0.99] transition-all flex items-center justify-center gap-1.5"
                       >
                         <span>
@@ -308,15 +331,27 @@ export const TasksScreen: React.FC = () => {
                     <div className="flex flex-col gap-2 w-full">
                       {!isCompleted ? (
                         <>
-                          <button
-                            type="button"
-                            id={`btn-complete-task-${task.id}`}
-                            onClick={() => markTaskCompleted(task.id)}
-                            className="touch-target w-full py-2.5 px-4 bg-[#D9F0F1] hover:bg-[#c6e6e8] text-[#075158] border border-[#068591]/30 text-xs font-bold rounded-xl shadow-xs active:scale-[0.99] transition-all flex items-center justify-center gap-1.5"
-                          >
-                            <Check className="w-4 h-4" />
-                            <span>Marcar como completada</span>
-                          </button>
+                          {(task.type === 'signos_vitales' || task.type === 'alimentacion') ? (
+                            <button
+                              type="button"
+                              id={`btn-start-task-${task.id}`}
+                              onClick={() => handleStartTask(task)}
+                              className="touch-target w-full py-2.5 px-4 bg-[#D9F0F1] hover:bg-[#c6e6e8] text-[#075158] border border-[#068591]/30 text-xs font-bold rounded-xl shadow-xs active:scale-[0.99] transition-all flex items-center justify-center gap-1.5"
+                            >
+                              <span>Iniciar registro</span>
+                              <ChevronRight className="w-4 h-4" />
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              id={`btn-complete-task-${task.id}`}
+                              onClick={() => markTaskCompleted(task.id)}
+                              className="touch-target w-full py-2.5 px-4 bg-[#D9F0F1] hover:bg-[#c6e6e8] text-[#075158] border border-[#068591]/30 text-xs font-bold rounded-xl shadow-xs active:scale-[0.99] transition-all flex items-center justify-center gap-1.5"
+                            >
+                              <Check className="w-4 h-4" />
+                              <span>Marcar como completada</span>
+                            </button>
+                          )}
 
                           {task.residentId && (
                             <button

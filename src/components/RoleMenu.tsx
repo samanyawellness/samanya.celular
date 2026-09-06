@@ -5,10 +5,7 @@ import {
   KeyRound,
   Settings,
   LogOut,
-  X,
-  RefreshCw,
-  UserCheck,
-  HeartHandshake
+  X
 } from 'lucide-react';
 import { DarkModeToggle } from './DarkModeToggle';
 
@@ -18,7 +15,6 @@ export const RoleMenu: React.FC = () => {
     setIsRoleMenuOpen,
     currentUser,
     residents,
-    switchRole,
     logout,
     showToast
   } = useApp();
@@ -87,16 +83,6 @@ export const RoleMenu: React.FC = () => {
               alt={currentUser.name}
               className="w-14 h-14 rounded-full object-cover border-2 border-[#068591] shadow-xs"
             />
-            {/* Quick Switch Role Badge button */}
-            <button
-              type="button"
-              id="btn-quick-switch-role"
-              onClick={() => switchRole(currentUser.role === 'cuidador' ? 'familiar' : 'cuidador')}
-              className="absolute -bottom-1 -right-1 w-6 h-6 bg-[#068591] hover:bg-[#056c76] text-white rounded-full flex items-center justify-center shadow-sm transition-transform active:scale-90"
-              title="Cambiar perfil"
-            >
-              <RefreshCw className="w-3 h-3" />
-            </button>
           </div>
 
           <div className="min-w-0 flex-1">
@@ -105,43 +91,12 @@ export const RoleMenu: React.FC = () => {
             </h3>
             <div className="flex items-center gap-2 mt-1">
               <span className="text-xs font-semibold text-[#068591] bg-[#D9F0F1] px-2 py-0.5 rounded-md">
-                {residents.length} Residentes
+                {currentUser.role === 'familiar' ? 'Familiar' : 'Trabajador'}
               </span>
               <span className="text-xs font-semibold text-[#5C6058] bg-white border border-[#DEDBD1] px-2 py-0.5 rounded-md">
-                Planta 1
+                {currentUser.unit || 'Planta 1'}
               </span>
             </div>
-          </div>
-        </div>
-
-        {/* Role Toggle Button */}
-        <div className="space-y-1.5">
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              id="btn-profile-role-cuidador"
-              type="button"
-              onClick={() => switchRole('cuidador')}
-              className={`touch-target py-3 px-2 rounded-2xl border text-center transition-all ${
-                currentUser.role === 'cuidador'
-                  ? 'bg-[#D9F0F1] border-[#068591] text-[#075158] font-bold shadow-xs'
-                  : 'bg-white border-[#DEDBD1] text-[#292A24] hover:bg-[#F7F7F8] font-medium'
-              }`}
-            >
-              <span className="text-xs font-bold block">Trabajador</span>
-            </button>
-
-            <button
-              id="btn-profile-role-familiar"
-              type="button"
-              onClick={() => switchRole('familiar')}
-              className={`touch-target py-3 px-2 rounded-2xl border text-center transition-all ${
-                currentUser.role === 'familiar'
-                  ? 'bg-[#D9F0F1] border-[#068591] text-[#075158] font-bold shadow-xs'
-                  : 'bg-white border-[#DEDBD1] text-[#292A24] hover:bg-[#F7F7F8] font-medium'
-              }`}
-            >
-              <span className="text-xs font-bold block">Familiar</span>
-            </button>
           </div>
         </div>
 

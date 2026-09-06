@@ -14,7 +14,7 @@ import { UserRole } from '../types';
 import { DarkModeToggle } from './DarkModeToggle';
 
 export const ProfileScreen: React.FC = () => {
-  const { user: userFromContext, currentUser, switchRole, logout } = useApp();
+  const { user: userFromContext, currentUser, logout } = useApp();
   const user = userFromContext || currentUser || {
     name: 'Elena Morales',
     email: 'elena.morales@samanya.es',
@@ -105,44 +105,6 @@ export const ProfileScreen: React.FC = () => {
         </div>
       </div>
 
-      {/* Role Switcher */}
-      <div className="space-y-2">
-        <div className="px-1">
-          <label className="text-xs font-bold text-[#5C6058] uppercase tracking-wider">
-            Modo de visualización
-          </label>
-        </div>
-
-        <div className="grid grid-cols-2 gap-2.5">
-          {/* Trabajador */}
-          <button
-            type="button"
-            id="btn-role-cuidador"
-            onClick={() => switchRole('cuidador')}
-            className={`touch-target py-3.5 px-4 rounded-2xl border text-center transition-all ${
-              user.role === 'cuidador'
-                ? 'bg-[#D9F0F1] border-[#068591]/50 text-[#075158] ring-2 ring-[#068591]/30 shadow-xs font-bold'
-                : 'bg-white border-[#DEDBD1] text-[#292A24] hover:bg-[#F7F7F8] font-medium'
-            }`}
-          >
-            <span className="text-sm font-bold block">Trabajador</span>
-          </button>
-
-          {/* Familiar */}
-          <button
-            type="button"
-            id="btn-role-familiar"
-            onClick={() => switchRole('familiar')}
-            className={`touch-target py-3.5 px-4 rounded-2xl border text-center transition-all ${
-              user.role === 'familiar'
-                ? 'bg-[#D9F0F1] border-[#068591]/50 text-[#075158] ring-2 ring-[#068591]/30 shadow-xs font-bold'
-                : 'bg-white border-[#DEDBD1] text-[#292A24] hover:bg-[#F7F7F8] font-medium'
-            }`}
-          >
-            <span className="text-sm font-bold block">Familiar</span>
-          </button>
-        </div>
-      </div>
 
       {/* Account Settings Menu */}
       <div className="space-y-2 pt-1">

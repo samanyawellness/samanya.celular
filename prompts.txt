@@ -220,3 +220,30 @@ revisar la tabla smy_residentes_acudientes si debe estar en el archivo creacion_
 FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-05 22:06:48
 ================================================================================
 subir al repositorio de dev incluyendo los archivos uti_ge_excepciones_pkg.sql, f_fecha_actual, datos_prueba_dummy.sql
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-05 22:13:58
+================================================================================
+Subir al repositorio cuando lo indique.
+Arrancar el servidor para ver la aplicacion
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-05 22:18:32
+================================================================================
+Deseo que no muestre datos dummy sino de la base de datos arrancando por la pagina de login
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-05 22:43:12
+================================================================================
+Cuando estoy en la lista de Tareas y le doy Iniciar Registro debe abrir la ventana para hacer ese registro pero siempre abre con la tarea de Registro de Alimentacion
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-05 22:54:56
+================================================================================
+Ocultar Modo de visualizacion, siempre entra con un rol
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-05 22:59:12
+================================================================================
+Subir al repositorio y hacer push en dev
+

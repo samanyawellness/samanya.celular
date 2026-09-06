@@ -5,19 +5,22 @@ import { LogIn, KeyRound, Mail, ArrowLeft, CheckCircle2, ShieldCheck, Heart } fr
 export const LoginScreen: React.FC = () => {
   const { login } = useApp();
   const [view, setView] = useState<'login' | 'recover'>('login');
-  const [email, setEmail] = useState('elena.morales@samanya.es');
-  const [password, setPassword] = useState('••••••••');
+  const [email, setEmail] = useState('mrodriguez');
+  const [password, setPassword] = useState('Samanya2026*');
   const [recoverEmail, setRecoverEmail] = useState('');
   const [recoverSuccess, setRecoverSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setTimeout(() => {
-      login(email, password);
+    try {
+      await login(email, password);
+    } catch (_) {
+      // El error ya es capturado y mostrado como Toast en AppContext
+    } finally {
       setIsLoading(false);
-    }, 400);
+    }
   };
 
   const handleRecover = (e: React.FormEvent) => {
@@ -55,14 +58,14 @@ export const LoginScreen: React.FC = () => {
                 Iniciar sesión
               </h2>
               <p className="text-sm text-[#5C6058] mt-0.5">
-                Ingresa con tu cuenta de trabajador o familiar
+                Ingresa con tu cuenta de trabajador o familiar de la BD
               </p>
             </div>
 
             <div className="space-y-3.5 pt-2">
               <div>
                 <label className="block text-sm font-bold text-[#292A24] mb-1.5" htmlFor="email-input">
-                  Correo electrónico o usuario
+                  Usuario o Correo electrónico
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#5C6058]">
@@ -70,11 +73,11 @@ export const LoginScreen: React.FC = () => {
                   </div>
                   <input
                     id="email-input"
-                    type="email"
+                    type="text"
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="ejemplo@samanya.es"
+                    placeholder="Usuario o correo de la BD"
                     className="w-full pl-11 pr-4 py-3 bg-[#F7F7F8] border border-[#DEDBD1] rounded-2xl text-base text-[#292A24] placeholder:text-[#5C6058]/60 focus:outline-none focus:border-[#068591] focus:ring-2 focus:ring-[#068591]/20 transition-all"
                   />
                 </div>
@@ -101,31 +104,41 @@ export const LoginScreen: React.FC = () => {
               </div>
             </div>
 
-            {/* Quick pre-fill buttons for demonstration */}
+            {/* Quick pre-fill buttons from real Oracle DB */}
             <div className="p-3 bg-[#D9F0F1]/60 rounded-2xl border border-[#068591]/20">
               <p className="text-xs font-bold text-[#075158] uppercase tracking-wide mb-1.5">
-                Cuentas de demostración
+                Cuentas en Base de Datos Oracle
               </p>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 <button
                   type="button"
                   onClick={() => {
-                    setEmail('elena.morales@samanya.es');
-                    setPassword('password123');
+                    setEmail('mrodriguez');
+                    setPassword('Samanya2026*');
                   }}
-                  className="text-xs bg-white text-[#075158] font-semibold px-2.5 py-1.5 rounded-xl border border-[#068591]/30 hover:bg-[#D9F0F1]"
+                  className="text-xs bg-white text-[#075158] font-semibold px-2.5 py-1.5 rounded-xl border border-[#068591]/30 hover:bg-[#D9F0F1] transition-colors"
                 >
-                  Elena (Cuidadora)
+                  María (Cuidadora)
                 </button>
                 <button
                   type="button"
                   onClick={() => {
-                    setEmail('javier.perez@familiar.es');
-                    setPassword('password123');
+                    setEmail('jperez');
+                    setPassword('Samanya2026*');
                   }}
-                  className="text-xs bg-white text-[#075158] font-semibold px-2.5 py-1.5 rounded-xl border border-[#068591]/30 hover:bg-[#D9F0F1]"
+                  className="text-xs bg-white text-[#075158] font-semibold px-2.5 py-1.5 rounded-xl border border-[#068591]/30 hover:bg-[#D9F0F1] transition-colors"
                 >
                   Javier (Familiar)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEmail('ldelgado');
+                    setPassword('Samanya2026*');
+                  }}
+                  className="text-xs bg-white text-[#075158] font-semibold px-2.5 py-1.5 rounded-xl border border-[#068591]/30 hover:bg-[#D9F0F1] transition-colors"
+                >
+                  Lucía (Familiar)
                 </button>
               </div>
             </div>

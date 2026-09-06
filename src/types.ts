@@ -67,7 +67,7 @@ export interface Resident {
   }[];
 }
 
-export type TaskType = 'alimentacion' | 'medicacion' | 'fisioterapia' | 'higiene' | 'actividad';
+export type TaskType = 'alimentacion' | 'medicacion' | 'fisioterapia' | 'higiene' | 'actividad' | 'signos_vitales';
 export type TaskScope = 'grupal' | 'individual';
 export type TaskStatus = 'pendiente' | 'en_curso' | 'completada';
 

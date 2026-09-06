@@ -7,6 +7,10 @@ export const VitalSignsModal: React.FC = () => {
     isVitalSignsModalOpen,
     setIsVitalSignsModalOpen,
     selectedResident,
+    setSelectedResident,
+    selectedTaskForMassRegistration,
+    markTaskCompleted,
+    residents,
     selectedDate,
     addVitalSigns
   } = useApp();
@@ -19,14 +23,17 @@ export const VitalSignsModal: React.FC = () => {
   const [glucose, setGlucose] = useState<string>('');
   const [notes, setNotes] = useState<string>('');
 
-  if (!isVitalSignsModalOpen || !selectedResident) return null;
+  if (!isVitalSignsModalOpen) return null;
+
+  const currentResident = selectedResident || residents[0];
+  if (!currentResident) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
     addVitalSigns({
-      residentId: selectedResident.id,
-      residentName: selectedResident.name,
+      residentId: currentResident.id,
+      residentName: currentResident.name,
       date: selectedDate,
       systolic: Number(systolic),
       diastolic: Number(diastolic),
@@ -36,6 +43,11 @@ export const VitalSignsModal: React.FC = () => {
       glucose: glucose ? Number(glucose) : undefined,
       notes: notes.trim() || undefined
     });
+
+    if (selectedTaskForMassRegistration) {
+      markTaskCompleted(selectedTaskForMassRegistration.id);
+    }
+    setIsVitalSignsModalOpen(false);
   };
 
   return (
@@ -57,7 +69,9 @@ export const VitalSignsModal: React.FC = () => {
                 Tomar signos vitales
               </h3>
               <p className="text-xs text-[#5C6058]">
-                {selectedResident.name} ({selectedResident.room})
+                {selectedTaskForMassRegistration
+                  ? selectedTaskForMassRegistration.title
+                  : `${currentResident.name} (${currentResident.room})`}
               </p>
             </div>
           </div>
@@ -70,6 +84,27 @@ export const VitalSignsModal: React.FC = () => {
           >
             <X className="w-6 h-6" />
           </button>
+        </div>
+
+        {/* Resident Selector */}
+        <div className="bg-[#F7F7F8] p-3 rounded-2xl border border-[#DEDBD1]">
+          <label className="block text-xs font-bold text-[#292A24] mb-1.5">
+            Residente a evaluar
+          </label>
+          <select
+            value={currentResident.id}
+            onChange={(e) => {
+              const found = residents.find((r) => r.id === e.target.value);
+              if (found) setSelectedResident(found);
+            }}
+            className="w-full p-2.5 bg-white border border-[#DEDBD1] rounded-xl text-sm font-bold text-[#292A24] focus:outline-none focus:border-[#068591]"
+          >
+            {residents.map((r) => (
+              <option key={r.id} value={r.id}>
+                {r.name} — Hab. {r.room}{r.bed ? ` (${r.bed})` : ''}
+              </option>
+            ))}
+          </select>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
