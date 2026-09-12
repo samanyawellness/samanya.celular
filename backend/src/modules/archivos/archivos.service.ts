@@ -50,7 +50,7 @@ export class ArchivosService {
       // 1. Calcular hash SHA-256 del contenido binario del archivo
       const hashContenido = crypto.createHash('sha256').update(params.buffer).digest('hex');
 
-      // 2. Invocar PKGCN_ARCHIVOS.pr_preparar_carga_archivo para reservar ID y calcular rutas
+      // 2. Invocar PKGLN_ARCHIVOS.pr_preparar_carga_archivo para reservar ID y calcular rutas
       const prepBinds: any = {
         p_id_centro: params.idCentro,
         p_id_residente: params.idResidente,
@@ -67,7 +67,7 @@ export class ArchivosService {
 
       const prepResult = await connection.execute(
         `BEGIN
-           PKGCN_ARCHIVOS.pr_preparar_carga_archivo(
+           PKGLN_ARCHIVOS.pr_preparar_carga_archivo(
              p_id_centro               => :p_id_centro,
              p_id_residente            => :p_id_residente,
              p_nombre_original         => :p_nombre_original,
@@ -117,7 +117,7 @@ export class ArchivosService {
 
       const rutaCompleta = gdriveRes.webViewLink || `https://drive.google.com/file/d/${gdriveRes.fileId}/view`;
 
-      // 5. Registrar archivo en SMY_ARCHIVOS invocando PKGCN_ARCHIVOS.pr_registrar_archivo
+      // 5. Registrar archivo en SMY_ARCHIVOS invocando PKGLN_ARCHIVOS.pr_registrar_archivo
       const regBinds: any = {
         p_id: idReserva,
         p_nombre_archivo: params.nombreOriginal,
@@ -140,7 +140,7 @@ export class ArchivosService {
 
       await connection.execute(
         `BEGIN
-           PKGCN_ARCHIVOS.pr_registrar_archivo(
+           PKGLN_ARCHIVOS.pr_registrar_archivo(
              p_id                         => :p_id,
              p_nombre_archivo             => :p_nombre_archivo,
              p_nombre_archivo_almacenado  => :p_nombre_archivo_almacenado,
@@ -196,7 +196,7 @@ export class ArchivosService {
         { id: idArchivo }
       );
 
-      // 2. Invocar procedimiento transaccional PKGCN_ARCHIVOS.pr_borrar_archivo
+      // 2. Invocar procedimiento transaccional PKGLN_ARCHIVOS.pr_borrar_archivo
       const binds: any = {
         p_id_archivo: idArchivo,
         p_id_usuario: idUsuario,
@@ -206,7 +206,7 @@ export class ArchivosService {
 
       const result = await connection.execute(
         `BEGIN
-           PKGCN_ARCHIVOS.pr_borrar_archivo(
+           PKGLN_ARCHIVOS.pr_borrar_archivo(
              p_id_archivo        => :p_id_archivo,
              p_id_usuario        => :p_id_usuario,
              p_motivo            => :p_motivo,
@@ -246,7 +246,7 @@ export class ArchivosService {
 
       const result = await connection.execute(
         `BEGIN
-           PKGCN_ARCHIVOS.pr_renombrar_archivo(
+           PKGLN_ARCHIVOS.pr_renombrar_archivo(
              p_id_archivo        => :p_id_archivo,
              p_nuevo_nombre      => :p_nuevo_nombre,
              p_id_usuario        => :p_id_usuario,
@@ -283,7 +283,7 @@ export class ArchivosService {
 
       const result = await connection.execute(
         `BEGIN
-           PKGCN_ARCHIVOS.pr_copiar_archivo(
+           PKGLN_ARCHIVOS.pr_copiar_archivo(
              p_id_archivo_origen  => :p_id_archivo_origen,
              p_nuevo_id_residente => :p_nuevo_id_residente,
              p_nuevo_id_centro    => :p_nuevo_id_centro,
@@ -305,7 +305,7 @@ export class ArchivosService {
   }
 
   /**
-   * Consulta archivos de un residente usando SYS_REFCURSOR de PKGCN_ARCHIVOS
+   * Consulta archivos de un residente usando SYS_REFCURSOR de PKGLN_ARCHIVOS
    */
   async listarArchivosResidente(idResidente: number, soloVisibles: boolean = true): Promise<ArchivoDTO[]> {
     return withConnection(async (connection) => {
@@ -317,7 +317,7 @@ export class ArchivosService {
 
       const result = await connection.execute(
         `BEGIN
-           :p_cursor := PKGCN_ARCHIVOS.fn_consultar_archivos_residente(
+           :p_cursor := PKGLN_ARCHIVOS.fn_consultar_archivos_residente(
              p_id_residente  => :p_id_residente,
              p_solo_visibles => :p_solo_visibles
            );

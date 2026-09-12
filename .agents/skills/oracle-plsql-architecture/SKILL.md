@@ -1,7 +1,7 @@
 ---
 name: oracle-plsql-architecture
 description: >-
-  Estándar arquitectónico obligatorio de PL/SQL para Oracle. Debe activarse SIEMPRE que se solicite crear, modificar, revisar, optimizar, refactorizar o proponer código PL/SQL, paquetes Oracle, procedimientos, funciones, consultas, APIs PL/SQL, generación de JSON o manejo transaccional. Aplica la estricta separación de responsabilidades entre paquetes DAO (pkg<tabla>_dao), pkgca_ (acceso/DML sin PK, filtros y búsquedas), pkgcn_ (lógica de negocio transaccional con COMMIT/ROLLBACK) y pkgln_ (lógica funcional/algoritmos de dominio puros), control atómico de transacciones, logging persistente en SMY_ERRORES con uti_ge_excepciones_pkg.p_grabar_log, SYS_REFCURSOR y JSON nativo.
+  Estándar arquitectónico obligatorio de PL/SQL para Oracle. Debe activarse SIEMPRE que se solicite crear, modificar, revisar, optimizar, refactorizar o proponer código PL/SQL, paquetes Oracle, procedimientos, funciones, consultas, APIs PL/SQL, generación de JSON o manejo transaccional. Aplica la estricta separación de responsabilidades entre paquetes DAO (pkg<tabla>_dao por PK/ROWID sin commit), pkgca_ (acceso/filtros y DML sin PK), pkgcn_ (sentencias DML de proceso que involucran más de una tabla sin lógica de negocio) y pkgln_ (lógica de negocio, validaciones y reglas del caso de uso, sin DML directo, orquestando DAOs/pkgca/pkgcn con COMMIT/ROLLBACK transaccional y logging en SMY_ERRORES con uti_ge_excepciones_pkg.p_grabar_log), SYS_REFCURSOR y JSON nativo.
 ---
 
 # Estándar Arquitectónico PL/SQL para Oracle
@@ -22,10 +22,10 @@ Todo artefacto PL/SQL pertenece obligatoriamente a una de estas cuatro familias:
 
 | Familia | Prefijo / Sufijo | Propósito Principal | DML Directo Tabla | Transacciones (COMMIT/ROLLBACK) | Manejo de Excepciones |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **DAO** | `pkg<tabla>_dao` | Acceso a datos de UNA tabla específica por PK / ROWID (CRUD básico y plantilla oficial). | Sí (su tabla exclusiva) | **PROHIBIDO** (COMMIT/ROLLBACK arbitrario prohibido, propaga errores) | Propagación hacia capas superiores |
-| **pkgca_** | `pkgca_<entidad>` | Consultas y DML multi-registro o sin PK (filtros, rangos, estados, búsquedas, batch). | Sí (tablas de la entidad) | **PROHIBIDO** salvo proceso batch explícito aislado | Propagación o log si es batch |
-| **pkgcn_** | `pkgcn_<dominio>` | Orquestación de lógica de negocio transaccional multi-tabla / multi-operación. | A través de DAO / pkgca_ | **OBLIGATORIO** (Control atómico: COMMIT al éxito, ROLLBACK al fallo) | Bloque `WHEN OTHERS` con registro en `SMY_ERRORES` y `-20000` |
-| **pkgln_** | `pkgln_<utilidad>` | Lógica funcional reusable, cálculos matemáticos y algoritmos puros de dominio. | **PROHIBIDO** (Cero dependencias de tablas de negocio) | **NO APLICA** | Bloque `WHEN OTHERS` con registro en `SMY_ERRORES` y `-20000` |
+| **DAO** | `pkg<tabla>_dao` | Acceso a datos de UNA tabla específica por PK / ROWID (CRUD básico y plantilla oficial de 18 métodos). | Sí (su tabla exclusiva) | **PROHIBIDO** (Cero COMMIT/ROLLBACK; propaga errores al nivel superior) | Propagación hacia capas superiores |
+| **pkgca_** | `pkgca_<entidad>` | Consultas y DML multi-registro o sin PK sobre una entidad (filtros dinámicos, rangos, estados, búsquedas `SYS_REFCURSOR`, batch). | Sí (tablas de la entidad) | **PROHIBIDO** salvo proceso batch explícito aislado | Propagación hacia capas superiores |
+| **pkgcn_** | `pkgcn_<proceso>` | Sentencias DML que pertenecen a un proceso e involucran **MÁS DE UNA TABLA**. | Sí (las tablas involucradas en el proceso) | **PROHIBIDO** (El commit lo controla el orquestador de negocio `pkgln_`) | Propagación hacia capa `pkgln_` |
+| **pkgln_** | `pkgln_<dominio>` | **LÓGICA DE NEGOCIO**, validaciones, reglas de dominio, flujos y orquestación del caso de uso. | **PROHIBIDO** (Cero DML directo; usa `_dao`, `pkgca_` y `pkgcn_`) | **OBLIGATORIO** (Control atómico: `COMMIT;` al éxito, `ROLLBACK;` al fallo) | Bloque `WHEN OTHERS` con registro en `SMY_ERRORES` y `-20000` |
 
 ---
 
@@ -34,35 +34,35 @@ Todo artefacto PL/SQL pertenece obligatoriamente a una de estas cuatro familias:
 Antes de escribir cualquier procedimiento o función, aplicar estrictamente este árbol de decisión:
 
 ```text
-¿La operación necesita interactuar con tablas de la base de datos?
+¿Es lógica de negocio, validaciones, reglas de dominio o la orquestación de un caso de uso?
 │
-├── NO ─────────────────────────────────────────────────────────────► Pertenece a: pkgln_
-│                                                                     (Algoritmos puros, utilitarios,
-│                                                                      cálculos de fechas, parsing)
-└── SÍ
+├── SÍ ─────────────────────────────────────────────────────────────► Pertenece a: pkgln_
+│                                                                     (Lógica de negocio, reglas y validaciones.
+│                                                                      SIN DML directo. Consulta y modifica a través
+│                                                                      de _DAO, pkgca_ y pkgcn_. Aquí va el COMMIT).
+└── NO (Es una operación de acceso o modificación de datos técnica)
+    │
+    ├── ¿Es una sentencia SQL DML técnica que involucra en su
+    │   propia sintaxis MÁS DE UNA TABLA (JOIN / subconsulta EXISTS / MERGE)?
+    │   │
+    │   └── SÍ ──────────────────────────────────────────────────────► Pertenece a: pkgcn_
+    │                                                                 (Un método por cada sentencia DML.
+    │                                                                  Mínimo 2 tablas en la sentencia.
+    │                                                                  Sin lógica de negocio ni COMMIT).
     │
     ├── ¿Es una operación CRUD directa sobre una única tabla
     │   identificando registros por PK o ROWID?
     │   │
     │   └── SÍ ──────────────────────────────────────────────────────► Pertenece a: pkg<tabla>_dao
-    │                                                                 (Plantilla estándar oficial)
+    │                                                                 (Plantilla estándar oficial 18 métodos).
     │
-    ├── ¿Es una consulta, filtro, búsqueda o DML masivo
-    │   sobre una entidad sin depender exclusivamente de su PK?
-    │   │
-    │   └── SÍ ──────────────────────────────────────────────────────► Pertenece a: pkgca_
-    │                                                                 (Búsquedas SYS_REFCURSOR,
-    │                                                                  updates por estado/fecha)
-    │
-    └── ¿Es una operación de negocio que coordina múltiples tablas,
-        validaciones funcionales o requiere integridad transaccional?
+    └── ¿Es una consulta, filtro, búsqueda multi-criterio o DML masivo
+        sobre una entidad sin depender exclusivamente de su PK?
         │
-        └── SÍ ──────────────────────────────────────────────────────► Pertenece a: pkgcn_
-                                                                      (Orquestador transaccional)
+        └── SÍ ──────────────────────────────────────────────────────► Pertenece a: pkgca_
+                                                                      (Búsquedas SYS_REFCURSOR,
+                                                                       updates por estado/fecha sin PK).
 ```
-
-> [!NOTE]
-> Si existe duda entre dos categorías, se debe explicar brevemente la justificación antes de generar el código. Si una petición del usuario ubica código en el paquete incorrecto, se debe advertir la infracción y reubicarlo.
 
 ---
 
@@ -74,10 +74,8 @@ $$\text{pkg} + \text{nombre\_tabla} + \text{\_dao}$$
 
 *Ejemplos:*
 - Tabla: `SMY_USUARIOS` $\rightarrow$ Paquete: `PKGSMY_USUARIOS_DAO`
-- Tabla: `SMY_CITAS` $\rightarrow$ Paquete: `PKGSMY_CITAS_DAO`
-- Tabla: `SMY_CONSULTAS` $\rightarrow$ Paquete: `PKGSMY_CONSULTAS_DAO`
-
-*(Nunca omitir el prefijo `PKG` inicial; no usar nombres como `SMY_USUARIOS_DAO`).*
+- Tabla: `SMY_ARCHIVOS` $\rightarrow$ Paquete: `PKGSMY_ARCHIVOS_DAO`
+- Tabla: `SMY_RESIDENTES` $\rightarrow$ Paquete: `PKGSMY_RESIDENTES_DAO`
 
 ### 4.2 Métodos de la Plantilla Oficial DAO
 Todo DAO debe implementar los siguientes 18 métodos estándar adaptados a la tabla correspondiente:
@@ -192,55 +190,175 @@ END PKGSMY_TABLA_DAO;
 2. **Tipado fuerte**: Usar siempre `%ROWTYPE` para registros y `<tabla>.<columna>%TYPE` para parámetros escalares.
 3. **Cero Lógica de Negocio**: No incluir validaciones de reglas de dominio ni cálculos empresariales en el DAO.
 4. **Cero Orquestación Multi-tabla**: El DAO jamás consulta ni actualiza tablas ajenas a la suya.
-5. **Cero COMMIT / ROLLBACK**: El DAO nunca controla la transacción. Los errores deben propagarse limpiamente al nivel superior (`pkgcn_`).
+5. **Cero COMMIT / ROLLBACK**: El DAO nunca controla la transacción. Los errores deben propagarse limpiamente al nivel superior (`pkgln_`).
 
 ---
 
 ## 5. Paquetes de Consulta y Acceso No-PK (`pkgca_`)
 
-- **Propósito**: Encapsular consultas complejas, filtros dinámicos, búsquedas, rangos de fechas, operaciones por estado y DML masivo que no dependen exclusivamente de una clave primaria.
-- **Nomenclatura**: `pkgca_<entidad>` (ej. `pkgca_usuarios`, `pkgca_citas`, `pkgca_horarios`).
+- **Propósito**: Encapsular consultas complejas, filtros dinámicos, búsquedas, rangos de fechas, operaciones por estado y DML masivo sobre una entidad que no dependen exclusivamente de una clave primaria.
+- **Nomenclatura**: `pkgca_<entidad>` (ej. `pkgca_residentes`, `pkgca_turnos`, `pkgca_medicamentos`).
 - **Retorno de Conjuntos Multi-fila**: Debe usar `SYS_REFCURSOR`.
-- **Límites**: No debe coordinar procesos transaccionales de negocio complejos ni reemplazar a `pkgcn_`.
+- **Límites**: No debe contener lógica de negocio transaccional ni reemplazar al orquestador `pkgln_`.
 
 *Ejemplo:*
 ```sql
-FUNCTION fn_buscar_usuarios (
-    p_nombre IN VARCHAR2,
-    p_estado IN NUMBER
+FUNCTION fn_buscar_residentes (
+    p_filtro_texto IN VARCHAR2,
+    p_id_estado    IN NUMBER
 ) RETURN SYS_REFCURSOR;
 
-PROCEDURE pr_actualizar_estado_citas (
-    p_fecha_desde IN DATE,
-    p_fecha_hasta IN DATE,
-    p_estado      IN NUMBER
+PROCEDURE pr_inactivar_residentes_por_fecha (
+    p_fecha_limite IN DATE,
+    p_id_usuario   IN NUMBER
 );
 ```
 
 ---
 
-## 6. Paquetes de Lógica de Negocio Transaccional (`pkgcn_`)
+## 6. Paquetes de Sentencias DML Multi-Tabla (`pkgcn_`)
 
-- **Propósito**: Representar acciones de negocio que involucran validaciones, reglas de dominio, afectación de múltiples tablas y que deben ejecutarse como una **unidad atómica de trabajo**.
-- **Nomenclatura**: `pkgcn_<dominio>` (ej. `pkgcn_ordenes`, `pkgcn_citas`, `pkgcn_facturacion`).
-- **Arquitectura de Llamadas**:
-  $$\text{pkgcn\_} \longrightarrow \text{DAO / pkgca\_ / pkgln\_} \longrightarrow \text{COMMIT}$$
+- **Propósito Exclusivo**: Contener sentencias DML de proceso que involucran **MÁS DE UNA TABLA en la misma sentencia SQL** (ej. `INSERT ... SELECT ... JOIN`, `UPDATE ... WHERE EXISTS (...)`, `MERGE ... USING (...)`, `DELETE ... WHERE EXISTS (...)`).
+- **Nomenclatura**: `pkgcn_<proceso>` (ej. `pkgcn_residentes`, `pkgcn_facturacion`).
+- **Reglas Mandatorias y Estrictas para `pkgcn_`**:
+  1. **UN SOLO MÉTODO POR CADA SENTENCIA DML**: Cada procedimiento o función en `pkgcn_` debe encapsular exactamente UNA única sentencia SQL DML.
+  2. **MÍNIMO DOS TABLAS POR SENTENCIA**: La sentencia DML debe involucrar directamente como mínimo dos tablas físicas en su sintaxis SQL (mediante JOIN, subconsultas correlacionadas con `EXISTS`/`IN`, MERGE o cláusulas de selección multi-tabla).
+  3. **PROHIBIDO INCLUIR SECUENCIAS DE SENTENCIAS MONO-TABLA**: Si un proceso requiere actualizar la tabla A y luego insertar/actualizar la tabla B con sentencias independientes, **NO pertenece a `pkgcn_`**. Cada operación debe ejecutarse a través del respectivo `_dao` (o `pkgca_`) de cada tabla, y la secuencia completa debe orquestarse directamente en el paquete de lógica de negocio `pkgln_`.
+  4. **Cero Lógica de Negocio ni Validaciones Complejas**: `pkgcn_` ejecuta la sentencia DML multi-tabla técnica requerida por el proceso; no toma decisiones de negocio ni valida reglas de dominio.
+  5. **Cero COMMIT / ROLLBACK**: El control transaccional (`COMMIT;` / `ROLLBACK;`) es potestad exclusiva de `pkgln_`.
 
-### 6.1 Manejo Transaccional en `pkgcn_`
-- Cada procedimiento de negocio debe garantizar atomicidad:
-  1. Ejecutar validaciones de negocio.
-  2. Invocar DAOs / `pkgca_` necesarios.
-  3. Ejecutar `COMMIT;` al completar con éxito todas las operaciones.
-  4. En caso de cualquier error inesperado, ejecutar inmediatamente `ROLLBACK;` antes del logging.
+*Ejemplo Oficial de `pkgcn_`:*
+```sql
+CREATE OR REPLACE PACKAGE BODY PKGCN_RESIDENTES
+AS
+    -- Exactamente un método para una única sentencia DML que involucra >= 2 tablas
+    PROCEDURE pr_inactivar_residentes_egresados (
+        p_id_estado_inactivo IN smy_residentes.id_estado_residente%TYPE
+    ) IS
+    BEGIN
+        -- Sentencia DML única que involucra SMY_RESIDENTES y SMY_EGRESOS
+        UPDATE smy_residentes r
+           SET r.id_estado_residente          = p_id_estado_inactivo,
+               r.fecha_ultima_modificacion    = CAST(SYSTIMESTAMP AT TIME ZONE '-05:00' AS DATE)
+         WHERE EXISTS (
+             SELECT 1
+               FROM smy_egresos e
+              WHERE e.id_residente = r.id
+                AND e.fecha_egreso <= CAST(SYSTIMESTAMP AT TIME ZONE '-05:00' AS DATE)
+         );
+        -- Cero COMMIT; el control transaccional lo maneja pkgln_
+    END pr_inactivar_residentes_egresados;
+
+END PKGCN_RESIDENTES;
+/
+```
 
 ---
 
-## 7. Paquetes de Lógica Funcional Pura (`pkgln_`)
+## 7. Paquetes de Lógica de Negocio (`pkgln_`)
 
-- **Propósito**: Contener algoritmos de dominio, formateo, utilidades matemáticas, cálculos de fechas y transformaciones reutilizables.
-- **Nomenclatura**: `pkgln_<utilidad>` (ej. `pkgln_fechas`, `pkgln_textos`, `pkgln_calculos`, `pkgln_agenda`).
-- **Regla Estricta**: No debe depender de tablas de negocio ni realizar DML funcional.
-- **Excepción Permitida**: Se permite la invocación a `uti_ge_excepciones_pkg.p_grabar_log(vro_error);` porque funciona bajo `PRAGMA AUTONOMOUS_TRANSACTION`. Jamás consultar o insertar en `SMY_ERRORES` de forma directa.
+- **Propósito**: **LLEVAR LA LÓGICA DE NEGOCIO**, reglas de dominio, validaciones, flujos de procesos y orquestación del caso de uso.
+- **Nomenclatura**: `pkgln_<dominio>` (ej. `pkgln_archivos`, `pkgln_auth`, `pkgln_consentimientos`, `pkgln_residentes`).
+- **Reglas Mandatorias para `pkgln_`**:
+  1. **Sin Sentencias DML Directas ni SELECT Directos sobre Tablas**: `pkgln_` no escribe sentencias directas `INSERT INTO`, `UPDATE`, `DELETE` ni `SELECT ... FROM tabla` en su código.
+  2. **Búsquedas por PK / ID**: Se realizan exclusivamente mediante el paquete DAO de la tabla (`pkgsmy_<tabla>_dao.f_traer(p_id)` o `pkgsmy_<tabla>_dao.f_existe(p_id, vro_registro)`).
+  3. **Búsquedas por otros criterios**: Se realizan exclusivamente mediante paquetes de consulta `pkgca_<tabla>` (ej. `pkgca_smy_usuarios.f_buscar_por_username_email`, `pkgca_residentes.p_consultar_censo`).
+  4. **Asignación de Secuencias Directa**: En PL/SQL los IDs autogenerados se asignan directamente:
+     ```sql
+     vro_auditoria.id := SEQ_SMY_AUDITORIA_ACCESOS.NEXTVAL;
+     ```
+     **PROHIBIDO** hacer `SELECT secuencia.NEXTVAL INTO ... FROM DUAL;`.
+  5. **Consulta y Modificación Delegada**: Toda modificación de datos se realiza a través de:
+     - Los **`_DAO`** para persistencia mono-tabla por PK (`p_insertar`, `p_actualizar`, `p_eliminar`).
+     - Los **`pkgca_`** para DML masivo sin PK sobre una entidad.
+     - Los **`pkgcn_`** para sentencias DML técnicas que involucran como mínimo dos tablas.
+  6. **Control Transaccional (AQUÍ VA EL COMMIT)**:
+     - `pkgln_` orquesta el caso de uso y ejecuta **`COMMIT;`** al completar satisfactoriamente el proceso.
+     - En caso de excepción, ejecuta inmediatamente **`ROLLBACK;`**, registra el error en `SMY_ERRORES` mediante `uti_ge_excepciones_pkg.p_grabar_log(vro_error);` y lanza el error con `RAISE_APPLICATION_ERROR(-20000, ...)`.
+
+*Ejemplo Oficial de Lógica de Negocio en `pkgln_`:*
+```sql
+CREATE OR REPLACE PACKAGE BODY PKGLN_USUARIOS
+AS
+    vro_error smy_errores%ROWTYPE;
+
+    PROCEDURE pr_actualizar_nombre_usuario (
+        p_id_usuario IN smy_usuarios.id%TYPE,
+        p_nombres    IN VARCHAR2
+    ) IS
+        vro_usuario smy_usuarios%ROWTYPE;
+    BEGIN
+        -- 1. Validaciones de negocio
+        IF p_nombres IS NULL OR TRIM(p_nombres) IS NULL THEN
+            RAISE_APPLICATION_ERROR(-20001, 'El nombre del usuario no puede estar vacío.');
+        END IF;
+
+        -- 2. Consultar y verificar mediante DAO
+        IF PKGSMY_USUARIOS_DAO.f_existe(p_id_usuario, vro_usuario) = TRUE THEN
+            vro_usuario.nombre_completo := TRIM(p_nombres);
+            vro_usuario.fecha_ultima_modificacion := CAST(SYSTIMESTAMP AT TIME ZONE '-05:00' AS DATE);
+            
+            -- 3. Modificación delegada al DAO
+            PKGSMY_USUARIOS_DAO.p_actualizar(vro_usuario);
+        ELSE
+            RAISE_APPLICATION_ERROR(-20002, 'El usuario indicado no existe en el sistema.');
+        END IF;
+
+        -- 4. EN ESTE VA EL COMMIT
+        COMMIT;
+
+    EXCEPTION
+        WHEN OTHERS THEN
+            ROLLBACK;
+            IF SQLCODE BETWEEN -20999 AND -20001 THEN
+                RAISE;
+            END IF;
+            vro_error.nombre_programa := 'PKGLN_USUARIOS';
+            vro_error.nombre_metodo   := 'PR_ACTUALIZAR_NOMBRE_USUARIO';
+            vro_error.parametros      := 'p_id_usuario: ' || p_id_usuario || ', p_nombres: ' || p_nombres;
+            uti_ge_excepciones_pkg.p_grabar_log(vro_error);
+            RAISE_APPLICATION_ERROR(-20000, 'Se presento un error comunicarse con soporte. Número error: ' || vro_error.id || ' - ' || SQLERRM);
+    END pr_actualizar_nombre_usuario;
+
+    -- Ejemplo oficial de proceso multi-entidad usando DAOs y COMMIT en pkgln_
+    PROCEDURE pr_registrar_acceso_exitoso (
+        p_id_usuario        IN smy_usuarios.id%TYPE,
+        p_direccion_ip      IN VARCHAR2,
+        p_dispositivo_info  IN VARCHAR2
+    ) IS
+        vro_usuario           smy_usuarios%ROWTYPE;
+        vro_auditoria_accesos smy_auditoria_accesos%ROWTYPE;
+    BEGIN
+        -- 1. Actualización de primera tabla vía DAO
+        IF PKGSMY_USUARIOS_DAO.f_existe(p_id_usuario, vro_usuario) = TRUE THEN
+            vro_usuario.ultimo_acceso := CAST(SYSTIMESTAMP AT TIME ZONE '-05:00' AS DATE);
+            PKGSMY_USUARIOS_DAO.p_actualizar(vro_usuario);
+        END IF;
+
+        -- 2. Inserción en segunda tabla vía DAO (Asignación directa de secuencia)
+        vro_auditoria_accesos.id              := SEQ_SMY_AUDITORIA_ACCESOS.NEXTVAL;
+        vro_auditoria_accesos.id_usuario      := p_id_usuario;
+        vro_auditoria_accesos.accion          := 'LOGIN_EXITOSO';
+        vro_auditoria_accesos.direccion_ip    := SUBSTR(p_direccion_ip, 1, 45);
+        vro_auditoria_accesos.detalles        := 'Dispositivo: ' || SUBSTR(p_dispositivo_info, 1, 200) || ' | Autenticación exitosa';
+        vro_auditoria_accesos.fecha_creacion  := CAST(SYSTIMESTAMP AT TIME ZONE '-05:00' AS DATE);
+        PKGSMY_AUDITORIA_ACCESOS_DAO.p_insertar(vro_auditoria_accesos);
+
+        -- 3. En pkgln_ va el COMMIT
+        COMMIT;
+    EXCEPTION
+        WHEN OTHERS THEN
+            ROLLBACK;
+            vro_error.nombre_programa     := 'PKGLN_USUARIOS';
+            vro_error.nombre_metodo       := 'PR_REGISTRAR_ACCESO_EXITOSO';
+            vro_error.parametros          := 'p_id_usuario: ' || p_id_usuario;
+            uti_ge_excepciones_pkg.p_grabar_log(vro_error);
+            RAISE_APPLICATION_ERROR(-20000, 'Se presento un error comunicarse con soporte. Número error: ' || vro_error.id || ' - ' || SQLERRM);
+    END pr_registrar_acceso_exitoso;
+
+END PKGLN_USUARIOS;
+/
+```
 
 ---
 
@@ -248,67 +366,38 @@ PROCEDURE pr_actualizar_estado_citas (
 
 ### 8.1 Errores de Negocio Conocidos
 - Deben dispararse explícitamente con códigos entre `-20001` y `-20999` y mensajes claros.
-- No deben confundirse con errores inesperados del sistema.
-
-```sql
-IF l_stock < p_cantidad THEN
-    RAISE_APPLICATION_ERROR(
-        -20001,
-        'No existe inventario suficiente para completar la operación solicitada.'
-    );
-END IF;
-```
+- Se propagan sin necesidad de log de soporte (son validaciones funcionales normales).
 
 ### 8.2 Errores Inesperados (`WHEN OTHERS`)
-En paquetes `pkgcn_` y `pkgln_`, toda excepción no anticipada debe capturarse obligatoriamente bajo este esquema:
+En paquetes `pkgln_`, toda excepción no anticipada debe capturarse obligatoriamente bajo este esquema:
 
 ```sql
-CREATE OR REPLACE PACKAGE BODY pkgcn_modulo
-AS
-    vro_error smy_errores%ROWTYPE;
+EXCEPTION
+    WHEN OTHERS THEN
+        -- 1. Rollback inmediato de la transacción
+        ROLLBACK;
 
-    PROCEDURE pr_operacion (
-        p_id_entidad IN NUMBER,
-        p_json_datos IN CLOB
-    )
-    IS
-    BEGIN
-        -- Operaciones de negocio...
+        -- 2. Re-lanzar errores de negocio conocidos si fueron disparados
+        IF SQLCODE BETWEEN -20999 AND -20001 THEN
+            RAISE;
+        END IF;
 
-        COMMIT;
-    EXCEPTION
-        WHEN OTHERS THEN
-            -- 1. Rollback inmediato de la transacción principal
-            ROLLBACK;
+        -- 3. Asignación exacta de metadatos de depuración
+        vro_error.nombre_programa := 'PKGLN_DOMINIO';
+        vro_error.nombre_metodo   := 'PR_METODO';
+        vro_error.parametros      := 'p_param1: ' || p_param1;
 
-            -- 2. Asignación exacta de metadatos de depuración
-            vro_error.nombre_programa := 'pkgcn_modulo';
-            vro_error.nombre_metodo   := 'pr_operacion';
+        -- 4. Persistencia autónoma del error (no afectada por el ROLLBACK)
+        uti_ge_excepciones_pkg.p_grabar_log(vro_error);
 
-            -- 3. Registro formateado y legible de parámetros
-            vro_error.parametros :=
-                   'p_id_entidad: ' || p_id_entidad
-                || CHR(10)
-                || 'p_json_datos: '
-                || CASE 
-                       WHEN DBMS_LOB.GETLENGTH(p_json_datos) > 3000 
-                       THEN SUBSTR(p_json_datos, 1, 3000) || '... [TRUNCADO]'
-                       ELSE p_json_datos
-                   END;
-
-            -- 4. Persistencia autónoma del error (no afectada por el ROLLBACK)
-            uti_ge_excepciones_pkg.p_grabar_log(vro_error);
-
-            -- 5. Propagación al consumidor con el ID generado para soporte
-            RAISE_APPLICATION_ERROR(
-                -20000,
-                'Se presento un error comunicarse con soporte. Número error: '
-                || vro_error.id
-                || ' - '
-                || SQLERRM
-            );
-    END pr_operacion;
-END pkgcn_modulo;
+        -- 5. Propagación al consumidor con el ID generado para soporte
+        RAISE_APPLICATION_ERROR(
+            -20000,
+            'Se presento un error comunicarse con soporte. Número error: '
+            || vro_error.id
+            || ' - '
+            || SQLERRM
+        );
 ```
 
 ### 8.3 Prohibiciones Estrictas de Manejo de Errores
@@ -323,55 +412,12 @@ END pkgcn_modulo;
 ## 9. Retorno Multi-Fila y Generación de JSON en Oracle
 
 ### 9.1 Consultas Multi-Fila: `SYS_REFCURSOR`
-Cualquier procedimiento o función de consulta multi-registro debe retornar un `SYS_REFCURSOR`:
-```sql
-FUNCTION fn_buscar_citas (
-    p_id_profesional IN NUMBER,
-    p_fecha          IN DATE
-) RETURN SYS_REFCURSOR
-IS
-    l_cursor SYS_REFCURSOR;
-BEGIN
-    OPEN l_cursor FOR
-        SELECT id_cita, id_paciente, fecha_hora, estado
-          FROM smy_citas
-         WHERE id_profesional = p_id_profesional
-           AND TRUNC(fecha_hora) = TRUNC(p_fecha);
-    RETURN l_cursor;
-END fn_buscar_citas;
-```
+Cualquier procedimiento o función de consulta multi-registro debe retornar un `SYS_REFCURSOR`.
 
-### 9.2 Generación Nativa de JSON (APIs / Frontends / APEX / Node)
-Cuando el consumidor requiera JSON, se debe generar **directamente en el motor Oracle** con funciones SQL/JSON nativas y cláusula `RETURNING CLOB`.
+### 9.2 Generación Nativa de JSON (APIs / Frontends / Node)
+Cuando el consumidor requiera JSON, se debe generar **directamente en el motor Oracle** con funciones SQL/JSON nativas (`JSON_OBJECT`, `JSON_ARRAYAGG`) y cláusula `RETURNING CLOB`.
 > [!WARNING]
-> Queda **terminantemente prohibida** la concatenación manual de cadenas para formar JSON (e.g. `'{ "id": ' || id || '}'`).
-
-```sql
--- Objeto individual
-SELECT JSON_OBJECT(
-           'id' VALUE id,
-           'nombre' VALUE nombre,
-           'estado' VALUE estado
-           RETURNING CLOB
-       )
-  INTO p_json_clob
-  FROM smy_usuarios
- WHERE id = p_id;
-
--- Colección de objetos (Array)
-SELECT JSON_ARRAYAGG(
-           JSON_OBJECT(
-               'id' VALUE u.id,
-               'nombre' VALUE u.nombre,
-               'correo' VALUE u.correo
-               RETURNING CLOB
-           )
-           RETURNING CLOB
-       )
-  INTO p_json_clob
-  FROM smy_usuarios u
- WHERE u.estado = 1;
-```
+> Queda **terminantemente prohibida** la concatenación manual de cadenas para formar JSON.
 
 ---
 
@@ -380,7 +426,7 @@ SELECT JSON_ARRAYAGG(
 | Ámbito | Funciones | Procedimientos |
 | :--- | :--- | :--- |
 | **Plantilla DAO oficial** | Prefijo `f_` (`f_traer`, `f_existe`, `f_json`) | Prefijo `p_` (`p_insertar`, `p_actualizar`, `p_eliminar`) |
-| **Nuevos pkgca_, pkgcn_, pkgln_** | Prefijo `fn_` (`fn_buscar_citas`, `fn_calcular`) | Prefijo `pr_` (`pr_confirmar_orden`, `pr_actualizar_estado`) |
+| **Nuevos pkgca_, pkgcn_, pkgln_** | Prefijo `fn_` (`fn_buscar_residentes`, `fn_calcular`) | Prefijo `pr_` (`pr_confirmar_orden`, `pr_firmar_consentimiento`) |
 
 ---
 
@@ -391,9 +437,10 @@ Antes de entregar cualquier código, el agente debe auto-verificar:
 - [ ] **Nombre DAO**: ¿Cumple con la sintaxis exacta `PKGSMY_<TABLA>_DAO`?
 - [ ] **Plantilla DAO**: ¿Mantiene los nombres y firmas de los 18 métodos oficiales sin inventar variaciones?
 - [ ] **Tipado**: ¿Se utilizan `%ROWTYPE` y `%TYPE` en lugar de tipos genéricos?
-- [ ] **Pureza Funcional**: ¿`pkgln_` está completamente libre de dependencias de tablas de negocio y DML?
-- [ ] **Transaccionalidad**: ¿`pkgcn_` maneja atomicidad (`COMMIT` al final, `ROLLBACK` previo al log)?
-- [ ] **Sin COMMITs espurios**: ¿Los DAOs y subprogramas de bajo nivel se abstienen de hacer `COMMIT`?
+- [ ] **pkgcn_**: ¿Contiene únicamente sentencias DML de proceso que involucran más de una tabla (sin lógica de negocio ni commit)?
+- [ ] **pkgln_**: ¿Lleva la lógica de negocio y está **completamente libre de sentencias DML directas** (usando `_DAO`, `pkgca_` y `pkgcn_`)?
+- [ ] **Transaccionalidad en pkgln_**: ¿`pkgln_` maneja atomicidad (`COMMIT;` al éxito, `ROLLBACK;` previo al log)?
+- [ ] **Sin COMMITs espurios**: ¿Los DAOs, `pkgca_` y `pkgcn_` se abstienen de hacer `COMMIT;`?
 - [ ] **Trazabilidad de Errores**: ¿Se asignaron `nombre_programa`, `nombre_metodo` y `parametros` en `vro_error`?
 - [ ] **Log Autónomo**: ¿Se usó `uti_ge_excepciones_pkg.p_grabar_log(vro_error)`?
 - [ ] **Error al Cliente**: ¿Se utilizó `RAISE_APPLICATION_ERROR(-20000, '... Número error: ' || vro_error.id || ' - ' || SQLERRM);`?
@@ -405,8 +452,8 @@ Antes de entregar cualquier código, el agente debe auto-verificar:
 ## 12. Formato Estándar de Respuesta al Usuario
 
 Al responder solicitudes de desarrollo PL/SQL, estructurar la salida en este orden:
-1. **Clasificación arquitectónica:** (e.g. `pkgcn_citas`)
-2. **Justificación breve:** Explicación técnica de por qué pertenece a esa categoría.
+1. **Clasificación arquitectónica:** (e.g. `pkgln_archivos`, `pkgcn_consentimientos`)
+2. **Justificación breve:** Explicación técnica de por qué pertenece a esa categoría según el estándar.
 3. **Package Specification:** Código `.pks`
 4. **Package Body:** Código `.pkb`
 5. **Consideraciones técnicas y transaccionales**

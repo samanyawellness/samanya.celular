@@ -1,8 +1,9 @@
 -- =============================================================================
 -- ESPECIFICACIÓN Y CUERPO: PKGLN_ARCHIVOS
--- FAMILIA: pkgln_ (Lógica funcional pura, algoritmos, cálculos y formateo)
+-- FAMILIA: pkgln_ (Lógica de Negocio, validaciones y orquestación del caso de uso)
 -- ESTÁNDAR ARQUITECTÓNICO: oracle-plsql-architecture
--- REGLA ESTRICTA: Cero dependencias de tablas de negocio y cero DML.
+-- REGLA ESTRICTA: Sin sentencias DML directas. Las consultas y modificaciones se
+--                 realizan vía PKGSMY_ARCHIVOS_DAO y PKGCN. En este va el COMMIT.
 -- =============================================================================
 
 CREATE OR REPLACE PACKAGE PKGLN_ARCHIVOS
@@ -10,63 +11,38 @@ AS
     /*
     || =========================================================================
     || Paquete: PKGLN_ARCHIVOS
-    || Propósito: Lógica pura y utilidades para manipulación y estructuración de 
-    ||            archivos y rutas de almacenamiento (Google Drive y File Server).
+    || Propósito: Lógica de negocio integral para la gestión y administración de
+    ||            archivos y documentos del sistema SAMANYA (Google Drive / Storage).
+    || Estándar: oracle-plsql-architecture (Familia pkgln_)
     || =========================================================================
     */
 
-    /**
-     * Genera el nombre del archivo almacenado a partir del hash SHA-256
-     * calculado sobre el ID numérico de la tabla SMY_ARCHIVOS + extensión.
-     * Ejemplo: id=142, ext='.pdf' -> 'c51ce410c124a10e...pdf'
-     */
+    -- -------------------------------------------------------------------------
+    -- 1. Utilidades de cálculo, formateo y hashing
+    -- -------------------------------------------------------------------------
     FUNCTION fn_generar_nombre_almacenado (
         p_id        IN NUMBER,
         p_extension IN VARCHAR2
     ) RETURN VARCHAR2;
 
-    /**
-     * Sanitiza una cadena para su uso seguro en rutas de Google Drive y filesystems.
-     * Convierte tildes a vocales simples, pasa a mayúsculas y reemplaza espacios
-     * o caracteres no alfanuméricos por guiones.
-     */
     FUNCTION fn_sanitizar_cadena (
         p_cadena IN VARCHAR2
     ) RETURN VARCHAR2;
 
-    /**
-     * Normaliza y extrae la extensión asegurando que empiece con punto y en minúsculas.
-     * Ejemplo: 'pdf' -> '.pdf', 'documento.PDF' -> '.pdf'
-     */
     FUNCTION fn_normalizar_extension (
         p_nombre_o_ext IN VARCHAR2
     ) RETURN VARCHAR2;
 
-    /**
-     * Construye el nombre de directorio para la Sede / Centro Geriátrico.
-     * Estructura: {id_sede}_{Nombre de Sede Sanitizado}
-     * Ejemplo: 1, 'SEDE CENTRAL' -> '1_SEDE-CENTRAL'
-     */
     FUNCTION fn_construir_ruta_sede (
         p_id_sede     IN NUMBER,
         p_nombre_sede IN VARCHAR2
     ) RETURN VARCHAR2;
 
-    /**
-     * Construye el nombre de directorio para el Residente.
-     * Estructura: {id_residente}_{identificacion}
-     * Ejemplo: 1, '19234567' -> '1_19234567'
-     */
     FUNCTION fn_construir_ruta_residente (
         p_id_residente   IN NUMBER,
         p_identificacion IN VARCHAR2
     ) RETURN VARCHAR2;
 
-    /**
-     * Construye la ruta relativa completa jerárquica:
-     * {id_sede}_{nombre_sede}/{id_residente}_{identificacion}/Documentos
-     * Ejemplo: '1_SEDE-CENTRAL/1_19234567/Documentos'
-     */
     FUNCTION fn_construir_ruta_documentos (
         p_id_sede        IN NUMBER,
         p_nombre_sede    IN VARCHAR2,
@@ -74,20 +50,108 @@ AS
         p_identificacion IN VARCHAR2
     ) RETURN VARCHAR2;
 
-    /**
-     * Determina el tipo MIME estándar a partir de la extensión del archivo.
-     */
     FUNCTION fn_resolver_mime_type (
         p_extension IN VARCHAR2
     ) RETURN VARCHAR2;
 
-    /**
-     * Valida si la extensión pertenece a la lista de extensiones permitidas.
-     */
     FUNCTION fn_validar_extension (
         p_extension         IN VARCHAR2,
         p_lista_permitidas  IN VARCHAR2 DEFAULT 'pdf,jpg,jpeg,png,docx,xlsx,txt'
     ) RETURN BOOLEAN;
+
+    -- -------------------------------------------------------------------------
+    -- 2. Lógica de negocio y orquestación transaccional (con COMMIT)
+    -- -------------------------------------------------------------------------
+    PROCEDURE pr_preparar_carga_archivo (
+        p_id_centro                  IN  smy_centros.id%TYPE,
+        p_id_residente               IN  smy_residentes.id%TYPE,
+        p_nombre_original            IN  VARCHAR2,
+        p_id_clase_archivo           IN  smy_clases_archivos.id%TYPE,
+        p_id_reserva                 OUT smy_archivos.id%TYPE,
+        p_nombre_almacenado          OUT VARCHAR2,
+        p_nombre_carpeta_sede        OUT VARCHAR2,
+        p_nombre_carpeta_residente   OUT VARCHAR2,
+        p_ruta_relativa              OUT VARCHAR2,
+        p_extension                  OUT VARCHAR2,
+        p_tipo_mime                  OUT VARCHAR2
+    );
+
+    PROCEDURE pr_registrar_archivo (
+        p_id                         IN  smy_archivos.id%TYPE,
+        p_nombre_archivo             IN  smy_archivos.nombre_archivo%TYPE,
+        p_nombre_archivo_almacenado  IN  smy_archivos.nombre_archivo_almacenado%TYPE,
+        p_hash_archivo               IN  smy_archivos.hash_archivo%TYPE,
+        p_ruta_relativa              IN  smy_archivos.ruta_relativa%TYPE,
+        p_ruta_completa_almacenamiento IN smy_archivos.ruta_completa_almacenamiento%TYPE,
+        p_extension                  IN  smy_archivos.extension%TYPE,
+        p_tipo_mime                  IN  smy_archivos.tipo_mime%TYPE,
+        p_tamano_bytes               IN  smy_archivos.tamano_bytes%TYPE,
+        p_id_clase_archivo           IN  smy_archivos.id_clase_archivo%TYPE,
+        p_id_centro                  IN  smy_archivos.id_centro%TYPE,
+        p_id_residente               IN  smy_archivos.id_residente%TYPE,
+        p_tabla_origen               IN  smy_archivos.tabla_origen%TYPE DEFAULT NULL,
+        p_id_registro_origen         IN  smy_archivos.id_registro_origen%TYPE DEFAULT NULL,
+        p_metadatos_json             IN  CLOB DEFAULT NULL,
+        p_id_usuario_creacion        IN  smy_usuarios.id%TYPE,
+        p_mensaje_resultado          OUT VARCHAR2
+    );
+
+    PROCEDURE pr_borrar_archivo (
+        p_id_archivo        IN  smy_archivos.id%TYPE,
+        p_id_usuario        IN  smy_usuarios.id%TYPE,
+        p_motivo            IN  VARCHAR2 DEFAULT NULL,
+        p_mensaje_resultado OUT VARCHAR2
+    );
+
+    PROCEDURE pr_renombrar_archivo (
+        p_id_archivo        IN  smy_archivos.id%TYPE,
+        p_nuevo_nombre      IN  smy_archivos.nombre_archivo%TYPE,
+        p_id_usuario        IN  smy_usuarios.id%TYPE,
+        p_mensaje_resultado OUT VARCHAR2
+    );
+
+    PROCEDURE pr_copiar_archivo (
+        p_id_archivo_origen  IN  smy_archivos.id%TYPE,
+        p_nuevo_id_residente IN  smy_residentes.id%TYPE DEFAULT NULL,
+        p_nuevo_id_centro    IN  smy_centros.id%TYPE DEFAULT NULL,
+        p_nuevo_nombre       IN  smy_archivos.nombre_archivo%TYPE DEFAULT NULL,
+        p_id_usuario         IN  smy_usuarios.id%TYPE,
+        p_id_nuevo_archivo   OUT smy_archivos.id%TYPE,
+        p_mensaje_resultado  OUT VARCHAR2
+    );
+
+    PROCEDURE pr_restaurar_archivo (
+        p_id_archivo        IN  smy_archivos.id%TYPE,
+        p_id_usuario        IN  smy_usuarios.id%TYPE,
+        p_mensaje_resultado OUT VARCHAR2
+    );
+
+    -- -------------------------------------------------------------------------
+    -- 3. Consultas y representación de datos
+    -- -------------------------------------------------------------------------
+    FUNCTION fn_consultar_archivos_residente (
+        p_id_residente  IN smy_residentes.id%TYPE,
+        p_solo_visibles IN NUMBER DEFAULT 1
+    ) RETURN SYS_REFCURSOR;
+
+    FUNCTION fn_obtener_archivo_json (
+        p_id_archivo IN smy_archivos.id%TYPE
+    ) RETURN CLOB;
+
+    -- -------------------------------------------------------------------------
+    -- 4. Procesos multi-entidad de documentos clínicos (vía DAOs con COMMIT)
+    -- -------------------------------------------------------------------------
+    PROCEDURE pr_vincular_archivo_doc_clinico (
+        pro_archivo            IN  smy_archivos%ROWTYPE,
+        p_id_documento_clinico IN  smy_documentos_clinicos.id%TYPE,
+        p_id_usuario           IN  smy_usuarios.id%TYPE
+    );
+
+    PROCEDURE pr_desvincular_archivo_doc_clinico (
+        p_id_archivo           IN  smy_archivos.id%TYPE,
+        p_id_documento_clinico IN  smy_documentos_clinicos.id%TYPE,
+        p_id_usuario           IN  smy_usuarios.id%TYPE
+    );
 
 END PKGLN_ARCHIVOS;
 /
@@ -96,24 +160,26 @@ CREATE OR REPLACE PACKAGE BODY PKGLN_ARCHIVOS
 AS
     vro_error smy_errores%ROWTYPE;
 
-    -- 1. Generar nombre de archivo almacenado con hash SHA-256 del ID + extensión
+    -- =========================================================================
+    -- 1. Utilidades de cálculo, formateo y hashing
+    -- =========================================================================
+
     FUNCTION fn_generar_nombre_almacenado (
         p_id        IN NUMBER,
         p_extension IN VARCHAR2
     ) RETURN VARCHAR2
     IS
         v_extension_norm VARCHAR2(30);
-        v_hash_id        VARCHAR2(128);
+        v_hash_hex       VARCHAR2(64);
     BEGIN
         IF p_id IS NULL THEN
             RAISE_APPLICATION_ERROR(-20001, 'El ID de archivo no puede ser nulo para generar el nombre almacenado.');
         END IF;
 
         v_extension_norm := fn_normalizar_extension(p_extension);
-        -- Cálculo del hash SHA-256 estándar nativo de Oracle sobre el ID numérico convertido a texto
-        v_hash_id := LOWER(STANDARD_HASH(TO_CHAR(p_id), 'SHA256'));
+        v_hash_hex := LOWER(STANDARD_HASH(TO_CHAR(p_id), 'SHA256'));
 
-        RETURN v_hash_id || v_extension_norm;
+        RETURN v_hash_hex || v_extension_norm;
     EXCEPTION
         WHEN OTHERS THEN
             IF SQLCODE BETWEEN -20999 AND -20001 THEN
@@ -122,79 +188,60 @@ AS
             vro_error.nombre_programa     := 'PKGLN_ARCHIVOS';
             vro_error.nombre_metodo       := 'FN_GENERAR_NOMBRE_ALMACENADO';
             vro_error.parametros          := 'p_id: ' || p_id || ', p_extension: ' || p_extension;
+            vro_error.id_usuario_creacion := NULL;
             uti_ge_excepciones_pkg.p_grabar_log(vro_error);
             RAISE_APPLICATION_ERROR(-20000, 'Se presento un error comunicarse con soporte. Número error: ' || vro_error.id || ' - ' || SQLERRM);
     END fn_generar_nombre_almacenado;
 
-    -- 2. Sanitizar cadena para nombres de directorio y archivos
     FUNCTION fn_sanitizar_cadena (
         p_cadena IN VARCHAR2
     ) RETURN VARCHAR2
     IS
-        v_limpio VARCHAR2(500);
+        v_cadena VARCHAR2(500);
     BEGIN
         IF p_cadena IS NULL THEN
             RETURN 'DESCONOCIDO';
         END IF;
 
-        -- Reemplazar tildes y caracteres acentuados
-        v_limpio := TRANSLATE(
-            UPPER(TRIM(p_cadena)),
-            'ÁÉÍÓÚÀÈÌÒÙÄËÏÖÜÂÊÎÔÛÑÇ',
-            'AEIOUAEIOUAEIOUAEIOUNC'
-        );
+        v_cadena := UPPER(TRIM(p_cadena));
+        v_cadena := REPLACE(v_cadena, 'Á', 'A');
+        v_cadena := REPLACE(v_cadena, 'É', 'E');
+        v_cadena := REPLACE(v_cadena, 'Í', 'I');
+        v_cadena := REPLACE(v_cadena, 'Ó', 'O');
+        v_cadena := REPLACE(v_cadena, 'Ú', 'U');
+        v_cadena := REPLACE(v_cadena, 'Ñ', 'N');
+        v_cadena := REPLACE(v_cadena, 'Ü', 'U');
+        v_cadena := REGEXP_REPLACE(v_cadena, '[^A-Z0-9_\-]', '_');
+        v_cadena := REGEXP_REPLACE(v_cadena, '_+', '_');
+        v_cadena := TRIM(BOTH '_' FROM v_cadena);
 
-        -- Reemplazar caracteres no alfanuméricos por guion
-        v_limpio := REGEXP_REPLACE(v_limpio, '[^A-Z0-9_-]+', '-');
-        -- Eliminar guiones duplicados consecutivos
-        v_limpio := REGEXP_REPLACE(v_limpio, '-+', '-');
-        -- Eliminar guiones al inicio o al final
-        v_limpio := REGEXP_REPLACE(v_limpio, '^-|-$', '');
-
-        IF v_limpio IS NULL OR LENGTH(v_limpio) = 0 THEN
-            v_limpio := 'GENERAL';
+        IF v_cadena IS NULL OR LENGTH(v_cadena) = 0 THEN
+            v_cadena := 'GENERAL';
         END IF;
 
-        RETURN v_limpio;
-    EXCEPTION
-        WHEN OTHERS THEN
-            vro_error.nombre_programa     := 'PKGLN_ARCHIVOS';
-            vro_error.nombre_metodo       := 'FN_SANITIZAR_CADENA';
-            vro_error.parametros          := 'p_cadena: ' || SUBSTR(p_cadena, 1, 200);
-            uti_ge_excepciones_pkg.p_grabar_log(vro_error);
-            RAISE_APPLICATION_ERROR(-20000, 'Se presento un error comunicarse con soporte. Número error: ' || vro_error.id || ' - ' || SQLERRM);
+        RETURN v_cadena;
     END fn_sanitizar_cadena;
 
-    -- 3. Normalizar extensión (.ext)
     FUNCTION fn_normalizar_extension (
         p_nombre_o_ext IN VARCHAR2
     ) RETURN VARCHAR2
     IS
-        v_pos_punto NUMBER;
-        v_ext       VARCHAR2(30);
+        v_ext VARCHAR2(30);
     BEGIN
         IF p_nombre_o_ext IS NULL THEN
-            RETURN '.bin';
+            RETURN '';
         END IF;
 
-        v_pos_punto := INSTR(p_nombre_o_ext, '.', -1);
-        IF v_pos_punto > 0 THEN
-            v_ext := SUBSTR(p_nombre_o_ext, v_pos_punto);
+        v_ext := LOWER(TRIM(p_nombre_o_ext));
+        IF INSTR(v_ext, '.') > 0 THEN
+            v_ext := SUBSTR(v_ext, INSTR(v_ext, '.', -1));
         ELSE
-            v_ext := '.' || p_nombre_o_ext;
+            v_ext := '.' || v_ext;
         END IF;
 
-        RETURN LOWER(TRIM(v_ext));
-    EXCEPTION
-        WHEN OTHERS THEN
-            vro_error.nombre_programa     := 'PKGLN_ARCHIVOS';
-            vro_error.nombre_metodo       := 'FN_NORMALIZAR_EXTENSION';
-            vro_error.parametros          := 'p_nombre_o_ext: ' || p_nombre_o_ext;
-            uti_ge_excepciones_pkg.p_grabar_log(vro_error);
-            RAISE_APPLICATION_ERROR(-20000, 'Se presento un error comunicarse con soporte. Número error: ' || vro_error.id || ' - ' || SQLERRM);
+        RETURN v_ext;
     END fn_normalizar_extension;
 
-    -- 4. Construir ruta de sede: {id_sede}_{Nombre Sede Sanitizado}
     FUNCTION fn_construir_ruta_sede (
         p_id_sede     IN NUMBER,
         p_nombre_sede IN VARCHAR2
@@ -204,7 +251,6 @@ AS
         RETURN p_id_sede || '_' || fn_sanitizar_cadena(p_nombre_sede);
     END fn_construir_ruta_sede;
 
-    -- 5. Construir ruta de residente: {id_residente}_{identificacion}
     FUNCTION fn_construir_ruta_residente (
         p_id_residente   IN NUMBER,
         p_identificacion IN VARCHAR2
@@ -214,7 +260,6 @@ AS
         RETURN p_id_residente || '_' || fn_sanitizar_cadena(p_identificacion);
     END fn_construir_ruta_residente;
 
-    -- 6. Construir ruta completa jerárquica
     FUNCTION fn_construir_ruta_documentos (
         p_id_sede        IN NUMBER,
         p_nombre_sede    IN VARCHAR2,
@@ -229,7 +274,6 @@ AS
                || '/Documentos';
     END fn_construir_ruta_documentos;
 
-    -- 7. Resolver MIME Type
     FUNCTION fn_resolver_mime_type (
         p_extension IN VARCHAR2
     ) RETURN VARCHAR2
@@ -256,7 +300,6 @@ AS
         END CASE;
     END fn_resolver_mime_type;
 
-    -- 8. Validar extensión permitida
     FUNCTION fn_validar_extension (
         p_extension         IN VARCHAR2,
         p_lista_permitidas  IN VARCHAR2 DEFAULT 'pdf,jpg,jpeg,png,docx,xlsx,txt'
@@ -274,6 +317,457 @@ AS
             RETURN FALSE;
         END IF;
     END fn_validar_extension;
+
+    -- =========================================================================
+    -- 2. Lógica de negocio y orquestación transaccional (con COMMIT)
+    -- =========================================================================
+
+    PROCEDURE pr_preparar_carga_archivo (
+        p_id_centro                  IN  smy_centros.id%TYPE,
+        p_id_residente               IN  smy_residentes.id%TYPE,
+        p_nombre_original            IN  VARCHAR2,
+        p_id_clase_archivo           IN  smy_clases_archivos.id%TYPE,
+        p_id_reserva                 OUT smy_archivos.id%TYPE,
+        p_nombre_almacenado          OUT VARCHAR2,
+        p_nombre_carpeta_sede        OUT VARCHAR2,
+        p_nombre_carpeta_residente   OUT VARCHAR2,
+        p_ruta_relativa              OUT VARCHAR2,
+        p_extension                  OUT VARCHAR2,
+        p_tipo_mime                  OUT VARCHAR2
+    )
+    IS
+        v_extension_norm  VARCHAR2(30);
+        vro_residente     smy_residentes%ROWTYPE;
+        vro_centro        smy_centros%ROWTYPE;
+        vro_clase         smy_clases_archivos%ROWTYPE;
+        vn_id_centro_ef   smy_centros.id%TYPE;
+    BEGIN
+        IF p_nombre_original IS NULL OR TRIM(p_nombre_original) IS NULL THEN
+            RAISE_APPLICATION_ERROR(-20001, 'El nombre del archivo original es obligatorio.');
+        END IF;
+
+        IF p_id_residente IS NULL THEN
+            RAISE_APPLICATION_ERROR(-20002, 'El identificador del residente es obligatorio para construir la jerarquía.');
+        END IF;
+
+        -- 1. Validar existencia del residente vía DAO
+        vro_residente := PKGSMY_RESIDENTES_DAO.f_traer(p_id_residente);
+        IF vro_residente.id IS NULL THEN
+            RAISE_APPLICATION_ERROR(-20003, 'El residente con ID ' || p_id_residente || ' no existe en el sistema.');
+        END IF;
+
+        vn_id_centro_ef := NVL(p_id_centro, vro_residente.id_centro);
+
+        -- 2. Validar sede / centro vía DAO
+        vro_centro := PKGSMY_CENTROS_DAO.f_traer(vn_id_centro_ef);
+        IF vro_centro.id IS NULL THEN
+            p_nombre_carpeta_sede := fn_construir_ruta_sede(vn_id_centro_ef, 'SEDE-PRINCIPAL');
+        ELSE
+            p_nombre_carpeta_sede := fn_construir_ruta_sede(vro_centro.id, vro_centro.nombre);
+        END IF;
+
+        -- 3. Carpeta del residente
+        p_nombre_carpeta_residente := fn_construir_ruta_residente(vro_residente.id, vro_residente.numero_identificacion);
+
+        -- 4. Validar clase de archivo si fue provista
+        IF p_id_clase_archivo IS NOT NULL THEN
+            vro_clase := PKGSMY_CLASES_ARCHIVOS_DAO.f_traer(p_id_clase_archivo);
+            IF vro_clase.id IS NULL THEN
+                RAISE_APPLICATION_ERROR(-20004, 'La clase de archivo especificada no existe.');
+            END IF;
+        END IF;
+
+        -- 5. Normalizar extensión y tipo MIME
+        v_extension_norm := fn_normalizar_extension(p_nombre_original);
+        p_extension      := v_extension_norm;
+        p_tipo_mime      := fn_resolver_mime_type(v_extension_norm);
+
+        -- 6. Reservar el próximo ID de la secuencia SMY_ARCHIVOS (asignación directa)
+        p_id_reserva := SEQ_SMY_ARCHIVOS.NEXTVAL;
+
+        -- 7. Generar nombre de archivo almacenado con el hash SHA-256 del ID reservado
+        p_nombre_almacenado := fn_generar_nombre_almacenado(p_id_reserva, v_extension_norm);
+
+        -- 8. Ruta relativa estándar
+        p_ruta_relativa := p_nombre_carpeta_sede || '/' || p_nombre_carpeta_residente || '/Documentos';
+
+    EXCEPTION
+        WHEN OTHERS THEN
+            IF SQLCODE BETWEEN -20999 AND -20001 THEN
+                RAISE;
+            END IF;
+            vro_error.nombre_programa     := 'PKGLN_ARCHIVOS';
+            vro_error.nombre_metodo       := 'PR_PREPARAR_CARGA_ARCHIVO';
+            vro_error.parametros          := 'p_id_residente: ' || p_id_residente || ', p_nombre_original: ' || p_nombre_original;
+            vro_error.id_usuario_creacion := NULL;
+            uti_ge_excepciones_pkg.p_grabar_log(vro_error);
+            RAISE_APPLICATION_ERROR(-20000, 'Se presento un error comunicarse con soporte. Número error: ' || vro_error.id || ' - ' || SQLERRM);
+    END pr_preparar_carga_archivo;
+
+    PROCEDURE pr_registrar_archivo (
+        p_id                         IN  smy_archivos.id%TYPE,
+        p_nombre_archivo             IN  smy_archivos.nombre_archivo%TYPE,
+        p_nombre_archivo_almacenado  IN  smy_archivos.nombre_archivo_almacenado%TYPE,
+        p_hash_archivo               IN  smy_archivos.hash_archivo%TYPE,
+        p_ruta_relativa              IN  smy_archivos.ruta_relativa%TYPE,
+        p_ruta_completa_almacenamiento IN smy_archivos.ruta_completa_almacenamiento%TYPE,
+        p_extension                  IN  smy_archivos.extension%TYPE,
+        p_tipo_mime                  IN  smy_archivos.tipo_mime%TYPE,
+        p_tamano_bytes               IN  smy_archivos.tamano_bytes%TYPE,
+        p_id_clase_archivo           IN  smy_archivos.id_clase_archivo%TYPE,
+        p_id_centro                  IN  smy_archivos.id_centro%TYPE,
+        p_id_residente               IN  smy_archivos.id_residente%TYPE,
+        p_tabla_origen               IN  smy_archivos.tabla_origen%TYPE DEFAULT NULL,
+        p_id_registro_origen         IN  smy_archivos.id_registro_origen%TYPE DEFAULT NULL,
+        p_metadatos_json             IN  CLOB DEFAULT NULL,
+        p_id_usuario_creacion        IN  smy_usuarios.id%TYPE,
+        p_mensaje_resultado          OUT VARCHAR2
+    )
+    IS
+        vro_archivo smy_archivos%ROWTYPE;
+    BEGIN
+        -- 1. Validaciones obligatorias de negocio
+        IF p_nombre_archivo IS NULL THEN
+            RAISE_APPLICATION_ERROR(-20001, 'El nombre lógico del archivo no puede ser nulo.');
+        END IF;
+
+        IF p_nombre_archivo_almacenado IS NULL THEN
+            RAISE_APPLICATION_ERROR(-20002, 'El nombre almacenado (hash) no puede ser nulo.');
+        END IF;
+
+        IF p_ruta_completa_almacenamiento IS NULL THEN
+            RAISE_APPLICATION_ERROR(-20003, 'La ruta de almacenamiento en Google Drive es obligatoria.');
+        END IF;
+
+        -- 2. Asignar registro (asignación directa de secuencia)
+        IF p_id IS NOT NULL THEN
+            vro_archivo.id := p_id;
+        ELSE
+            vro_archivo.id := SEQ_SMY_ARCHIVOS.NEXTVAL;
+        END IF;
+
+        vro_archivo.nombre_archivo               := TRIM(p_nombre_archivo);
+        vro_archivo.nombre_archivo_almacenado    := TRIM(p_nombre_archivo_almacenado);
+        vro_archivo.hash_archivo                 := p_hash_archivo;
+        vro_archivo.ruta_relativa                := p_ruta_relativa;
+        vro_archivo.ruta_completa_almacenamiento := p_ruta_completa_almacenamiento;
+        vro_archivo.extension                    := fn_normalizar_extension(NVL(p_extension, p_nombre_archivo));
+        vro_archivo.tipo_mime                    := NVL(p_tipo_mime, fn_resolver_mime_type(vro_archivo.extension));
+        vro_archivo.tamano_bytes                 := NVL(p_tamano_bytes, 0);
+        vro_archivo.id_clase_archivo             := p_id_clase_archivo;
+        vro_archivo.id_centro                    := p_id_centro;
+        vro_archivo.id_residente                 := p_id_residente;
+        vro_archivo.id_estado_archivo            := 1; -- 1 = Activo / Visible
+        vro_archivo.tabla_origen                 := p_tabla_origen;
+        vro_archivo.id_registro_origen           := p_id_registro_origen;
+        vro_archivo.metadatos_json               := p_metadatos_json;
+        vro_archivo.fecha_creacion               := CAST(SYSTIMESTAMP AT TIME ZONE '-05:00' AS DATE);
+        vro_archivo.fecha_ultima_modificacion    := CAST(SYSTIMESTAMP AT TIME ZONE '-05:00' AS DATE);
+        vro_archivo.id_usuario_creacion          := p_id_usuario_creacion;
+        vro_archivo.id_usuario_ultima_modificacion := p_id_usuario_creacion;
+
+        -- 3. Inserción delegada al DAO (Cero DML directo en pkgln_)
+        PKGSMY_ARCHIVOS_DAO.p_insertar(vro_archivo);
+
+        -- 4. EN ESTE VA EL COMMIT
+        COMMIT;
+
+        p_mensaje_resultado := 'Archivo registrado exitosamente con ID ' || vro_archivo.id;
+    EXCEPTION
+        WHEN OTHERS THEN
+            ROLLBACK;
+            IF SQLCODE BETWEEN -20999 AND -20001 THEN
+                RAISE;
+            END IF;
+            vro_error.nombre_programa     := 'PKGLN_ARCHIVOS';
+            vro_error.nombre_metodo       := 'PR_REGISTRAR_ARCHIVO';
+            vro_error.parametros          := 'p_id: ' || p_id || ', p_nombre_archivo: ' || p_nombre_archivo;
+            vro_error.id_usuario_creacion := p_id_usuario_creacion;
+            uti_ge_excepciones_pkg.p_grabar_log(vro_error);
+            RAISE_APPLICATION_ERROR(-20000, 'Se presento un error comunicarse con soporte. Número error: ' || vro_error.id || ' - ' || SQLERRM);
+    END pr_registrar_archivo;
+
+    PROCEDURE pr_borrar_archivo (
+        p_id_archivo        IN  smy_archivos.id%TYPE,
+        p_id_usuario        IN  smy_usuarios.id%TYPE,
+        p_motivo            IN  VARCHAR2 DEFAULT NULL,
+        p_mensaje_resultado OUT VARCHAR2
+    )
+    IS
+        vro_archivo smy_archivos%ROWTYPE;
+    BEGIN
+        vro_archivo := PKGSMY_ARCHIVOS_DAO.f_traer(p_id_archivo);
+        IF vro_archivo.id IS NULL THEN
+            RAISE_APPLICATION_ERROR(-20001, 'El archivo con ID ' || p_id_archivo || ' no existe en el sistema.');
+        END IF;
+
+        IF vro_archivo.id_estado_archivo = 2 THEN
+            p_mensaje_resultado := 'El archivo ya se encontraba marcado como no visible / eliminado.';
+            RETURN;
+        END IF;
+
+        -- Actualizar a estado 2 (Eliminado / Papelera / No visible)
+        vro_archivo.id_estado_archivo            := 2;
+        vro_archivo.fecha_eliminacion            := CAST(SYSTIMESTAMP AT TIME ZONE '-05:00' AS DATE);
+        vro_archivo.id_usuario_eliminacion       := p_id_usuario;
+        vro_archivo.fecha_ultima_modificacion    := CAST(SYSTIMESTAMP AT TIME ZONE '-05:00' AS DATE);
+        vro_archivo.id_usuario_ultima_modificacion := p_id_usuario;
+
+        -- Actualización delegada al DAO
+        PKGSMY_ARCHIVOS_DAO.p_actualizar(vro_archivo);
+
+        -- EN ESTE VA EL COMMIT
+        COMMIT;
+
+        p_mensaje_resultado := 'Archivo ID ' || p_id_archivo || ' marcado como no visible exitosamente.';
+    EXCEPTION
+        WHEN OTHERS THEN
+            ROLLBACK;
+            IF SQLCODE BETWEEN -20999 AND -20001 THEN
+                RAISE;
+            END IF;
+            vro_error.nombre_programa     := 'PKGLN_ARCHIVOS';
+            vro_error.nombre_metodo       := 'PR_BORRAR_ARCHIVO';
+            vro_error.parametros          := 'p_id_archivo: ' || p_id_archivo || ', p_id_usuario: ' || p_id_usuario || ', p_motivo: ' || p_motivo;
+            vro_error.id_usuario_creacion := p_id_usuario;
+            uti_ge_excepciones_pkg.p_grabar_log(vro_error);
+            RAISE_APPLICATION_ERROR(-20000, 'Se presento un error comunicarse con soporte. Número error: ' || vro_error.id || ' - ' || SQLERRM);
+    END pr_borrar_archivo;
+
+    PROCEDURE pr_renombrar_archivo (
+        p_id_archivo        IN  smy_archivos.id%TYPE,
+        p_nuevo_nombre      IN  smy_archivos.nombre_archivo%TYPE,
+        p_id_usuario        IN  smy_usuarios.id%TYPE,
+        p_mensaje_resultado OUT VARCHAR2
+    )
+    IS
+        vro_archivo smy_archivos%ROWTYPE;
+    BEGIN
+        IF p_nuevo_nombre IS NULL OR TRIM(p_nuevo_nombre) IS NULL THEN
+            RAISE_APPLICATION_ERROR(-20001, 'El nuevo nombre del archivo no puede ser nulo o vacío.');
+        END IF;
+
+        vro_archivo := PKGSMY_ARCHIVOS_DAO.f_traer(p_id_archivo);
+        IF vro_archivo.id IS NULL THEN
+            RAISE_APPLICATION_ERROR(-20002, 'El archivo solicitado (ID: ' || p_id_archivo || ') no existe.');
+        END IF;
+
+        vro_archivo.nombre_archivo               := TRIM(p_nuevo_nombre);
+        vro_archivo.fecha_ultima_modificacion    := CAST(SYSTIMESTAMP AT TIME ZONE '-05:00' AS DATE);
+        vro_archivo.id_usuario_ultima_modificacion := p_id_usuario;
+
+        PKGSMY_ARCHIVOS_DAO.p_actualizar(vro_archivo);
+
+        -- EN ESTE VA EL COMMIT
+        COMMIT;
+
+        p_mensaje_resultado := 'Archivo ID ' || p_id_archivo || ' renombrado exitosamente a "' || vro_archivo.nombre_archivo || '".';
+    EXCEPTION
+        WHEN OTHERS THEN
+            ROLLBACK;
+            IF SQLCODE BETWEEN -20999 AND -20001 THEN
+                RAISE;
+            END IF;
+            vro_error.nombre_programa     := 'PKGLN_ARCHIVOS';
+            vro_error.nombre_metodo       := 'PR_RENOMBRAR_ARCHIVO';
+            vro_error.parametros          := 'p_id_archivo: ' || p_id_archivo || ', p_nuevo_nombre: ' || p_nuevo_nombre;
+            vro_error.id_usuario_creacion := p_id_usuario;
+            uti_ge_excepciones_pkg.p_grabar_log(vro_error);
+            RAISE_APPLICATION_ERROR(-20000, 'Se presento un error comunicarse con soporte. Número error: ' || vro_error.id || ' - ' || SQLERRM);
+    END pr_renombrar_archivo;
+
+    PROCEDURE pr_copiar_archivo (
+        p_id_archivo_origen  IN  smy_archivos.id%TYPE,
+        p_nuevo_id_residente IN  smy_residentes.id%TYPE DEFAULT NULL,
+        p_nuevo_id_centro    IN  smy_centros.id%TYPE DEFAULT NULL,
+        p_nuevo_nombre       IN  smy_archivos.nombre_archivo%TYPE DEFAULT NULL,
+        p_id_usuario         IN  smy_usuarios.id%TYPE,
+        p_id_nuevo_archivo   OUT smy_archivos.id%TYPE,
+        p_mensaje_resultado  OUT VARCHAR2
+    )
+    IS
+        vro_orig  smy_archivos%ROWTYPE;
+        vro_nuevo smy_archivos%ROWTYPE;
+    BEGIN
+        vro_orig := PKGSMY_ARCHIVOS_DAO.f_traer(p_id_archivo_origen);
+        IF vro_orig.id IS NULL THEN
+            RAISE_APPLICATION_ERROR(-20001, 'El archivo origen a copiar (ID: ' || p_id_archivo_origen || ') no existe.');
+        END IF;
+
+        p_id_nuevo_archivo := SEQ_SMY_ARCHIVOS.NEXTVAL;
+
+        vro_nuevo := vro_orig;
+        vro_nuevo.id                        := p_id_nuevo_archivo;
+        vro_nuevo.nombre_archivo            := NVL(p_nuevo_nombre, 'Copia_' || vro_orig.nombre_archivo);
+        vro_nuevo.nombre_archivo_almacenado := fn_generar_nombre_almacenado(p_id_nuevo_archivo, vro_orig.extension);
+        
+        IF p_nuevo_id_residente IS NOT NULL THEN
+            vro_nuevo.id_residente := p_nuevo_id_residente;
+        END IF;
+        IF p_nuevo_id_centro IS NOT NULL THEN
+            vro_nuevo.id_centro := p_nuevo_id_centro;
+        END IF;
+
+        vro_nuevo.id_estado_archivo            := 1; -- Activo
+        vro_nuevo.fecha_eliminacion            := NULL;
+        vro_nuevo.id_usuario_eliminacion       := NULL;
+        vro_nuevo.fecha_creacion               := CAST(SYSTIMESTAMP AT TIME ZONE '-05:00' AS DATE);
+        vro_nuevo.fecha_ultima_modificacion    := CAST(SYSTIMESTAMP AT TIME ZONE '-05:00' AS DATE);
+        vro_nuevo.id_usuario_ultima_modificacion := p_id_usuario;
+
+        PKGSMY_ARCHIVOS_DAO.p_insertar(vro_nuevo);
+
+        -- EN ESTE VA EL COMMIT
+        COMMIT;
+
+        p_mensaje_resultado := 'Copia generada exitosamente con nuevo ID ' || p_id_nuevo_archivo;
+    EXCEPTION
+        WHEN OTHERS THEN
+            ROLLBACK;
+            IF SQLCODE BETWEEN -20999 AND -20001 THEN
+                RAISE;
+            END IF;
+            vro_error.nombre_programa     := 'PKGLN_ARCHIVOS';
+            vro_error.nombre_metodo       := 'PR_COPIAR_ARCHIVO';
+            vro_error.parametros          := 'p_id_archivo_origen: ' || p_id_archivo_origen || ', p_nuevo_id_residente: ' || p_nuevo_id_residente;
+            vro_error.id_usuario_creacion := p_id_usuario;
+            uti_ge_excepciones_pkg.p_grabar_log(vro_error);
+            RAISE_APPLICATION_ERROR(-20000, 'Se presento un error comunicarse con soporte. Número error: ' || vro_error.id || ' - ' || SQLERRM);
+    END pr_copiar_archivo;
+
+    PROCEDURE pr_restaurar_archivo (
+        p_id_archivo        IN  smy_archivos.id%TYPE,
+        p_id_usuario        IN  smy_usuarios.id%TYPE,
+        p_mensaje_resultado OUT VARCHAR2
+    )
+    IS
+        vro_archivo smy_archivos%ROWTYPE;
+    BEGIN
+        vro_archivo := PKGSMY_ARCHIVOS_DAO.f_traer(p_id_archivo);
+        IF vro_archivo.id IS NULL THEN
+            RAISE_APPLICATION_ERROR(-20001, 'El archivo solicitado (ID: ' || p_id_archivo || ') no existe.');
+        END IF;
+
+        vro_archivo.id_estado_archivo            := 1; -- 1 = Activo / Disponible
+        vro_archivo.fecha_eliminacion            := NULL;
+        vro_archivo.id_usuario_eliminacion       := NULL;
+        vro_archivo.fecha_ultima_modificacion    := CAST(SYSTIMESTAMP AT TIME ZONE '-05:00' AS DATE);
+        vro_archivo.id_usuario_ultima_modificacion := p_id_usuario;
+
+        PKGSMY_ARCHIVOS_DAO.p_actualizar(vro_archivo);
+
+        -- EN ESTE VA EL COMMIT
+        COMMIT;
+
+        p_mensaje_resultado := 'Archivo ID ' || p_id_archivo || ' restaurado a visible exitosamente.';
+    EXCEPTION
+        WHEN OTHERS THEN
+            ROLLBACK;
+            IF SQLCODE BETWEEN -20999 AND -20001 THEN
+                RAISE;
+            END IF;
+            vro_error.nombre_programa     := 'PKGLN_ARCHIVOS';
+            vro_error.nombre_metodo       := 'PR_RESTAURAR_ARCHIVO';
+            vro_error.parametros          := 'p_id_archivo: ' || p_id_archivo || ', p_id_usuario: ' || p_id_usuario;
+            vro_error.id_usuario_creacion := p_id_usuario;
+            uti_ge_excepciones_pkg.p_grabar_log(vro_error);
+            RAISE_APPLICATION_ERROR(-20000, 'Se presento un error comunicarse con soporte. Número error: ' || vro_error.id || ' - ' || SQLERRM);
+    END pr_restaurar_archivo;
+
+    -- =========================================================================
+    -- 3. Consultas y representación de datos
+    -- =========================================================================
+
+    FUNCTION fn_consultar_archivos_residente (
+        p_id_residente  IN smy_residentes.id%TYPE,
+        p_solo_visibles IN NUMBER DEFAULT 1
+    ) RETURN SYS_REFCURSOR
+    IS
+    BEGIN
+        RETURN PKGCA_SMY_ARCHIVOS.fn_consultar_archivos_residente(p_id_residente, p_solo_visibles);
+    END fn_consultar_archivos_residente;
+
+    FUNCTION fn_obtener_archivo_json (
+        p_id_archivo IN smy_archivos.id%TYPE
+    ) RETURN CLOB
+    IS
+    BEGIN
+        RETURN PKGCA_SMY_ARCHIVOS.fn_obtener_archivo_json(p_id_archivo);
+    END fn_obtener_archivo_json;
+
+    PROCEDURE pr_vincular_archivo_doc_clinico (
+        pro_archivo            IN  smy_archivos%ROWTYPE,
+        p_id_documento_clinico IN  smy_documentos_clinicos.id%TYPE,
+        p_id_usuario           IN  smy_usuarios.id%TYPE
+    ) IS
+        vro_doc smy_documentos_clinicos%ROWTYPE;
+    BEGIN
+        -- 1. Insertar o registrar archivo vía DAO
+        IF NOT PKGSMY_ARCHIVOS_DAO.f_existe(pro_archivo.id) THEN
+            PKGSMY_ARCHIVOS_DAO.p_insertar(pro_archivo);
+        END IF;
+
+        -- 2. Actualizar documento clínico vía DAO
+        IF PKGSMY_DOCUMENTOS_CLINICOS_DAO.f_existe(p_id_documento_clinico, vro_doc) = TRUE THEN
+            vro_doc.id_archivo                     := pro_archivo.id;
+            vro_doc.id_usuario_ultima_modificacion := p_id_usuario;
+            vro_doc.fecha_ultima_modificacion      := CAST(SYSTIMESTAMP AT TIME ZONE '-05:00' AS DATE);
+            PKGSMY_DOCUMENTOS_CLINICOS_DAO.p_actualizar(vro_doc);
+        END IF;
+
+        -- 3. EN ESTE VA EL COMMIT
+        COMMIT;
+
+    EXCEPTION
+        WHEN OTHERS THEN
+            ROLLBACK;
+            vro_error.nombre_programa     := 'PKGLN_ARCHIVOS';
+            vro_error.nombre_metodo       := 'PR_VINCULAR_ARCHIVO_DOC_CLINICO';
+            vro_error.parametros          := 'p_id_archivo: ' || pro_archivo.id || ', p_id_doc: ' || p_id_documento_clinico;
+            vro_error.id_usuario_creacion := p_id_usuario;
+            uti_ge_excepciones_pkg.p_grabar_log(vro_error);
+            RAISE_APPLICATION_ERROR(-20000, 'Se presento un error comunicarse con soporte. Número error: ' || vro_error.id || ' - ' || SQLERRM);
+    END pr_vincular_archivo_doc_clinico;
+
+    PROCEDURE pr_desvincular_archivo_doc_clinico (
+        p_id_archivo           IN  smy_archivos.id%TYPE,
+        p_id_documento_clinico IN  smy_documentos_clinicos.id%TYPE,
+        p_id_usuario           IN  smy_usuarios.id%TYPE
+    ) IS
+        vro_archivo smy_archivos%ROWTYPE;
+        vro_doc     smy_documentos_clinicos%ROWTYPE;
+    BEGIN
+        -- 1. Actualizar estado de archivo a eliminado lógico vía DAO
+        IF PKGSMY_ARCHIVOS_DAO.f_existe(p_id_archivo, vro_archivo) = TRUE THEN
+            vro_archivo.id_estado_archivo              := 2; -- No visible
+            vro_archivo.fecha_eliminacion              := CAST(SYSTIMESTAMP AT TIME ZONE '-05:00' AS DATE);
+            vro_archivo.id_usuario_eliminacion         := p_id_usuario;
+            vro_archivo.fecha_ultima_modificacion      := CAST(SYSTIMESTAMP AT TIME ZONE '-05:00' AS DATE);
+            vro_archivo.id_usuario_ultima_modificacion := p_id_usuario;
+            PKGSMY_ARCHIVOS_DAO.p_actualizar(vro_archivo);
+        END IF;
+
+        -- 2. Desvincular en documento clínico vía DAO
+        IF PKGSMY_DOCUMENTOS_CLINICOS_DAO.f_existe(p_id_documento_clinico, vro_doc) = TRUE THEN
+            vro_doc.id_archivo                     := NULL;
+            vro_doc.id_usuario_ultima_modificacion := p_id_usuario;
+            vro_doc.fecha_ultima_modificacion      := CAST(SYSTIMESTAMP AT TIME ZONE '-05:00' AS DATE);
+            PKGSMY_DOCUMENTOS_CLINICOS_DAO.p_actualizar(vro_doc);
+        END IF;
+
+        -- 3. EN ESTE VA EL COMMIT
+        COMMIT;
+
+    EXCEPTION
+        WHEN OTHERS THEN
+            ROLLBACK;
+            vro_error.nombre_programa     := 'PKGLN_ARCHIVOS';
+            vro_error.nombre_metodo       := 'PR_DESVINCULAR_ARCHIVO_DOC_CLINICO';
+            vro_error.parametros          := 'p_id_archivo: ' || p_id_archivo || ', p_id_doc: ' || p_id_documento_clinico;
+            vro_error.id_usuario_creacion := p_id_usuario;
+            uti_ge_excepciones_pkg.p_grabar_log(vro_error);
+            RAISE_APPLICATION_ERROR(-20000, 'Se presento un error comunicarse con soporte. Número error: ' || vro_error.id || ' - ' || SQLERRM);
+    END pr_desvincular_archivo_doc_clinico;
 
 END PKGLN_ARCHIVOS;
 /

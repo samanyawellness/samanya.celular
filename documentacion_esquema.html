@@ -1436,7 +1436,7 @@ erDiagram
         </div>
 
         <p>
-          Arquitectura empresarial desacoplada para la carga, clasificación jerárquica y ciclo de vida de documentos en <strong>Google Drive (1 TB Personal)</strong> con persistencia en <strong>SMY_ARCHIVOS</strong>. Aplica rigurosamente la separación de responsabilidades: <strong>PKGLN_ARCHIVOS</strong> para lógica pura y algoritmos sin dependencias de tablas, y <strong>PKGCN_ARCHIVOS</strong> para orquestación transaccional con <code>COMMIT/ROLLBACK</code> y logging en <code>SMY_ERRORES</code>.
+          Arquitectura empresarial desacoplada para la carga, clasificación jerárquica y ciclo de vida de documentos en <strong>Google Drive (1 TB Personal)</strong> con persistencia en <strong>SMY_ARCHIVOS</strong>. Aplica rigurosamente el estándar arquitectónico corporativo: <strong>PKGLN_ARCHIVOS</strong> para la lógica de negocio, validaciones, construcción de rutas/hashes y orquestación transaccional (con <code>COMMIT</code> al éxito, <code>ROLLBACK</code> y logging en <code>SMY_ERRORES</code> mediante <code>uti_ge_excepciones_pkg</code>), y <strong>PKGCN_ARCHIVOS</strong> para sentencias DML atómicas que involucran más de una tabla (sin lógica de negocio ni commit).
         </p>
 
         <!-- ESTRUCTURA JERARQUICA DE DIRECTORIOS -->
@@ -1459,47 +1459,85 @@ sequenceDiagram
     autonumber
     actor Usuario as Usuario / Frontend
     participant API as Backend (ArchivosController)
-    participant PKGCN as PKGCN_ARCHIVOS (Negocio)
-    participant PKGLN as PKGLN_ARCHIVOS (Lógica Pura)
+    participant PKGLN as PKGLN_ARCHIVOS (Lógica de Negocio)
+    participant DAO as PKGSMY_ARCHIVOS_DAO (Acceso a Datos)
     participant GDrive as Google Drive API v3
-    participant BD as Tabla SMY_ARCHIVOS
+    participant BD as Base de Datos (Oracle)
 
     Usuario->>API: POST /api/v1/archivos/upload (File, idCentro, idResidente)
-    API->>PKGCN: pr_preparar_carga_archivo(idCentro, idResidente, nombreOriginal)
-    PKGCN->>BD: SELECT SEQ_SMY_ARCHIVOS.NEXTVAL (Reserva atómica de ID)
-    PKGCN->>PKGLN: fn_generar_nombre_almacenado(idReserva, extension)
-    PKGLN-->>PKGCN: Hash SHA-256 del ID + extensión (.pdf/.jpg)
-    PKGCN->>PKGLN: fn_construir_ruta_documentos(sede, residente)
-    PKGLN-->>PKGCN: 1_SEDE-CENTRAL/1_19234567/Documentos
-    PKGCN-->>API: Retorna { idReserva, nombreAlmacenado, rutasDrive }
+    API->>PKGLN: pr_preparar_carga_archivo(idCentro, idResidente, nombreOriginal)
+    PKGLN->>BD: SELECT SEQ_SMY_ARCHIVOS.NEXTVAL (Reserva atómica de ID)
+    PKGLN->>PKGLN: fn_generar_nombre_almacenado(idReserva, extension)
+    PKGLN->>PKGLN: fn_construir_ruta_documentos(sede, residente)
+    PKGLN-->>API: Retorna { idReserva, nombreAlmacenado, rutasDrive }
 
-    API->>GDrive: Asegurar Jerarquía: Samanya / 1_SEDE-CENTRAL / 1_19234567 / Documentos
+    API->>GDrive: Asegurar Jerarquía: Samanya / {Sede} / {Residente} / Documentos
     API->>GDrive: files.create(name = nombreAlmacenado, parent = Documentos)
     GDrive-->>API: { gdriveFileId, webViewLink, sizeBytes }
 
-    API->>PKGCN: pr_registrar_archivo(id, nombreOriginal, nombreAlmacenado, hashContenido, links)
-    PKGCN->>BD: PKGSMY_ARCHIVOS_DAO.p_insertar(vro_archivo) (ID_ESTADO_ARCHIVO = 1)
-    PKGCN->>BD: COMMIT
-    PKGCN-->>API: Confirmación exitosa
+    API->>PKGLN: pr_registrar_archivo(id, nombreOriginal, nombreAlmacenado, hashContenido, links)
+    PKGLN->>DAO: PKGSMY_ARCHIVOS_DAO.p_insertar(vro_archivo) (ID_ESTADO_ARCHIVO = 1)
+    PKGLN->>BD: COMMIT
+    PKGLN-->>API: Confirmación exitosa
     API-->>Usuario: 201 Created (Metadatos completos del archivo registrado)
         </div>
 
         <!-- ESPECIFICACION DE METODOS PKGLN_ARCHIVOS -->
-        <h5 style="margin: 25px 0 10px; color: var(--forest-deep); font-family: 'Fraunces', serif; font-size: 1.1rem;">1. Métodos del Paquete Funcional Puro: PKGLN_ARCHIVOS</h5>
+        <h5 style="margin: 25px 0 10px; color: var(--forest-deep); font-family: 'Fraunces', serif; font-size: 1.1rem;">1. Métodos de Lógica de Negocio y Orquestación: PKGLN_ARCHIVOS</h5>
         <div class="table-container" style="margin-bottom: 20px;">
           <table class="data-dict">
             <thead>
               <tr>
                 <th style="width: 250px;">Subprograma</th>
                 <th style="width: 120px;">Tipo</th>
-                <th>Propósito y Algoritmo</th>
+                <th>Propósito, Validaciones y Transaccionalidad (COMMIT en PKGLN)</th>
               </tr>
             </thead>
             <tbody>
               <tr>
+                <td class="col-name">pr_preparar_carga_archivo</td>
+                <td><span class="badge" style="background: var(--admin-color); color: #fff;">PROCEDURE</span></td>
+                <td>Valida sede y residente, reserva <code>SEQ_SMY_ARCHIVOS.NEXTVAL</code> y genera el nombre almacenado hasheado y las rutas requeridas antes de iniciar la transferencia hacia Google Drive.</td>
+              </tr>
+              <tr>
+                <td class="col-name">pr_registrar_archivo</td>
+                <td><span class="badge" style="background: var(--admin-color); color: #fff;">PROCEDURE</span></td>
+                <td>Valida negocio, persiste en <code>SMY_ARCHIVOS</code> a través de <code>PKGSMY_ARCHIVOS_DAO.p_insertar</code> y ejecuta <strong>COMMIT</strong>. En caso de error realiza <strong>ROLLBACK</strong> y registra en <code>SMY_ERRORES</code>.</td>
+              </tr>
+              <tr>
+                <td class="col-name">pr_borrar_archivo</td>
+                <td><span class="badge" style="background: var(--danger); color: #fff;">PROCEDURE</span></td>
+                <td><strong>Borrado Lógico</strong>: Consulta mediante DAO, actualiza <code>ID_ESTADO_ARCHIVO = 2</code> vía <code>PKGSMY_ARCHIVOS_DAO.p_actualizar</code> y ejecuta <strong>COMMIT</strong>.</td>
+              </tr>
+              <tr>
+                <td class="col-name">pr_renombrar_archivo</td>
+                <td><span class="badge" style="background: var(--admin-color); color: #fff;">PROCEDURE</span></td>
+                <td>Valida nombre, modifica el descriptivo (<code>NOMBRE_ARCHIVO</code>) vía DAO manteniendo inalterable el nombre en storage, y ejecuta <strong>COMMIT</strong>.</td>
+              </tr>
+              <tr>
+                <td class="col-name">pr_copiar_archivo</td>
+                <td><span class="badge" style="background: var(--admin-color); color: #fff;">PROCEDURE</span></td>
+                <td>Clona metadatos del archivo asignando un nuevo <code>ID</code> con su nuevo nombre hasheado, persistiendo vía DAO y ejecutando <strong>COMMIT</strong>.</td>
+              </tr>
+              <tr>
+                <td class="col-name">pr_restaurar_archivo</td>
+                <td><span class="badge" style="background: var(--success); color: #fff;">PROCEDURE</span></td>
+                <td>Restaura el estado a <code>ID_ESTADO_ARCHIVO = 1</code> vía DAO y ejecuta <strong>COMMIT</strong>.</td>
+              </tr>
+              <tr>
+                <td class="col-name">fn_consultar_archivos_residente</td>
+                <td><span class="badge badge-pk">FUNCTION</span></td>
+                <td>Retorna un <code>SYS_REFCURSOR</code> con el listado de documentos de un residente aplicando filtros de negocio.</td>
+              </tr>
+              <tr>
+                <td class="col-name">fn_obtener_archivo_json</td>
+                <td><span class="badge badge-pk">FUNCTION</span></td>
+                <td>Obtiene el registro vía DAO y retorna un <code>CLOB</code> con el JSON nativo formateado mediante <code>JSON_OBJECT(...) RETURNING CLOB</code>.</td>
+              </tr>
+              <tr>
                 <td class="col-name">fn_generar_nombre_almacenado</td>
                 <td><span class="badge badge-pk">FUNCTION</span></td>
-                <td>Calcula el hash SHA-256 a partir del ID numérico de <code>SMY_ARCHIVOS</code> usando <code>STANDARD_HASH(TO_CHAR(p_id), 'SHA256')</code> y añade la extensión normalizada. Retorna el nombre único físico.</td>
+                <td>Calcula el hash SHA-256 a partir del ID numérico de <code>SMY_ARCHIVOS</code> usando <code>STANDARD_HASH(TO_CHAR(p_id), 'SHA256')</code> y añade la extensión normalizada.</td>
               </tr>
               <tr>
                 <td class="col-name">fn_construir_ruta_sede</td>
@@ -1541,56 +1579,29 @@ sequenceDiagram
         </div>
 
         <!-- ESPECIFICACION DE METODOS PKGCN_ARCHIVOS -->
-        <h5 style="margin: 25px 0 10px; color: var(--forest-deep); font-family: 'Fraunces', serif; font-size: 1.1rem;">2. Métodos del Paquete de Negocio Transaccional: PKGCN_ARCHIVOS</h5>
+        <h5 style="margin: 25px 0 10px; color: var(--forest-deep); font-family: 'Fraunces', serif; font-size: 1.1rem;">2. Métodos del Paquete DML Multi-Tabla: PKGCN_ARCHIVOS</h5>
+        <p style="font-size: 0.9rem; color: #555; margin-bottom: 12px;">
+          Contiene <strong>exclusivamente</strong> sentencias DML atómicas de proceso que involucran más de una tabla. No contiene lógica de negocio ni validaciones complejas, y no ejecuta <code>COMMIT</code> ni <code>ROLLBACK</code> (la transacción es gobernada por el <code>pkgln_</code> orquestador).
+        </p>
         <div class="table-container">
           <table class="data-dict">
             <thead>
               <tr>
                 <th style="width: 250px;">Subprograma</th>
                 <th style="width: 120px;">Tipo</th>
-                <th>Transaccionalidad &amp; Regla de Negocio</th>
+                <th>Tablas Involucradas &amp; Operación DML</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td class="col-name">pr_preparar_carga_archivo</td>
+                <td class="col-name">pr_vincular_archivo_doc_clinico</td>
                 <td><span class="badge" style="background: var(--admin-color); color: #fff;">PROCEDURE</span></td>
-                <td>Valida sede y residente, reserva <code>SEQ_SMY_ARCHIVOS.NEXTVAL</code> y genera el nombre almacenado hasheado y las rutas requeridas antes de iniciar la transferencia de bytes hacia Google Drive.</td>
+                <td>Ejecuta DML atómico multi-tabla: actualiza el estado de <code>SMY_ARCHIVOS</code> e inserta/asocia el registro en <code>SMY_DOCUMENTOS_CLINICOS</code> en un único paso atómico. Sin COMMIT.</td>
               </tr>
               <tr>
-                <td class="col-name">pr_registrar_archivo</td>
-                <td><span class="badge" style="background: var(--admin-color); color: #fff;">PROCEDURE</span></td>
-                <td>Inserta el registro definitivo en <code>SMY_ARCHIVOS</code> con <code>ID_ESTADO_ARCHIVO = 1</code> (Activo/Disponible), asociando URLs de Google Drive, metadatos JSON y hash del contenido. Ejecuta <strong>COMMIT</strong>.</td>
-              </tr>
-              <tr>
-                <td class="col-name">pr_borrar_archivo</td>
+                <td class="col-name">pr_desvincular_archivo_doc_clinico</td>
                 <td><span class="badge" style="background: var(--danger); color: #fff;">PROCEDURE</span></td>
-                <td><strong>Borrado Lógico</strong>: No elimina el registro de la tabla; actualiza <code>ID_ESTADO_ARCHIVO = 2</code> (Eliminado / Papelera / No visible), sellando <code>FECHA_ELIMINACION</code> e <code>ID_USUARIO_ELIMINACION</code>. Ejecuta <strong>COMMIT</strong>.</td>
-              </tr>
-              <tr>
-                <td class="col-name">pr_renombrar_archivo</td>
-                <td><span class="badge" style="background: var(--admin-color); color: #fff;">PROCEDURE</span></td>
-                <td>Modifica el nombre lógico descriptivo (<code>NOMBRE_ARCHIVO</code>) manteniendo inalterable el <code>NOMBRE_ARCHIVO_ALMACENADO</code> en storage para evitar rotura de enlaces. Ejecuta <strong>COMMIT</strong>.</td>
-              </tr>
-              <tr>
-                <td class="col-name">pr_copiar_archivo</td>
-                <td><span class="badge" style="background: var(--admin-color); color: #fff;">PROCEDURE</span></td>
-                <td>Clona la referencia del archivo asignando un nuevo <code>ID</code> con su respectivo nuevo <code>NOMBRE_ARCHIVO_ALMACENADO</code> hasheado, permitiendo asociarlo a otro residente sin duplicar consumo de cuota física. Ejecuta <strong>COMMIT</strong>.</td>
-              </tr>
-              <tr>
-                <td class="col-name">pr_restaurar_archivo</td>
-                <td><span class="badge" style="background: var(--success); color: #fff;">PROCEDURE</span></td>
-                <td>Restaura la visibilidad del documento cambiando su estado a <code>ID_ESTADO_ARCHIVO = 1</code> y limpiando la fecha de eliminación. Ejecuta <strong>COMMIT</strong>.</td>
-              </tr>
-              <tr>
-                <td class="col-name">fn_consultar_archivos_residente</td>
-                <td><span class="badge badge-pk">FUNCTION</span></td>
-                <td>Retorna un <code>SYS_REFCURSOR</code> con el listado de documentos de un residente, filtrando por defecto solo los activos/visibles.</td>
-              </tr>
-              <tr>
-                <td class="col-name">fn_obtener_archivo_json</td>
-                <td><span class="badge badge-pk">FUNCTION</span></td>
-                <td>Genera y retorna un <code>CLOB</code> con el objeto JSON nativo del archivo mediante <code>JSON_OBJECT(...) RETURNING CLOB</code>.</td>
+                <td>Ejecuta DML atómico multi-tabla: actualiza <code>SMY_DOCUMENTOS_CLINICOS</code> desvinculando la referencia del archivo y actualiza la auditoría en <code>SMY_ARCHIVOS</code>. Sin COMMIT.</td>
               </tr>
             </tbody>
           </table>
