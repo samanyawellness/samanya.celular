@@ -10,3 +10,14 @@ scratch/
 *credentials*.json
 *token*.json
 client_secret*.json
+# Oracle Wallet
+*wallet*
+*Wallet*
+*.sso
+*.p12
+*.jks
+tnsnames.ora
+sqlnet.ora
+ojdbc.properties
+ewallet.pem
+configuraciones.txt

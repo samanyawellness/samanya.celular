@@ -623,6 +623,7 @@ footer {
           <li><a href="#mod-talento">2. Talento y Turnos</a></li>
           <li><a href="#mod-residentes">3. Residentes y Admisión</a></li>
           <li><a href="#mod-historia">4. Historia y Archivos</a></li>
+          <li><a href="#mod-archivos-pkg" style="color: #dcb87f; font-weight: 600;">↳ Paquetes Archivos (Drive/PLSQL)</a></li>
           <li><a href="#mod-bitacora">5. Bitácora y Signos</a></li>
           <li><a href="#mod-medicacion">6. Farmacoterapia</a></li>
           <li><a href="#mod-nutricion">7. Nutrición y Menú</a></li>
@@ -1422,6 +1423,175 @@ erDiagram
               <tr><td class="col-name">FECHA_CREACION</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>Hora Bogotá (UTC-5)</td><td>Fecha de auditoría de registro.</td></tr>
               <tr><td class="col-name">FECHA_ULTIMA_MODIFICACION</td><td class="col-type">DATE</td><td><span class="badge badge-opt">Sí</span></td><td>Hora Bogotá (UTC-5)</td><td>Fecha de última actualización en BD.</td></tr>
               <tr><td class="col-name">ID_USUARIO_ULTIMA_MODIFICACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Usuario que realizó última modificación.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 4.4.1 ARQUITECTURA DE PAQUETES PL/SQL DE ARCHIVOS Y GOOGLE DRIVE -->
+      <div class="card table-block" id="mod-archivos-pkg" style="border-left: 4px solid var(--ochre); background: #ffffff;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
+          <h4 style="margin: 0; color: var(--forest-deep);">Módulo de Gestión de Archivos en Google Drive y Oracle PL/SQL</h4>
+          <span class="badge" style="background: var(--forest); color: #fff; padding: 4px 10px; font-size: 0.8rem; border-radius: 6px;">PKGLN_ARCHIVOS & PKGCN_ARCHIVOS</span>
+        </div>
+
+        <p>
+          Arquitectura empresarial desacoplada para la carga, clasificación jerárquica y ciclo de vida de documentos en <strong>Google Drive (1 TB Personal)</strong> con persistencia en <strong>SMY_ARCHIVOS</strong>. Aplica rigurosamente la separación de responsabilidades: <strong>PKGLN_ARCHIVOS</strong> para lógica pura y algoritmos sin dependencias de tablas, y <strong>PKGCN_ARCHIVOS</strong> para orquestación transaccional con <code>COMMIT/ROLLBACK</code> y logging en <code>SMY_ERRORES</code>.
+        </p>
+
+        <!-- ESTRUCTURA JERARQUICA DE DIRECTORIOS -->
+        <div style="background: var(--forest-deep); color: #e8f0ed; padding: 18px 20px; border-radius: 8px; margin: 18px 0; font-family: 'IBM Plex Mono', monospace; font-size: 0.86rem; line-height: 1.6;">
+          <div style="color: var(--ochre); font-weight: 600; margin-bottom: 8px; text-transform: uppercase; font-size: 0.78rem; letter-spacing: 1px;">📁 Jerarquía de Directorios en Google Drive</div>
+          <div>Samanya/ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #9ea8a2;"># Carpeta Raíz de Almacenamiento</span></div>
+          <div>└── {id_sede}_{Nombre de Sede}/ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #9ea8a2;"># Nivel 1: Sede (ej: 1_SEDE-CENTRAL)</span></div>
+          <div>&nbsp;&nbsp;&nbsp;&nbsp;└── {id_residente}_{identificacion}/ &nbsp;&nbsp;&nbsp;<span style="color: #9ea8a2;"># Nivel 2: Residente (ej: 1_19234567)</span></div>
+          <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── Documentos/ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #9ea8a2;"># Nivel 3: Subdirectorio de Documentos</span></div>
+          <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── {hash_id}{extension} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #dcb87f;"># Archivo: Hash SHA-256 del ID + ext</span></div>
+          <div style="margin-top: 10px; color: #a4c2b7; font-size: 0.8rem; border-top: 1px dashed rgba(255,255,255,0.15); padding-top: 6px;">
+            Ejemplo de nombre almacenado: <strong>c51ce410c124a10e0db5e4b97fc2af393a12...pdf</strong> = LOWER(STANDARD_HASH(TO_CHAR(ID), 'SHA256')) || '.pdf'
+          </div>
+        </div>
+
+        <!-- DIAGRAMA MERMAID DE FLUJO DE CARGA Y PERSISTENCIA -->
+        <h5 style="margin: 20px 0 10px; color: var(--forest-deep); font-family: 'Fraunces', serif; font-size: 1.1rem;">Diagrama de Flujo: Carga, Hasheo y Persistencia Transaccional</h5>
+        <div class="mermaid" style="background: #faf8f5; border: 1px solid var(--line); border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+sequenceDiagram
+    autonumber
+    actor Usuario as Usuario / Frontend
+    participant API as Backend (ArchivosController)
+    participant PKGCN as PKGCN_ARCHIVOS (Negocio)
+    participant PKGLN as PKGLN_ARCHIVOS (Lógica Pura)
+    participant GDrive as Google Drive API v3
+    participant BD as Tabla SMY_ARCHIVOS
+
+    Usuario->>API: POST /api/v1/archivos/upload (File, idCentro, idResidente)
+    API->>PKGCN: pr_preparar_carga_archivo(idCentro, idResidente, nombreOriginal)
+    PKGCN->>BD: SELECT SEQ_SMY_ARCHIVOS.NEXTVAL (Reserva atómica de ID)
+    PKGCN->>PKGLN: fn_generar_nombre_almacenado(idReserva, extension)
+    PKGLN-->>PKGCN: Hash SHA-256 del ID + extensión (.pdf/.jpg)
+    PKGCN->>PKGLN: fn_construir_ruta_documentos(sede, residente)
+    PKGLN-->>PKGCN: 1_SEDE-CENTRAL/1_19234567/Documentos
+    PKGCN-->>API: Retorna { idReserva, nombreAlmacenado, rutasDrive }
+
+    API->>GDrive: Asegurar Jerarquía: Samanya / 1_SEDE-CENTRAL / 1_19234567 / Documentos
+    API->>GDrive: files.create(name = nombreAlmacenado, parent = Documentos)
+    GDrive-->>API: { gdriveFileId, webViewLink, sizeBytes }
+
+    API->>PKGCN: pr_registrar_archivo(id, nombreOriginal, nombreAlmacenado, hashContenido, links)
+    PKGCN->>BD: PKGSMY_ARCHIVOS_DAO.p_insertar(vro_archivo) (ID_ESTADO_ARCHIVO = 1)
+    PKGCN->>BD: COMMIT
+    PKGCN-->>API: Confirmación exitosa
+    API-->>Usuario: 201 Created (Metadatos completos del archivo registrado)
+        </div>
+
+        <!-- ESPECIFICACION DE METODOS PKGLN_ARCHIVOS -->
+        <h5 style="margin: 25px 0 10px; color: var(--forest-deep); font-family: 'Fraunces', serif; font-size: 1.1rem;">1. Métodos del Paquete Funcional Puro: PKGLN_ARCHIVOS</h5>
+        <div class="table-container" style="margin-bottom: 20px;">
+          <table class="data-dict">
+            <thead>
+              <tr>
+                <th style="width: 250px;">Subprograma</th>
+                <th style="width: 120px;">Tipo</th>
+                <th>Propósito y Algoritmo</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="col-name">fn_generar_nombre_almacenado</td>
+                <td><span class="badge badge-pk">FUNCTION</span></td>
+                <td>Calcula el hash SHA-256 a partir del ID numérico de <code>SMY_ARCHIVOS</code> usando <code>STANDARD_HASH(TO_CHAR(p_id), 'SHA256')</code> y añade la extensión normalizada. Retorna el nombre único físico.</td>
+              </tr>
+              <tr>
+                <td class="col-name">fn_construir_ruta_sede</td>
+                <td><span class="badge badge-pk">FUNCTION</span></td>
+                <td>Retorna la carpeta de sede formateada: <code>{id_sede}_{Nombre Sede Sanitizado}</code> (ej. <code>1_SEDE-CENTRAL</code>).</td>
+              </tr>
+              <tr>
+                <td class="col-name">fn_construir_ruta_residente</td>
+                <td><span class="badge badge-pk">FUNCTION</span></td>
+                <td>Retorna la carpeta del residente: <code>{id_residente}_{identificacion}</code> (ej. <code>1_19234567</code>).</td>
+              </tr>
+              <tr>
+                <td class="col-name">fn_construir_ruta_documentos</td>
+                <td><span class="badge badge-pk">FUNCTION</span></td>
+                <td>Retorna la ruta relativa completa: <code>{id_sede}_{sede}/{id_residente}_{ident}/Documentos</code>.</td>
+              </tr>
+              <tr>
+                <td class="col-name">fn_sanitizar_cadena</td>
+                <td><span class="badge badge-pk">FUNCTION</span></td>
+                <td>Remueve tildes mediante <code>TRANSLATE</code>, mayúsculas y reemplaza caracteres no alfanuméricos por guiones simples.</td>
+              </tr>
+              <tr>
+                <td class="col-name">fn_normalizar_extension</td>
+                <td><span class="badge badge-pk">FUNCTION</span></td>
+                <td>Extrae y formatea en minúsculas la extensión con punto inicial (ej. <code>.pdf</code>, <code>.jpg</code>).</td>
+              </tr>
+              <tr>
+                <td class="col-name">fn_resolver_mime_type</td>
+                <td><span class="badge badge-pk">FUNCTION</span></td>
+                <td>Deduce el tipo MIME oficial (<code>application/pdf</code>, <code>image/jpeg</code>, etc.) a partir de la extensión.</td>
+              </tr>
+              <tr>
+                <td class="col-name">fn_validar_extension</td>
+                <td><span class="badge badge-pk">FUNCTION</span></td>
+                <td>Verifica si la extensión está incluida en la lista blanca de extensiones autorizadas del centro geriátrico.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- ESPECIFICACION DE METODOS PKGCN_ARCHIVOS -->
+        <h5 style="margin: 25px 0 10px; color: var(--forest-deep); font-family: 'Fraunces', serif; font-size: 1.1rem;">2. Métodos del Paquete de Negocio Transaccional: PKGCN_ARCHIVOS</h5>
+        <div class="table-container">
+          <table class="data-dict">
+            <thead>
+              <tr>
+                <th style="width: 250px;">Subprograma</th>
+                <th style="width: 120px;">Tipo</th>
+                <th>Transaccionalidad &amp; Regla de Negocio</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="col-name">pr_preparar_carga_archivo</td>
+                <td><span class="badge" style="background: var(--admin-color); color: #fff;">PROCEDURE</span></td>
+                <td>Valida sede y residente, reserva <code>SEQ_SMY_ARCHIVOS.NEXTVAL</code> y genera el nombre almacenado hasheado y las rutas requeridas antes de iniciar la transferencia de bytes hacia Google Drive.</td>
+              </tr>
+              <tr>
+                <td class="col-name">pr_registrar_archivo</td>
+                <td><span class="badge" style="background: var(--admin-color); color: #fff;">PROCEDURE</span></td>
+                <td>Inserta el registro definitivo en <code>SMY_ARCHIVOS</code> con <code>ID_ESTADO_ARCHIVO = 1</code> (Activo/Disponible), asociando URLs de Google Drive, metadatos JSON y hash del contenido. Ejecuta <strong>COMMIT</strong>.</td>
+              </tr>
+              <tr>
+                <td class="col-name">pr_borrar_archivo</td>
+                <td><span class="badge" style="background: var(--danger); color: #fff;">PROCEDURE</span></td>
+                <td><strong>Borrado Lógico</strong>: No elimina el registro de la tabla; actualiza <code>ID_ESTADO_ARCHIVO = 2</code> (Eliminado / Papelera / No visible), sellando <code>FECHA_ELIMINACION</code> e <code>ID_USUARIO_ELIMINACION</code>. Ejecuta <strong>COMMIT</strong>.</td>
+              </tr>
+              <tr>
+                <td class="col-name">pr_renombrar_archivo</td>
+                <td><span class="badge" style="background: var(--admin-color); color: #fff;">PROCEDURE</span></td>
+                <td>Modifica el nombre lógico descriptivo (<code>NOMBRE_ARCHIVO</code>) manteniendo inalterable el <code>NOMBRE_ARCHIVO_ALMACENADO</code> en storage para evitar rotura de enlaces. Ejecuta <strong>COMMIT</strong>.</td>
+              </tr>
+              <tr>
+                <td class="col-name">pr_copiar_archivo</td>
+                <td><span class="badge" style="background: var(--admin-color); color: #fff;">PROCEDURE</span></td>
+                <td>Clona la referencia del archivo asignando un nuevo <code>ID</code> con su respectivo nuevo <code>NOMBRE_ARCHIVO_ALMACENADO</code> hasheado, permitiendo asociarlo a otro residente sin duplicar consumo de cuota física. Ejecuta <strong>COMMIT</strong>.</td>
+              </tr>
+              <tr>
+                <td class="col-name">pr_restaurar_archivo</td>
+                <td><span class="badge" style="background: var(--success); color: #fff;">PROCEDURE</span></td>
+                <td>Restaura la visibilidad del documento cambiando su estado a <code>ID_ESTADO_ARCHIVO = 1</code> y limpiando la fecha de eliminación. Ejecuta <strong>COMMIT</strong>.</td>
+              </tr>
+              <tr>
+                <td class="col-name">fn_consultar_archivos_residente</td>
+                <td><span class="badge badge-pk">FUNCTION</span></td>
+                <td>Retorna un <code>SYS_REFCURSOR</code> con el listado de documentos de un residente, filtrando por defecto solo los activos/visibles.</td>
+              </tr>
+              <tr>
+                <td class="col-name">fn_obtener_archivo_json</td>
+                <td><span class="badge badge-pk">FUNCTION</span></td>
+                <td>Genera y retorna un <code>CLOB</code> con el objeto JSON nativo del archivo mediante <code>JSON_OBJECT(...) RETURNING CLOB</code>.</td>
+              </tr>
             </tbody>
           </table>
         </div>

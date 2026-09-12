@@ -12,6 +12,8 @@ const envSchema = z.object({
   DB_POOL_MIN: z.string().transform((val) => parseInt(val, 10)).default('2'),
   DB_POOL_MAX: z.string().transform((val) => parseInt(val, 10)).default('10'),
   DB_POOL_INCREMENT: z.string().transform((val) => parseInt(val, 10)).default('2'),
+  DB_WALLET_LOCATION: z.string().optional(),
+  DB_WALLET_PASSWORD: z.string().optional(),
   JWT_SECRET: z.string().min(16, 'JWT_SECRET debe tener al menos 16 caracteres'),
   JWT_EXPIRES_IN: z.string().default('15m'),
   JWT_REFRESH_SECRET: z.string().min(16, 'JWT_REFRESH_SECRET debe tener al menos 16 caracteres'),

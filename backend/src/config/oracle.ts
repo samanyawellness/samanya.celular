@@ -1,3 +1,4 @@
+import path from 'path';
 import oracledb from 'oracledb';
 import { env } from './env.js';
 
@@ -12,8 +13,7 @@ export async function initOraclePool(): Promise<void> {
   if (poolInitialized) return;
 
   try {
-    console.log(`🔌 Conectando a Oracle Database (${env.DB_USER}@${env.DB_CONNECT_STRING})...`);
-    await oracledb.createPool({
+    const poolConfig: oracledb.PoolAttributes = {
       user: env.DB_USER,
       password: env.DB_PASSWORD,
       connectString: env.DB_CONNECT_STRING,
@@ -21,7 +21,23 @@ export async function initOraclePool(): Promise<void> {
       poolMax: env.DB_POOL_MAX,
       poolIncrement: env.DB_POOL_INCREMENT,
       poolAlias: 'samanya_pool'
-    });
+    };
+
+    if (env.DB_WALLET_LOCATION) {
+      const walletPath = path.resolve(process.cwd(), env.DB_WALLET_LOCATION);
+      process.env.TNS_ADMIN = walletPath;
+      poolConfig.configDir = walletPath;
+      poolConfig.walletLocation = walletPath;
+
+      if (env.DB_WALLET_PASSWORD) {
+        poolConfig.walletPassword = env.DB_WALLET_PASSWORD;
+      }
+
+      console.log(`💼 Configurando conexión con Oracle Wallet en: ${walletPath}`);
+    }
+
+    console.log(`🔌 Conectando a Oracle Database (${env.DB_USER}@${env.DB_CONNECT_STRING})...`);
+    await oracledb.createPool(poolConfig);
     poolInitialized = true;
     console.log('✅ Pool de conexiones Oracle inicializado exitosamente (samanya_pool)');
   } catch (error) {

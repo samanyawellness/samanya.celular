@@ -8,6 +8,7 @@ import { residentesRoutes } from './modules/residentes/residentes.routes.js';
 import { consentimientosRoutes } from './modules/consentimientos/consentimientos.routes.js';
 import { tareasRoutes } from './modules/tareas/tareas.routes.js';
 import { notificacionesRoutes } from './modules/notificaciones/notificaciones.routes.js';
+import { archivosRoutes } from './modules/archivos/archivos.routes.js';
 import { errorHandler } from './middlewares/error.middleware.js';
 
 export function createApp() {
@@ -36,6 +37,7 @@ export function createApp() {
   app.use('/api/v1/consentimientos', consentimientosRoutes);
   app.use('/api/v1/tareas', tareasRoutes);
   app.use('/api/v1/notificaciones', notificacionesRoutes);
+  app.use('/api/v1/archivos', archivosRoutes);
 
   // Manejador centralizado de errores
   app.use(errorHandler);
