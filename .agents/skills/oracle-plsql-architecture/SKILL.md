@@ -262,7 +262,7 @@ END PKGCN_RESIDENTES;
 - **Reglas Mandatorias para `pkgln_`**:
   1. **Sin Sentencias DML Directas ni SELECT Directos sobre Tablas**: `pkgln_` no escribe sentencias directas `INSERT INTO`, `UPDATE`, `DELETE` ni `SELECT ... FROM tabla` en su código.
   2. **Búsquedas por PK / ID**: Se realizan exclusivamente mediante el paquete DAO de la tabla (`pkgsmy_<tabla>_dao.f_traer(p_id)` o `pkgsmy_<tabla>_dao.f_existe(p_id, vro_registro)`).
-  3. **Búsquedas por otros criterios**: Se realizan exclusivamente mediante paquetes de consulta `pkgca_<tabla>` (ej. `pkgca_smy_usuarios.f_buscar_por_username_email`, `pkgca_residentes.p_consultar_censo`).
+  3. **Búsquedas por otros criterios**: Se realizan exclusivamente mediante paquetes de consulta `pkgca_<tabla>` (ej. `pkgca_smy_usuarios.fn_buscar_por_username_email`, `pkgca_residentes.fn_consultar_censo`).
   4. **Asignación de Secuencias Directa**: En PL/SQL los IDs autogenerados se asignan directamente:
      ```sql
      vro_auditoria.id := SEQ_SMY_AUDITORIA_ACCESOS.NEXTVAL;
@@ -272,8 +272,9 @@ END PKGCN_RESIDENTES;
      - Los **`_DAO`** para persistencia mono-tabla por PK (`p_insertar`, `p_actualizar`, `p_eliminar`).
      - Los **`pkgca_`** para DML masivo sin PK sobre una entidad.
      - Los **`pkgcn_`** para sentencias DML técnicas que involucran como mínimo dos tablas.
-  6. **Control Transaccional (AQUÍ VA EL COMMIT)**:
-     - `pkgln_` orquesta el caso de uso y ejecuta **`COMMIT;`** al completar satisfactoriamente el proceso.
+  6. **Control Transaccional (COMMIT CONTROLADO - PROHIBIDO COMMIT DIRECTO)**:
+     - `pkgln_` orquesta el caso de uso y ejecuta el cierre transaccional al completar satisfactoriamente el proceso.
+     - **PROHIBIDO ejecutar `COMMIT;` directo**: Se debe invocar obligatoriamente el procedimiento corporativo centralizado `p_do_commit('<objeto>.<metodo>');` enviando como parámetro el contexto (nombre de paquete + nombre de método, ej. `p_do_commit('pkgln_auth.pr_registrar_dispositivo_push');`).
      - En caso de excepción, ejecuta inmediatamente **`ROLLBACK;`**, registra el error en `SMY_ERRORES` mediante `uti_ge_excepciones_pkg.p_grabar_log(vro_error);` y lanza el error con `RAISE_APPLICATION_ERROR(-20000, ...)`.
 
 *Ejemplo Oficial de Lógica de Negocio en `pkgln_`:*
@@ -304,8 +305,8 @@ AS
             RAISE_APPLICATION_ERROR(-20002, 'El usuario indicado no existe en el sistema.');
         END IF;
 
-        -- 4. EN ESTE VA EL COMMIT
-        COMMIT;
+        -- 4. Control transaccional mediante p_do_commit
+        p_do_commit('pkgln_usuarios.pr_actualizar_nombre_usuario');
 
     EXCEPTION
         WHEN OTHERS THEN
@@ -320,7 +321,7 @@ AS
             RAISE_APPLICATION_ERROR(-20000, 'Se presento un error comunicarse con soporte. Número error: ' || vro_error.id || ' - ' || SQLERRM);
     END pr_actualizar_nombre_usuario;
 
-    -- Ejemplo oficial de proceso multi-entidad usando DAOs y COMMIT en pkgln_
+    -- Ejemplo oficial de proceso multi-entidad usando DAOs y p_do_commit en pkgln_
     PROCEDURE pr_registrar_acceso_exitoso (
         p_id_usuario        IN smy_usuarios.id%TYPE,
         p_direccion_ip      IN VARCHAR2,
@@ -344,8 +345,8 @@ AS
         vro_auditoria_accesos.fecha_creacion  := CAST(SYSTIMESTAMP AT TIME ZONE '-05:00' AS DATE);
         PKGSMY_AUDITORIA_ACCESOS_DAO.p_insertar(vro_auditoria_accesos);
 
-        -- 3. En pkgln_ va el COMMIT
-        COMMIT;
+        -- 3. En pkgln_ va el COMMIT controlado
+        p_do_commit('pkgln_usuarios.pr_registrar_acceso_exitoso');
     EXCEPTION
         WHEN OTHERS THEN
             ROLLBACK;
@@ -362,13 +363,47 @@ END PKGLN_USUARIOS;
 
 ---
 
-## 8. Estándar Obligatorio de Manejo de Excepciones y Logging
+## 8. Procedimiento Centralizado de Transacciones (`p_do_commit`)
 
-### 8.1 Errores de Negocio Conocidos
+- **Definición Oficial del Procedimiento**:
+```sql
+CREATE OR REPLACE PROCEDURE p_do_commit (
+    p_contexto IN VARCHAR2 DEFAULT 'General'
+) AS
+BEGIN
+    -- Aquí puedes agregar lógica de control o auditoría previa
+    DBMS_OUTPUT.PUT_LINE('Ejecutando COMMIT controlado para: ' || p_contexto);
+    
+    COMMIT;
+    
+EXCEPTION
+    WHEN OTHERS THEN
+        -- Control de errores en caso de que el commit falle
+        DBMS_OUTPUT.PUT_LINE('Error al ejecutar COMMIT en ' || p_contexto || ': ' || SQLERRM);
+        RAISE;
+END;
+/
+```
+- **Reglas Mandatorias**:
+  1. Donde antes existía un `COMMIT;` directo en cualquier paquete o procedimiento, debe reemplazarse obligatoriamente por `p_do_commit(...)`.
+  2. Parámetro `p_contexto`: Se debe enviar el nombre del objeto. Si es un paquete, la convención obligatoria es:
+     `<nombre_paquete>.<nombre_metodo>`
+     *Ejemplos:*
+     - `p_do_commit('pkgln_auth.pr_registrar_dispositivo_push');`
+     - `p_do_commit('pkgln_auth.pr_registrar_acceso_exitoso');`
+     - `p_do_commit('pkgln_archivos.pr_registrar_archivo');`
+     - `p_do_commit('pkgln_consentimientos.pr_firmar_consentimiento');`
+     - `p_do_commit('uti_ge_excepciones_pkg.p_grabar_log');`
+
+---
+
+## 9. Estándar Obligatorio de Manejo de Excepciones y Logging
+
+### 9.1 Errores de Negocio Conocidos
 - Deben dispararse explícitamente con códigos entre `-20001` y `-20999` y mensajes claros.
 - Se propagan sin necesidad de log de soporte (son validaciones funcionales normales).
 
-### 8.2 Errores Inesperados (`WHEN OTHERS`)
+### 9.2 Errores Inesperados (`WHEN OTHERS`)
 En paquetes `pkgln_`, toda excepción no anticipada debe capturarse obligatoriamente bajo este esquema:
 
 ```sql
@@ -400,7 +435,7 @@ EXCEPTION
         );
 ```
 
-### 8.3 Prohibiciones Estrictas de Manejo de Errores
+### 9.3 Prohibiciones Estrictas de Manejo de Errores
 > [!CAUTION]
 > 1. **Prohibido:** `WHEN OTHERS THEN NULL;` (Nunca silenciar ni ocultar excepciones).
 > 2. **Prohibido:** `WHEN OTHERS THEN RAISE_APPLICATION_ERROR(...)` sin haber ejecutado `uti_ge_excepciones_pkg.p_grabar_log(vro_error);`.
@@ -409,28 +444,29 @@ EXCEPTION
 
 ---
 
-## 9. Retorno Multi-Fila y Generación de JSON en Oracle
+## 10. Retorno Multi-Fila y Generación de JSON en Oracle
 
-### 9.1 Consultas Multi-Fila: `SYS_REFCURSOR`
+### 10.1 Consultas Multi-Fila: `SYS_REFCURSOR`
 Cualquier procedimiento o función de consulta multi-registro debe retornar un `SYS_REFCURSOR`.
 
-### 9.2 Generación Nativa de JSON (APIs / Frontends / Node)
+### 10.2 Generación Nativa de JSON (APIs / Frontends / Node)
 Cuando el consumidor requiera JSON, se debe generar **directamente en el motor Oracle** con funciones SQL/JSON nativas (`JSON_OBJECT`, `JSON_ARRAYAGG`) y cláusula `RETURNING CLOB`.
 > [!WARNING]
 > Queda **terminantemente prohibida** la concatenación manual de cadenas para formar JSON.
 
 ---
 
-## 10. Nomenclatura de Subprogramas
+## 11. Nomenclatura de Subprogramas
 
 | Ámbito | Funciones | Procedimientos |
 | :--- | :--- | :--- |
 | **Plantilla DAO oficial** | Prefijo `f_` (`f_traer`, `f_existe`, `f_json`) | Prefijo `p_` (`p_insertar`, `p_actualizar`, `p_eliminar`) |
 | **Nuevos pkgca_, pkgcn_, pkgln_** | Prefijo `fn_` (`fn_buscar_residentes`, `fn_calcular`) | Prefijo `pr_` (`pr_confirmar_orden`, `pr_firmar_consentimiento`) |
+| **Utilidades de Control** | | `p_do_commit` |
 
 ---
 
-## 11. Lista de Chequeo Arquitectónica Obligatoria (Pre-entrega)
+## 12. Lista de Chequeo Arquitectónica Obligatoria (Pre-entrega)
 
 Antes de entregar cualquier código, el agente debe auto-verificar:
 - [ ] **Clasificación**: ¿El código está en el paquete correcto (`_DAO`, `pkgca_`, `pkgcn_`, `pkgln_`) según su responsabilidad?
@@ -439,8 +475,8 @@ Antes de entregar cualquier código, el agente debe auto-verificar:
 - [ ] **Tipado**: ¿Se utilizan `%ROWTYPE` y `%TYPE` en lugar de tipos genéricos?
 - [ ] **pkgcn_**: ¿Contiene únicamente sentencias DML de proceso que involucran más de una tabla (sin lógica de negocio ni commit)?
 - [ ] **pkgln_**: ¿Lleva la lógica de negocio y está **completamente libre de sentencias DML directas** (usando `_DAO`, `pkgca_` y `pkgcn_`)?
-- [ ] **Transaccionalidad en pkgln_**: ¿`pkgln_` maneja atomicidad (`COMMIT;` al éxito, `ROLLBACK;` previo al log)?
-- [ ] **Sin COMMITs espurios**: ¿Los DAOs, `pkgca_` y `pkgcn_` se abstienen de hacer `COMMIT;`?
+- [ ] **Transaccionalidad en pkgln_**: ¿Se utilizó `p_do_commit('<objeto>.<metodo>')` en lugar de un `COMMIT;` directo?
+- [ ] **Sin COMMITs espurios**: ¿Los DAOs, `pkgca_` y `pkgcn_` se abstienen de hacer `COMMIT;` / `p_do_commit`?
 - [ ] **Trazabilidad de Errores**: ¿Se asignaron `nombre_programa`, `nombre_metodo` y `parametros` en `vro_error`?
 - [ ] **Log Autónomo**: ¿Se usó `uti_ge_excepciones_pkg.p_grabar_log(vro_error)`?
 - [ ] **Error al Cliente**: ¿Se utilizó `RAISE_APPLICATION_ERROR(-20000, '... Número error: ' || vro_error.id || ' - ' || SQLERRM);`?
@@ -449,7 +485,7 @@ Antes de entregar cualquier código, el agente debe auto-verificar:
 
 ---
 
-## 12. Formato Estándar de Respuesta al Usuario
+## 13. Formato Estándar de Respuesta al Usuario
 
 Al responder solicitudes de desarrollo PL/SQL, estructurar la salida en este orden:
 1. **Clasificación arquitectónica:** (e.g. `pkgln_archivos`, `pkgcn_consentimientos`)

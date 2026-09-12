@@ -469,8 +469,8 @@ AS
         -- 3. Inserción delegada al DAO (Cero DML directo en pkgln_)
         PKGSMY_ARCHIVOS_DAO.p_insertar(vro_archivo);
 
-        -- 4. EN ESTE VA EL COMMIT
-        COMMIT;
+        -- 4. Control transaccional en pkgln_ (COMMIT controlado)
+        p_do_commit('pkgln_archivos.pr_registrar_archivo');
 
         p_mensaje_resultado := 'Archivo registrado exitosamente con ID ' || vro_archivo.id;
     EXCEPTION
@@ -516,8 +516,8 @@ AS
         -- Actualización delegada al DAO
         PKGSMY_ARCHIVOS_DAO.p_actualizar(vro_archivo);
 
-        -- EN ESTE VA EL COMMIT
-        COMMIT;
+        -- Control transaccional en pkgln_ (COMMIT controlado)
+        p_do_commit('pkgln_archivos.pr_borrar_archivo');
 
         p_mensaje_resultado := 'Archivo ID ' || p_id_archivo || ' marcado como no visible exitosamente.';
     EXCEPTION
@@ -558,8 +558,8 @@ AS
 
         PKGSMY_ARCHIVOS_DAO.p_actualizar(vro_archivo);
 
-        -- EN ESTE VA EL COMMIT
-        COMMIT;
+        -- Control transaccional en pkgln_ (COMMIT controlado)
+        p_do_commit('pkgln_archivos.pr_renombrar_archivo');
 
         p_mensaje_resultado := 'Archivo ID ' || p_id_archivo || ' renombrado exitosamente a "' || vro_archivo.nombre_archivo || '".';
     EXCEPTION
@@ -617,8 +617,8 @@ AS
 
         PKGSMY_ARCHIVOS_DAO.p_insertar(vro_nuevo);
 
-        -- EN ESTE VA EL COMMIT
-        COMMIT;
+        -- Control transaccional en pkgln_ (COMMIT controlado)
+        p_do_commit('pkgln_archivos.pr_copiar_archivo');
 
         p_mensaje_resultado := 'Copia generada exitosamente con nuevo ID ' || p_id_nuevo_archivo;
     EXCEPTION
@@ -656,8 +656,8 @@ AS
 
         PKGSMY_ARCHIVOS_DAO.p_actualizar(vro_archivo);
 
-        -- EN ESTE VA EL COMMIT
-        COMMIT;
+        -- Control transaccional en pkgln_ (COMMIT controlado)
+        p_do_commit('pkgln_archivos.pr_restaurar_archivo');
 
         p_mensaje_resultado := 'Archivo ID ' || p_id_archivo || ' restaurado a visible exitosamente.';
     EXCEPTION
@@ -715,8 +715,8 @@ AS
             PKGSMY_DOCUMENTOS_CLINICOS_DAO.p_actualizar(vro_doc);
         END IF;
 
-        -- 3. EN ESTE VA EL COMMIT
-        COMMIT;
+        -- 3. Control transaccional en pkgln_ (COMMIT controlado)
+        p_do_commit('pkgln_archivos.pr_vincular_archivo_doc_clinico');
 
     EXCEPTION
         WHEN OTHERS THEN
@@ -755,8 +755,8 @@ AS
             PKGSMY_DOCUMENTOS_CLINICOS_DAO.p_actualizar(vro_doc);
         END IF;
 
-        -- 3. EN ESTE VA EL COMMIT
-        COMMIT;
+        -- 3. Control transaccional en pkgln_ (COMMIT controlado)
+        p_do_commit('pkgln_archivos.pr_desvincular_archivo_doc_clinico');
 
     EXCEPTION
         WHEN OTHERS THEN

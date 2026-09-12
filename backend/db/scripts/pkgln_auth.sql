@@ -76,8 +76,8 @@ AS
 
         pkgsmy_auditoria_accesos_dao.p_insertar(vro_auditoria_accesos);
 
-        -- 3. Control transaccional en pkgln_
-        COMMIT;
+        -- 3. Control transaccional en pkgln_ (COMMIT controlado)
+        p_do_commit('pkgln_auth.pr_registrar_acceso_exitoso');
 
     EXCEPTION
         WHEN OTHERS THEN
@@ -119,7 +119,7 @@ AS
                 vro_auditoria.fecha_creacion := CAST(SYSTIMESTAMP AT TIME ZONE '-05:00' AS DATE);
                 
                 PKGSMY_AUDITORIA_ACCESOS_DAO.p_insertar(vro_auditoria);
-                COMMIT;
+                p_do_commit('pkgln_auth.pr_autenticar');
             EXCEPTION
                 WHEN OTHERS THEN
                     NULL;
@@ -187,8 +187,8 @@ AS
             PKGSMY_DISPOSITIVOS_PUSH_DAO.p_insertar(vro_disp);
         END IF;
 
-        -- EN ESTE VA EL COMMIT
-        COMMIT;
+        -- Control transaccional (COMMIT controlado)
+        p_do_commit('pkgln_auth.pr_registrar_dispositivo_push');
 
     EXCEPTION
         WHEN OTHERS THEN
@@ -218,8 +218,8 @@ AS
             PKGSMY_DISPOSITIVOS_PUSH_DAO.p_actualizar(vro_disp);
         END IF;
 
-        -- EN ESTE VA EL COMMIT
-        COMMIT;
+        -- Control transaccional (COMMIT controlado)
+        p_do_commit('pkgln_auth.pr_desactivar_dispositivo_push');
 
     EXCEPTION
         WHEN OTHERS THEN

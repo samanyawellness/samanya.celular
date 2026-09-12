@@ -20,7 +20,7 @@ Cada vez que se solicite generar, modificar, revisar, optimizar, refactorizar o 
      * **Búsquedas por otros criterios** (nombre, email, estado, filtros): Se realizan exclusivamente mediante paquetes `pkgca_<tabla>` llamando a la función de búsqueda.
      * **Asignación de secuencias**: Utilizar asignación directa (`vro_auditoria.id := SEQ_SMY_AUDITORIA_ACCESOS.NEXTVAL;`), **nunca hacer SELECT ... FROM DUAL**.
      * Orquesta el flujo: valida con DAO (`IF pkg<tabla>_dao.f_existe(...)`), actualiza con DAO (`pkg<tabla>_dao.p_actualizar(...)`), inserta con DAO (`pkgsmy_auditoria_accesos_dao.p_insertar(...)`), o invoca `pkgcn_` si aplica una sentencia multi-tabla.
-     * **En `pkgln_` va el `COMMIT;`** al completar el proceso.
+     * **Control transaccional (COMMIT controlado)**: En `pkgln_` se ejecuta el COMMIT al completar el proceso, pero **nunca mediante `COMMIT;` directo**. Se debe invocar obligatoriamente el procedimiento `p_do_commit('<objeto>.<metodo>');` enviando como parámetro el contexto (nombre del paquete + nombre del método, ej: `p_do_commit('pkgln_auth.pr_registrar_dispositivo_push');`).
      * Captura `WHEN OTHERS`, ejecuta `ROLLBACK;`, puebla `vro_error smy_errores%ROWTYPE;`, invoca `uti_ge_excepciones_pkg.p_grabar_log(vro_error);` y lanza `RAISE_APPLICATION_ERROR(-20000, 'Se presento un error comunicarse con soporte. Número error: ' || vro_error.id || ' - ' || SQLERRM);`.
 3. **Manejo de JSON y Cursors**:
    - Multi-fila siempre retorna `SYS_REFCURSOR`.

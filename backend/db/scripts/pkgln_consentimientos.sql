@@ -99,8 +99,8 @@ AS
             END IF;
         END;
 
-        -- 7. EN ESTE VA EL COMMIT (Control transaccional en pkgln_)
-        COMMIT;
+        -- 7. Control transaccional en pkgln_ (COMMIT controlado)
+        p_do_commit('pkgln_consentimientos.pr_firmar_consentimiento');
 
         p_mensaje_resultado := 'Consentimiento firmado y respaldado exitosamente.';
 

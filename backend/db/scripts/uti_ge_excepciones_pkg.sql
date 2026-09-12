@@ -28,7 +28,7 @@ AS
         END IF;
 
         pkgsmy_errores_dao.p_insertar (pro_smy_errores);
-        COMMIT;
+        p_do_commit('uti_ge_excepciones_pkg.p_grabar_log');
     END p_grabar_log;
 END uti_ge_excepciones_pkg;
 /
