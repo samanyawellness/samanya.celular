@@ -4,7 +4,8 @@ import {
   Search,
   AlertTriangle,
   ChevronRight,
-  Users
+  Users,
+  X
 } from 'lucide-react';
 
 export const ResidentsScreen: React.FC = () => {
@@ -45,8 +46,18 @@ export const ResidentsScreen: React.FC = () => {
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Buscar por nombre o habitación..."
-          className="w-full pl-11 pr-4 py-3 bg-white border border-[#DEDBD1] rounded-2xl text-sm text-[#292A24] placeholder:text-[#5C6058]/60 focus:outline-none focus:border-[#068591] shadow-2xs"
+          className="w-full pl-11 pr-10 py-3 bg-white border border-[#DEDBD1] rounded-2xl text-sm text-[#292A24] placeholder:text-[#5C6058]/60 focus:outline-none focus:border-[#068591] shadow-2xs"
         />
+        {searchQuery && (
+          <button
+            type="button"
+            onClick={() => setSearchQuery('')}
+            className="touch-target absolute right-3 top-1/2 -translate-y-1/2 p-1 text-[#5C6058] hover:text-[#292A24]"
+            aria-label="Limpiar búsqueda"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        )}
       </div>
 
       {/* Resident Cards List: Avatar, Name, Room, and Allergy/Risk Alerts */}

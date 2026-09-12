@@ -121,10 +121,10 @@ export const IncidentReportScreen: React.FC = () => {
             id="btn-back-incident-screen"
             type="button"
             onClick={() => setIsIncidentReportOpen(false)}
-            className="touch-target flex items-center gap-1 text-[#8C2E2E] font-bold text-sm"
+            className="touch-target min-w-[44px] min-h-[44px] -ml-2 px-2 flex items-center gap-1 text-[#8C2E2E] font-bold text-sm active:scale-95 transition-all"
           >
             <ChevronLeft className="w-5 h-5" />
-            <span>Cancelar</span>
+            <span>Volver</span>
           </button>
           <div>
             <h1 className="font-bold text-base text-[#292A24]">

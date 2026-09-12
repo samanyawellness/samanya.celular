@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Requerimientos — Sistema de Gestión Geriátrica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Source+Sans+3:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#26241f;
+  --paper:#f1ede3;
+  --paper-2:#e8e2d2;
+  --forest:#274a3f;
+  --forest-deep:#182f28;
+  --ochre:#b3803f;
+  --ochre-soft:#dcb87f;
+  --admin:#7a4f9e;
+  --empleado:#2c7a6b;
+  --acudiente:#b3803f;
+  --line:#cdc4ac;
+  --danger:#a4453a;
+  --radius:10px;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:'Source Sans 3',sans-serif;
+  font-size:16px;
+  line-height:1.6;
+}
+h1,h2,h3,h4{
+  font-family:'Fraunces',serif;
+  color:var(--forest-deep);
+  margin:0 0 .4em 0;
+  font-weight:600;
+}
+::selection{background:var(--ochre-soft);}
+a{color:var(--forest);}
+.mono{font-family:'IBM Plex Mono',monospace; font-size:.82em;}
+
+/* ---------- Layout ---------- */
+.shell{
+  display:grid;
+  grid-template-columns:280px 1fr;
+  min-height:100vh;
+}
+nav.toc{
+  position:sticky;
+  top:0;
+  height:100vh;
+  overflow-y:auto;
+  background:var(--forest-deep);
+  color:#e7e2d3;
+  padding:28px 22px 40px;
+  border-right:1px solid #0e1f1a;
+}
+nav.toc .brand{
+  font-family:'Fraunces',serif;
+  font-size:1.15rem;
+  font-weight:600;
+  color:#fff;
+  margin-bottom:4px;
+  letter-spacing:.3px;
+}
+nav.toc .brand-sub{
+  font-size:.72rem;
+  text-transform:uppercase;
+  letter-spacing:1.5px;
+  color:var(--ochre-soft);
+  margin-bottom:26px;
+  display:block;
+}
+nav.toc ol{
+  list-style:none;
+  margin:0; padding:0;
+  counter-reset:sec;
+}
+nav.toc ol > li{
+  counter-increment:sec;
+  margin-bottom:2px;
+}
+nav.toc ol > li > a{
+  display:flex;
+  gap:10px;
+  color:#cfc9b8;
+  text-decoration:none;
+  font-size:.88rem;
+  padding:7px 8px;
+  border-radius:6px;
+  transition:background .15s ease, color .15s ease;
+}
+nav.toc ol > li > a::before{
+  content:counter(sec, decimal-leading-zero);
+  font-family:'IBM Plex Mono',monospace;
+  font-size:.75rem;
+  color:var(--ochre-soft);
+  flex-shrink:0;
+}
+nav.toc ol > li > a:hover{background:rgba(255,255,255,.06); color:#fff;}
+nav.toc .toc-sub{
+  margin:2px 0 8px 30px;
+  font-size:.78rem;
+  color:#9a917a;
+}
+nav.toc .toc-sub a{color:#9a917a; text-decoration:none;}
+nav.toc .toc-sub a:hover{color:#e7e2d3;}
+nav.toc .legend{
+  margin-top:30px;
+  padding-top:20px;
+  border-top:1px solid rgba(255,255,255,.12);
+  font-size:.76rem;
+  color:#9a917a;
+}
+nav.toc .legend div{display:flex; align-items:center; gap:8px; margin-bottom:7px;}
+.dot{width:9px; height:9px; border-radius:50%; flex-shrink:0;}
+
+main{
+  padding:64px 72px 120px;
+  max-width:980px;
+}
+
+/* ---------- Cover ---------- */
+.cover{
+  margin-bottom:70px;
+  padding-bottom:40px;
+  border-bottom:2px solid var(--forest-deep);
+}
+.cover .eyebrow{
+  font-family:'IBM Plex Mono',monospace;
+  text-transform:uppercase;
+  letter-spacing:2px;
+  font-size:.78rem;
+  color:var(--ochre);
+  margin-bottom:18px;
+}
+.cover h1{
+  font-size:3rem;
+  line-height:1.05;
+  max-width:11ch;
+  margin-bottom:18px;
+}
+.cover p.lead{
+  font-size:1.15rem;
+  max-width:60ch;
+  color:#4b4636;
+}
+.cover .meta{
+  margin-top:30px;
+  display:flex;
+  gap:36px;
+  font-size:.85rem;
+  color:#6b6552;
+}
+.cover .meta strong{display:block; color:var(--ink); font-family:'Fraunces',serif; font-size:1rem; font-weight:600;}
+
+/* ---------- Sections ---------- */
+section{margin-bottom:64px; scroll-margin-top:24px;}
+section > h2{
+  font-size:1.9rem;
+  padding-bottom:14px;
+  border-bottom:1px solid var(--line);
+  margin-bottom:22px;
+}
+section > h2 .num{color:var(--ochre); margin-right:10px; font-family:'IBM Plex Mono',monospace; font-size:1.1rem;}
+h3{font-size:1.3rem; margin-top:36px;}
+h3 .num{color:var(--ochre); font-family:'IBM Plex Mono',monospace; font-size:.9rem; margin-right:8px;}
+p{margin:0 0 14px 0;}
+ul, ol.plain{margin:0 0 16px 0; padding-left:22px;}
+li{margin-bottom:6px;}
+
+/* ---------- Role badges ---------- */
+.badge{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  font-size:.68rem;
+  font-weight:600;
+  text-transform:uppercase;
+  letter-spacing:.5px;
+  padding:3px 9px;
+  border-radius:20px;
+  white-space:nowrap;
+}
+.badge .dot{width:7px; height:7px; border-radius:50%;}
+.badge.admin{background:rgba(122,79,158,.14); color:var(--admin);}
+.badge.admin .dot{background:var(--admin);}
+.badge.empleado{background:rgba(44,122,107,.14); color:var(--empleado);}
+.badge.empleado .dot{background:var(--empleado);}
+.badge.acudiente{background:rgba(179,128,63,.16); color:var(--ochre);}
+.badge.acudiente .dot{background:var(--ochre);}
+
+/* ---------- Role cards (section 3) ---------- */
+.roles-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:18px;
+  margin:26px 0 10px;
+}
+.role-card{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:22px 20px;
+  border-top:4px solid var(--forest);
+}
+.role-card.admin{border-top-color:var(--admin);}
+.role-card.empleado{border-top-color:var(--empleado);}
+.role-card.acudiente{border-top-color:var(--ochre);}
+.role-card h4{font-size:1.05rem; margin-bottom:8px;}
+.role-card p{font-size:.9rem; color:#4b4636; margin-bottom:10px;}
+.role-card ul{padding-left:18px; font-size:.86rem; margin:0;}
+.role-card li{margin-bottom:4px;}
+
+/* ---------- Module summary cards ---------- */
+.module-block{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:24px 26px;
+  margin-bottom:20px;
+}
+.module-block .tag-row{margin-bottom:10px; display:flex; gap:6px; flex-wrap:wrap;}
+.module-block h4{font-size:1.08rem; margin-bottom:6px;}
+.module-block p.desc{color:#4b4636; font-size:.92rem; margin-bottom:14px;}
+
+/* ---------- RF Table ---------- */
+table.rf{
+  width:100%;
+  border-collapse:collapse;
+  font-size:.86rem;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  overflow:hidden;
+}
+table.rf caption{
+  text-align:left;
+  font-family:'Fraunces',serif;
+  font-weight:600;
+  font-size:1rem;
+  color:var(--forest-deep);
+  padding:14px 16px;
+  background:var(--paper-2);
+  border-bottom:1px solid var(--line);
+}
+table.rf th{
+  text-align:left;
+  background:var(--paper-2);
+  padding:10px 14px;
+  font-size:.72rem;
+  text-transform:uppercase;
+  letter-spacing:.6px;
+  color:#5b5645;
+  border-bottom:1px solid var(--line);
+}
+table.rf td{
+  padding:11px 14px;
+  border-bottom:1px solid #e6e0d0;
+  vertical-align:top;
+}
+table.rf tr:last-child td{border-bottom:none;}
+table.rf td.id{font-family:'IBM Plex Mono',monospace; font-size:.78rem; color:var(--ochre); white-space:nowrap;}
+table.rf tr:hover td{background:#faf8f2;}
+
+/* ---------- Entity list (data model) ---------- */
+.entity-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:14px;
+  margin-top:20px;
+}
+.entity{
+  background:#fff;
+  border:1px solid var(--line);
+  border-left:3px solid var(--forest);
+  border-radius:6px;
+  padding:14px 16px;
+}
+.entity .ename{
+  font-family:'IBM Plex Mono',monospace;
+  font-weight:600;
+  font-size:.88rem;
+  color:var(--forest-deep);
+  display:block;
+  margin-bottom:4px;
+}
+.entity p{font-size:.83rem; color:#4b4636; margin:0;}
+
+/* ---------- Notification flow ---------- */
+.flow{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:26px;
+  margin-top:20px;
+}
+.flow-row{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  padding:10px 0;
+  border-bottom:1px dashed var(--line);
+  font-size:.9rem;
+}
+.flow-row:last-child{border-bottom:none;}
+.flow-event{
+  flex:0 0 230px;
+  font-weight:600;
+  color:var(--forest-deep);
+}
+.flow-arrow{color:var(--line); font-family:'IBM Plex Mono',monospace;}
+.flow-target{display:flex; gap:6px; flex-wrap:wrap;}
+
+/* ---------- Callouts ---------- */
+.callout{
+  background:var(--paper-2);
+  border-left:4px solid var(--ochre);
+  border-radius:0 8px 8px 0;
+  padding:16px 20px;
+  font-size:.9rem;
+  margin:20px 0;
+}
+.callout strong{color:var(--forest-deep);}
+
+/* ---------- NFR grid ---------- */
+.nfr-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:16px;
+  margin-top:20px;
+}
+.nfr{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:18px 20px;
+}
+.nfr h4{font-size:.95rem; margin-bottom:6px; display:flex; align-items:center; gap:8px;}
+.nfr h4 .idx{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:.72rem;
+  color:#fff;
+  background:var(--forest);
+  border-radius:4px;
+  padding:2px 6px;
+}
+.nfr p{font-size:.86rem; color:#4b4636; margin:0;}
+
+footer{
+  border-top:1px solid var(--line);
+  padding-top:24px;
+  font-size:.8rem;
+  color:#7a745f;
+}
+
+@media (max-width:900px){
+  .shell{grid-template-columns:1fr;}
+  nav.toc{position:relative; height:auto;}
+  main{padding:40px 22px 100px;}
+  .roles-grid, .entity-grid, .nfr-grid{grid-template-columns:1fr;}
+  .cover h1{font-size:2.2rem;}
+}
+@media print{
+  nav.toc{display:none;}
+  .shell{grid-template-columns:1fr;}
+  body{background:#fff;}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <nav class="toc">
+    <span class="brand">Geriátrico&nbsp;OS</span>
+    <span class="brand-sub">Levantamiento de requerimientos</span>
+    <ol>
+      <li><a href="#objetivo">Objetivo y alcance</a></li>
+      <li><a href="#roles">Roles del sistema</a></li>
+      <li><a href="#admin">Módulo administrativo</a></li>
+      <li><a href="#clinico">Módulo clínico</a></li>
+      <li><a href="#acudiente">Portal de acudientes</a></li>
+      <li><a href="#rf">Requerimientos funcionales</a></li>
+      <li><a href="#rnf">Requerimientos no funcionales</a></li>
+      <li><a href="#datos">Modelo de datos preliminar</a></li>
+      <li><a href="#notif">Notificaciones y eventos</a></li>
+      <li><a href="#glosario">Glosario</a></li>
+    </ol>
+    <div class="legend">
+      <div><span class="dot" style="background:var(--admin)"></span> Rol Administrador</div>
+      <div><span class="dot" style="background:var(--empleado)"></span> Rol Empleado</div>
+      <div><span class="dot" style="background:var(--ochre)"></span> Rol Acudiente</div>
+    </div>
+  </nav>
+
+  <main>
+
+    <div class="cover">
+      <div class="eyebrow">Documento de requerimientos · v0.1</div>
+      <h1>Sistema de gestión integral para centro geriátrico</h1>
+      <p class="lead">Especificación funcional para una plataforma que unifica la operación administrativa del personal (empleados, horarios, permisos) con el manejo clínico del residente (bitácora, medicamentos, alimentación) y un portal de transparencia para los acudientes.</p>
+      <div class="meta">
+        <div><strong>3 roles</strong>Administrador · Empleado · Acudiente</div>
+        <div><strong>3 dominios</strong>Administrativo · Clínico · Familiar</div>
+        <div><strong>Estado</strong>Borrador para revisión</div>
+      </div>
+    </div>
+
+    <!-- 1. OBJETIVO -->
+    <section id="objetivo">
+      <h2><span class="num">01</span>Objetivo y alcance</h2>
+      <p>Construir un software que centralice la operación de un centro geriátrico (hogar geriátrico / centro de larga estancia) en tres frentes que hoy suelen estar desconectados: la <strong>gestión administrativa del talento humano</strong>, el <strong>seguimiento clínico diario del residente</strong> y la <strong>comunicación con la familia o acudiente responsable</strong>.</p>
+      <p>El sistema debe permitir que el personal asistencial registre en tiempo real lo que le ocurre a cada residente durante su turno (bitácora, medicación, alimentación, signos vitales), que el área administrativa gestione empleados, turnos y permisos, y que el acudiente tenga visibilidad controlada y en tiempo real del estado de su familiar sin necesidad de llamar o visitar el centro para preguntar.</p>
+      <div class="callout">
+        <strong>Fuera de alcance en esta primera fase:</strong> facturación electrónica DIAN, historia clínica interoperable con RIPS/PGP del Ministerio de Salud, y telemedicina. Se referencian como módulos futuros pero no se detallan requerimientos aquí.
+      </div>
+    </section>
+
+    <!-- 2. ROLES -->
+    <section id="roles">
+      <h2><span class="num">02</span>Roles del sistema</h2>
+      <p>Todo el sistema se diseña alrededor de tres roles con visibilidad y capacidades distintas. Un mismo usuario puede tener un único rol activo por sesión; el acceso a cada módulo se resuelve por rol, y dentro del rol Empleado, por cargo (enfermería, cuidado, administrativo).</p>
+      <div class="roles-grid">
+        <div class="role-card admin">
+          <span class="badge admin"><span class="dot"></span>Administrador</span>
+          <h4>Control total de la operación</h4>
+          <p>Dirección del centro, coordinación administrativa o dueño. Configura el sistema y supervisa ambos frentes: administrativo y clínico.</p>
+          <ul>
+            <li>Gestiona empleados, roles y permisos del sistema</li>
+            <li>Aprueba turnos, ausencias y vacaciones</li>
+            <li>Administra el ingreso y egreso de residentes</li>
+            <li>Accede a reportes y auditoría completa</li>
+          </ul>
+        </div>
+        <div class="role-card empleado">
+          <span class="badge empleado"><span class="dot"></span>Empleado</span>
+          <h4>Operación diaria del cuidado</h4>
+          <p>Personal asistencial (enfermería, auxiliares, cuidadores) y personal de apoyo. Registra todo lo que ocurre turno a turno.</p>
+          <ul>
+            <li>Registra bitácora, medicación, alimentación y signos vitales</li>
+            <li>Consulta su horario y solicita permisos</li>
+            <li>Reporta incidentes y novedades</li>
+            <li>Ve solo la información clínica de sus residentes asignados</li>
+          </ul>
+        </div>
+        <div class="role-card acudiente">
+          <span class="badge acudiente"><span class="dot"></span>Acudiente</span>
+          <h4>Visibilidad y tranquilidad familiar</h4>
+          <p>Familiar o responsable legal del residente. Rol de solo consulta con capacidad de comunicarse con el centro.</p>
+          <ul>
+            <li>Consulta novedades y bitácora resumida de su familiar</li>
+            <li>Recibe notificaciones de eventos relevantes</li>
+            <li>Ve el calendario de actividades y eventos del centro</li>
+            <li>Envía mensajes o solicita visitas</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. MODULO ADMIN -->
+    <section id="admin">
+      <h2><span class="num">03</span>Módulo administrativo</h2>
+      <p>Cubre la gestión del talento humano y la operación general del centro. Es el módulo de uso principal del rol Administrador, con puntos de contacto para el Empleado (autoconsulta y autogestión).</p>
+
+      <div class="module-block">
+        <div class="tag-row"><span class="badge admin"><span class="dot"></span>Administrador</span><span class="badge empleado"><span class="dot"></span>Empleado (consulta)</span></div>
+        <h4>3.1 Gestión de empleados</h4>
+        <p class="desc">Ficha completa del colaborador: hoja de vida, cargo, tipo de contrato, documentos (cédula, certificados, EPS/ARL/pensión), fecha de ingreso y estado (activo/inactivo).</p>
+        <ul>
+          <li>Crear, editar, inactivar empleados</li>
+          <li>Adjuntar y versionar documentos del empleado</li>
+          <li>Historial de cargos y cambios salariales</li>
+          <li>Asociar empleado a área: enfermería, cuidado, cocina, servicios generales, administrativo</li>
+        </ul>
+      </div>
+
+      <div class="module-block">
+        <div class="tag-row"><span class="badge admin"><span class="dot"></span>Administrador</span><span class="badge empleado"><span class="dot"></span>Empleado</span></div>
+        <h4>3.2 Horarios y turnos</h4>
+        <p class="desc">Planeación y asignación de turnos (diurno, nocturno, 24h, fines de semana) con vista de calendario y control de cobertura mínima por turno.</p>
+        <ul>
+          <li>Crear plantillas de turno y asignarlas por empleado o área</li>
+          <li>Vista de calendario semanal/mensual por empleado y por centro</li>
+          <li>Alertas de turnos sin cobertura o cruces de horario</li>
+          <li>El empleado consulta su propio horario desde su perfil</li>
+        </ul>
+      </div>
+
+      <div class="module-block">
+        <div class="tag-row"><span class="badge admin"><span class="dot"></span>Administrador</span><span class="badge empleado"><span class="dot"></span>Empleado</span></div>
+        <h4>3.3 Permisos y ausencias</h4>
+        <p class="desc">Flujo de solicitud y aprobación de novedades de personal: vacaciones, incapacidades, permisos personales, licencias.</p>
+        <ul>
+          <li>Empleado solicita permiso indicando tipo, fechas y motivo</li>
+          <li>Administrador aprueba, rechaza o solicita soporte adicional</li>
+          <li>Adjuntar soporte (ej. incapacidad médica)</li>
+          <li>Impacto automático sobre el calendario de turnos al aprobar</li>
+        </ul>
+      </div>
+
+      <div class="module-block">
+        <div class="tag-row"><span class="badge admin"><span class="dot"></span>Administrador</span></div>
+        <h4>3.4 Admisión y ficha del residente</h4>
+        <p class="desc">Registro del residente al ingresar al centro: datos personales, acudientes asociados, documentación legal y contrato de servicio.</p>
+        <ul>
+          <li>Datos personales, EPS, contacto de emergencia</li>
+          <li>Vinculación de uno o varios acudientes al residente</li>
+          <li>Documentos de ingreso: contrato, consentimientos, poderes</li>
+          <li>Estado del residente: activo, egresado, fallecido (con fecha)</li>
+        </ul>
+      </div>
+
+      <div class="module-block">
+        <div class="tag-row"><span class="badge admin"><span class="dot"></span>Administrador</span></div>
+        <h4>3.5 Reportes y auditoría</h4>
+        <p class="desc">Panel gerencial con indicadores de operación y trazabilidad de acciones sensibles.</p>
+        <ul>
+          <li>Ocupación de camas/cupos, rotación de personal</li>
+          <li>Ausentismo y cumplimiento de turnos</li>
+          <li>Registro de auditoría: quién hizo qué y cuándo sobre datos clínicos</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 4. MODULO CLINICO -->
+    <section id="clinico">
+      <h2><span class="num">04</span>Módulo clínico</h2>
+      <p>Es el corazón operativo del centro: lo que el personal asistencial registra en cada turno sobre cada residente. Diseñado para captura rápida (idealmente desde tableta o celular) durante la ronda de cuidado.</p>
+
+      <div class="module-block">
+        <div class="tag-row"><span class="badge empleado"><span class="dot"></span>Empleado</span><span class="badge admin"><span class="dot"></span>Administrador (supervisión)</span></div>
+        <h4>4.1 Bitácora del residente</h4>
+        <p class="desc">Registro cronológico, turno a turno, de novedades del residente: estado de ánimo, sueño, higiene, movilidad, visitas recibidas, observaciones generales.</p>
+        <ul>
+          <li>Entrada de bitácora con fecha, hora, turno y autor automáticos</li>
+          <li>Categorías de novedad (rutina, observación, alerta)</li>
+          <li>Adjuntar foto o nota de voz a una entrada (ej. herida, estado de ánimo)</li>
+          <li>Vista cronológica filtrable por residente, fecha o categoría</li>
+        </ul>
+      </div>
+
+      <div class="module-block">
+        <div class="tag-row"><span class="badge empleado"><span class="dot"></span>Empleado</span><span class="badge admin"><span class="dot"></span>Administrador (configura)</span></div>
+        <h4>4.2 Gestión de medicamentos</h4>
+        <p class="desc">Desde la prescripción hasta la administración efectiva, con trazabilidad de quién administró qué y cuándo.</p>
+        <ul>
+          <li>Prescripción médica: medicamento, dosis, vía, frecuencia, fecha de inicio/fin</li>
+          <li>Horario de administración generado automáticamente según la frecuencia</li>
+          <li>Registro de administración: confirmación, hora real, responsable, observaciones (ej. rechazo del residente)</li>
+          <li>Alertas de dosis pendiente o vencida</li>
+          <li>Control básico de inventario/stock de medicamentos del residente</li>
+        </ul>
+      </div>
+
+      <div class="module-block">
+        <div class="tag-row"><span class="badge empleado"><span class="dot"></span>Empleado</span><span class="badge admin"><span class="dot"></span>Administrador (configura)</span></div>
+        <h4>4.3 Gestión de alimentación</h4>
+        <p class="desc">Planes nutricionales y registro de consumo real, con atención a restricciones y dietas especiales frecuentes en adultos mayores.</p>
+        <ul>
+          <li>Plan alimenticio por residente: tipo de dieta (blanda, diabética, hiposódica, etc.), restricciones y alergias</li>
+          <li>Registro de consumo por comida (desayuno, almuerzo, cena, meriendas): porcentaje consumido, observaciones</li>
+          <li>Alertas de baja ingesta sostenida</li>
+          <li>Vista de menú del día por residente para cocina</li>
+        </ul>
+      </div>
+
+      <div class="module-block">
+        <div class="tag-row"><span class="badge empleado"><span class="dot"></span>Empleado</span></div>
+        <h4>4.4 Signos vitales y seguimiento</h4>
+        <p class="desc">Toma periódica de signos vitales y variables de seguimiento clínico básico.</p>
+        <ul>
+          <li>Presión arterial, frecuencia cardiaca, temperatura, saturación de oxígeno, glucometría, peso</li>
+          <li>Rangos de referencia configurables por residente con alerta si se sale de rango</li>
+          <li>Gráficas de tendencia por variable</li>
+        </ul>
+      </div>
+
+      <div class="module-block">
+        <div class="tag-row"><span class="badge admin"><span class="dot"></span>Administrador</span><span class="badge empleado"><span class="dot"></span>Empleado</span></div>
+        <h4>4.5 Historia clínica y antecedentes</h4>
+        <p class="desc">Información clínica de base del residente, poco cambiante, consultada como contexto.</p>
+        <ul>
+          <li>Diagnósticos y enfermedades crónicas</li>
+          <li>Alergias (medicamentos y alimentos) destacadas de forma visible en todo el sistema</li>
+          <li>Antecedentes quirúrgicos y familiares relevantes</li>
+          <li>Médico tratante y EPS</li>
+        </ul>
+      </div>
+
+      <div class="module-block">
+        <div class="tag-row"><span class="badge empleado"><span class="dot"></span>Empleado</span><span class="badge admin"><span class="dot"></span>Administrador</span></div>
+        <h4>4.6 Incidentes y eventos adversos</h4>
+        <p class="desc">Registro estructurado de caídas, hospitalizaciones, traslados a urgencias u otros eventos que requieren notificación inmediata.</p>
+        <ul>
+          <li>Tipo de incidente, descripción, acciones tomadas, responsable</li>
+          <li>Disparo automático de notificación al acudiente y al administrador</li>
+          <li>Seguimiento del incidente hasta su cierre</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 5. PORTAL ACUDIENTE -->
+    <section id="acudiente">
+      <h2><span class="num">05</span>Portal de acudientes</h2>
+      <p>Vista de solo consulta pensada para tranquilizar y mantener informada a la familia, sin exponer el detalle operativo interno del centro. Todo dato clínico sensible se muestra de forma resumida y en lenguaje no técnico.</p>
+      <div class="module-block">
+        <div class="tag-row"><span class="badge acudiente"><span class="dot"></span>Acudiente</span></div>
+        <h4>5.1 Resumen de novedades</h4>
+        <p class="desc">Versión filtrada de la bitácora clínica, mostrando lo relevante para la familia y ocultando detalle operativo interno.</p>
+        <ul>
+          <li>Línea de tiempo de novedades del residente (ánimo, actividades, visitas)</li>
+          <li>Resumen diario de alimentación (ej. "buen apetito hoy" en vez de porcentajes exactos)</li>
+          <li>Estado general de salud sin exponer dosis o detalle clínico completo</li>
+        </ul>
+      </div>
+      <div class="module-block">
+        <div class="tag-row"><span class="badge acudiente"><span class="dot"></span>Acudiente</span></div>
+        <h4>5.2 Notificaciones</h4>
+        <p class="desc">Alertas push y/o correo ante eventos que la familia debe conocer sin tener que preguntar.</p>
+        <ul>
+          <li>Configuración de canal preferido (push, email, ambos)</li>
+          <li>Notificación inmediata ante incidentes (caída, traslado, hospitalización)</li>
+          <li>Notificación informativa diaria/semanal opcional (resumen de la semana)</li>
+        </ul>
+      </div>
+      <div class="module-block">
+        <div class="tag-row"><span class="badge acudiente"><span class="dot"></span>Acudiente</span></div>
+        <h4>5.3 Calendario de eventos y actividades</h4>
+        <p class="desc">Visibilidad de la agenda del centro: actividades recreativas, citas médicas programadas, fechas de visita permitidas.</p>
+        <ul>
+          <li>Calendario mensual con eventos generales del centro y específicos del residente</li>
+          <li>Solicitud de agendamiento de visita presencial</li>
+        </ul>
+      </div>
+      <div class="module-block">
+        <div class="tag-row"><span class="badge acudiente"><span class="dot"></span>Acudiente</span><span class="badge admin"><span class="dot"></span>Administrador</span></div>
+        <h4>5.4 Comunicación con el centro</h4>
+        <p class="desc">Canal directo de mensajería para preguntas o solicitudes puntuales, sin depender de llamadas telefónicas.</p>
+        <ul>
+          <li>Mensajería entre acudiente y coordinación del centro</li>
+          <li>Solicitudes formales (ej. cambio de dieta, autorización de salida)</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 6. RF -->
+    <section id="rf">
+      <h2><span class="num">06</span>Requerimientos funcionales</h2>
+      <p>Requerimientos consolidados por dominio, con identificador único para trazabilidad hacia diseño técnico y pruebas.</p>
+
+      <table class="rf">
+        <caption>RF · Administrativo</caption>
+        <thead><tr><th style="width:110px">ID</th><th>Requerimiento</th><th style="width:130px">Rol</th></tr></thead>
+        <tbody>
+          <tr><td class="id">RF-ADM-001</td><td>El sistema debe permitir crear, editar e inactivar fichas de empleados con sus documentos asociados.</td><td><span class="badge admin"><span class="dot"></span>Admin</span></td></tr>
+          <tr><td class="id">RF-ADM-002</td><td>El sistema debe permitir asignar turnos a empleados y visualizarlos en calendario semanal y mensual.</td><td><span class="badge admin"><span class="dot"></span>Admin</span></td></tr>
+          <tr><td class="id">RF-ADM-003</td><td>El sistema debe alertar cruces de horario o turnos sin cobertura mínima asignada.</td><td><span class="badge admin"><span class="dot"></span>Admin</span></td></tr>
+          <tr><td class="id">RF-ADM-004</td><td>El empleado debe poder consultar su propio horario asignado desde su perfil.</td><td><span class="badge empleado"><span class="dot"></span>Empleado</span></td></tr>
+          <tr><td class="id">RF-ADM-005</td><td>El empleado debe poder solicitar un permiso o ausencia indicando tipo, fechas, motivo y soporte adjunto.</td><td><span class="badge empleado"><span class="dot"></span>Empleado</span></td></tr>
+          <tr><td class="id">RF-ADM-006</td><td>El administrador debe poder aprobar o rechazar solicitudes de permiso, con justificación en caso de rechazo.</td><td><span class="badge admin"><span class="dot"></span>Admin</span></td></tr>
+          <tr><td class="id">RF-ADM-007</td><td>Al aprobar un permiso, el sistema debe reflejar automáticamente el impacto en el calendario de turnos.</td><td><span class="badge admin"><span class="dot"></span>Admin</span></td></tr>
+          <tr><td class="id">RF-ADM-008</td><td>El sistema debe permitir registrar el ingreso de un residente, incluyendo la vinculación de uno o más acudientes.</td><td><span class="badge admin"><span class="dot"></span>Admin</span></td></tr>
+          <tr><td class="id">RF-ADM-009</td><td>El sistema debe permitir consultar reportes de ocupación, ausentismo y rotación de personal.</td><td><span class="badge admin"><span class="dot"></span>Admin</span></td></tr>
+        </tbody>
+      </table>
+
+      <table class="rf" style="margin-top:24px;">
+        <caption>RF · Clínico</caption>
+        <thead><tr><th style="width:110px">ID</th><th>Requerimiento</th><th style="width:130px">Rol</th></tr></thead>
+        <tbody>
+          <tr><td class="id">RF-CLI-001</td><td>El empleado debe poder registrar una entrada de bitácora por residente, con fecha, hora y turno automáticos.</td><td><span class="badge empleado"><span class="dot"></span>Empleado</span></td></tr>
+          <tr><td class="id">RF-CLI-002</td><td>El sistema debe permitir adjuntar foto o nota de voz a una entrada de bitácora.</td><td><span class="badge empleado"><span class="dot"></span>Empleado</span></td></tr>
+          <tr><td class="id">RF-CLI-003</td><td>El sistema debe generar automáticamente el horario de administración de un medicamento a partir de su frecuencia prescrita.</td><td><span class="badge admin"><span class="dot"></span>Admin</span></td></tr>
+          <tr><td class="id">RF-CLI-004</td><td>El empleado debe poder confirmar la administración de un medicamento, quedando registrado el responsable y la hora real.</td><td><span class="badge empleado"><span class="dot"></span>Empleado</span></td></tr>
+          <tr><td class="id">RF-CLI-005</td><td>El sistema debe alertar al personal sobre dosis de medicamento pendientes o vencidas.</td><td><span class="badge empleado"><span class="dot"></span>Empleado</span></td></tr>
+          <tr><td class="id">RF-CLI-006</td><td>El empleado debe poder registrar el porcentaje de consumo de alimentos por comida y por residente.</td><td><span class="badge empleado"><span class="dot"></span>Empleado</span></td></tr>
+          <tr><td class="id">RF-CLI-007</td><td>El sistema debe mostrar de forma visible las alergias alimentarias y medicamentosas del residente en las pantallas de medicación y alimentación.</td><td><span class="badge empleado"><span class="dot"></span>Empleado</span></td></tr>
+          <tr><td class="id">RF-CLI-008</td><td>El empleado debe poder registrar signos vitales con alerta automática si el valor está fuera del rango configurado para el residente.</td><td><span class="badge empleado"><span class="dot"></span>Empleado</span></td></tr>
+          <tr><td class="id">RF-CLI-009</td><td>El sistema debe permitir registrar un incidente (caída, traslado, hospitalización) y disparar notificación inmediata al acudiente y al administrador.</td><td><span class="badge empleado"><span class="dot"></span>Empleado</span></td></tr>
+        </tbody>
+      </table>
+
+      <table class="rf" style="margin-top:24px;">
+        <caption>RF · Portal de acudientes</caption>
+        <thead><tr><th style="width:110px">ID</th><th>Requerimiento</th><th style="width:130px">Rol</th></tr></thead>
+        <tbody>
+          <tr><td class="id">RF-ACU-001</td><td>El acudiente debe poder consultar una línea de tiempo resumida de novedades de su familiar.</td><td><span class="badge acudiente"><span class="dot"></span>Acudiente</span></td></tr>
+          <tr><td class="id">RF-ACU-002</td><td>El acudiente debe poder configurar el canal de notificación preferido (push, correo o ambos).</td><td><span class="badge acudiente"><span class="dot"></span>Acudiente</span></td></tr>
+          <tr><td class="id">RF-ACU-003</td><td>El acudiente debe recibir notificación inmediata ante un incidente registrado sobre su familiar.</td><td><span class="badge acudiente"><span class="dot"></span>Acudiente</span></td></tr>
+          <tr><td class="id">RF-ACU-004</td><td>El acudiente debe poder consultar el calendario de eventos y actividades del centro.</td><td><span class="badge acudiente"><span class="dot"></span>Acudiente</span></td></tr>
+          <tr><td class="id">RF-ACU-005</td><td>El acudiente debe poder enviar mensajes o solicitudes formales al centro y consultar el historial de la conversación.</td><td><span class="badge acudiente"><span class="dot"></span>Acudiente</span></td></tr>
+          <tr><td class="id">RF-ACU-006</td><td>El acudiente no debe tener acceso a información clínica de residentes distintos a su familiar vinculado.</td><td><span class="badge acudiente"><span class="dot"></span>Acudiente</span></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- 7. RNF -->
+    <section id="rnf">
+      <h2><span class="num">07</span>Requerimientos no funcionales</h2>
+      <div class="nfr-grid">
+        <div class="nfr"><h4><span class="idx">RNF-01</span>Protección de datos personales</h4><p>Cumplimiento de la Ley 1581 de 2012 (habeas data) para el tratamiento de datos personales y de salud de residentes, empleados y acudientes.</p></div>
+        <div class="nfr"><h4><span class="idx">RNF-02</span>Trazabilidad y auditoría</h4><p>Todo registro clínico debe quedar asociado a usuario, fecha y hora, sin posibilidad de edición silenciosa; los cambios quedan versionados.</p></div>
+        <div class="nfr"><h4><span class="idx">RNF-03</span>Control de acceso granular</h4><p>Los permisos se resuelven por rol y, dentro del rol Empleado, por residentes asignados; un acudiente solo ve a su familiar vinculado.</p></div>
+        <div class="nfr"><h4><span class="idx">RNF-04</span>Usabilidad para personal no técnico</h4><p>Las pantallas de captura clínica deben poder completarse en pocos toques, priorizando el uso desde tableta durante la ronda.</p></div>
+        <div class="nfr"><h4><span class="idx">RNF-05</span>Acceso móvil para acudientes</h4><p>El portal de acudientes debe ser plenamente usable desde navegador móvil, dado que es el canal de acceso principal esperado.</p></div>
+        <div class="nfr"><h4><span class="idx">RNF-06</span>Disponibilidad</h4><p>El registro de medicación y signos vitales es operación crítica; debe estar disponible de forma continua durante los turnos asistenciales.</p></div>
+        <div class="nfr"><h4><span class="idx">RNF-07</span>Respaldo de información</h4><p>Copias de respaldo periódicas de la información clínica y administrativa, con procedimiento de restauración documentado.</p></div>
+        <div class="nfr"><h4><span class="idx">RNF-08</span>Desempeño</h4><p>Las pantallas de registro de bitácora, medicación y alimentación deben responder en menos de 2 segundos en condiciones normales de red.</p></div>
+      </div>
+    </section>
+
+    <!-- 8. MODELO DE DATOS -->
+    <section id="datos">
+      <h2><span class="num">08</span>Modelo de datos preliminar</h2>
+      <p>Entidades principales identificadas a nivel funcional, como insumo para el diseño detallado del esquema (a definir posteriormente con el prefijo de tabla estándar del proyecto).</p>
+      <div class="entity-grid">
+        <div class="entity"><span class="ename">EMPLEADO</span><p>Datos personales, cargo, área, estado, documentos.</p></div>
+        <div class="entity"><span class="ename">RESIDENTE</span><p>Datos personales del adulto mayor, EPS, estado, fecha de ingreso/egreso.</p></div>
+        <div class="entity"><span class="ename">ACUDIENTE</span><p>Datos del responsable legal/familiar y su relación con el residente.</p></div>
+        <div class="entity"><span class="ename">USUARIO</span><p>Credenciales de acceso, vinculado a Empleado o Acudiente, con rol asignado.</p></div>
+        <div class="entity"><span class="ename">ROL</span><p>Administrador, Empleado, Acudiente; controla visibilidad de módulos.</p></div>
+        <div class="entity"><span class="ename">TURNO</span><p>Plantilla de horario (diurno/nocturno/24h) asignada a un empleado en una fecha.</p></div>
+        <div class="entity"><span class="ename">PERMISO_AUSENCIA</span><p>Solicitud de novedad de personal: tipo, fechas, estado de aprobación.</p></div>
+        <div class="entity"><span class="ename">BITACORA</span><p>Entrada de novedad del residente, con turno, autor y categoría.</p></div>
+        <div class="entity"><span class="ename">PRESCRIPCION_MEDICAMENTO</span><p>Medicamento, dosis, vía y frecuencia prescrita para un residente.</p></div>
+        <div class="entity"><span class="ename">REGISTRO_ADMINISTRACION</span><p>Confirmación real de administración de una dosis, con responsable.</p></div>
+        <div class="entity"><span class="ename">PLAN_ALIMENTICIO</span><p>Tipo de dieta y restricciones vigentes de un residente.</p></div>
+        <div class="entity"><span class="ename">REGISTRO_ALIMENTACION</span><p>Consumo real por comida y por residente.</p></div>
+        <div class="entity"><span class="ename">SIGNO_VITAL</span><p>Toma puntual de una variable clínica con su valor y rango de referencia.</p></div>
+        <div class="entity"><span class="ename">HISTORIA_CLINICA</span><p>Diagnósticos, alergias y antecedentes de base del residente.</p></div>
+        <div class="entity"><span class="ename">INCIDENTE</span><p>Evento adverso registrado, con seguimiento hasta su cierre.</p></div>
+        <div class="entity"><span class="ename">NOTIFICACION</span><p>Mensaje generado por un evento del sistema, dirigido a uno o más usuarios.</p></div>
+        <div class="entity"><span class="ename">EVENTO_ACTIVIDAD</span><p>Ítem del calendario del centro, general o asociado a un residente.</p></div>
+        <div class="entity"><span class="ename">MENSAJE</span><p>Comunicación entre acudiente y centro, agrupada por conversación.</p></div>
+      </div>
+    </section>
+
+    <!-- 9. NOTIFICACIONES -->
+    <section id="notif">
+      <h2><span class="num">09</span>Notificaciones y eventos</h2>
+      <p>Mapa de qué evento del sistema dispara notificación y hacia qué rol, como base para el diseño del motor de notificaciones.</p>
+      <div class="flow">
+        <div class="flow-row"><div class="flow-event">Incidente registrado</div><div class="flow-arrow">→</div><div class="flow-target"><span class="badge acudiente"><span class="dot"></span>Acudiente</span><span class="badge admin"><span class="dot"></span>Admin</span></div></div>
+        <div class="flow-row"><div class="flow-event">Signo vital fuera de rango</div><div class="flow-arrow">→</div><div class="flow-target"><span class="badge empleado"><span class="dot"></span>Empleado a cargo</span><span class="badge admin"><span class="dot"></span>Admin</span></div></div>
+        <div class="flow-row"><div class="flow-event">Dosis de medicamento vencida sin registrar</div><div class="flow-arrow">→</div><div class="flow-target"><span class="badge empleado"><span class="dot"></span>Empleado en turno</span></div></div>
+        <div class="flow-row"><div class="flow-event">Solicitud de permiso creada</div><div class="flow-arrow">→</div><div class="flow-target"><span class="badge admin"><span class="dot"></span>Admin</span></div></div>
+        <div class="flow-row"><div class="flow-event">Permiso aprobado o rechazado</div><div class="flow-arrow">→</div><div class="flow-target"><span class="badge empleado"><span class="dot"></span>Empleado solicitante</span></div></div>
+        <div class="flow-row"><div class="flow-event">Nuevo evento en el calendario del centro</div><div class="flow-arrow">→</div><div class="flow-target"><span class="badge acudiente"><span class="dot"></span>Acudientes vinculados</span></div></div>
+        <div class="flow-row"><div class="flow-event">Resumen diario/semanal de novedades</div><div class="flow-arrow">→</div><div class="flow-target"><span class="badge acudiente"><span class="dot"></span>Acudiente (opcional, configurable)</span></div></div>
+        <div class="flow-row"><div class="flow-event">Mensaje nuevo en conversación</div><div class="flow-arrow">→</div><div class="flow-target"><span class="badge acudiente"><span class="dot"></span>Acudiente</span><span class="badge admin"><span class="dot"></span>Admin</span></div></div>
+      </div>
+    </section>
+
+    <!-- 10. GLOSARIO -->
+    <section id="glosario">
+      <h2><span class="num">10</span>Glosario</h2>
+      <ul>
+        <li><strong>Residente:</strong> adulto mayor que habita el centro geriátrico.</li>
+        <li><strong>Acudiente:</strong> familiar o responsable legal vinculado a un residente.</li>
+        <li><strong>Bitácora:</strong> registro cronológico de novedades de un residente.</li>
+        <li><strong>Turno:</strong> franja horaria de trabajo asignada a un empleado.</li>
+        <li><strong>Incidente:</strong> evento adverso que afecta al residente (caída, traslado, hospitalización).</li>
+      </ul>
+      <footer>
+        Documento de requerimientos preliminar — sujeto a revisión y priorización conjunta antes de pasar a diseño técnico.
+      </footer>
+    </section>
+
+  </main>
+</div>
+</body>
+</html>

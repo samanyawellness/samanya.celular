@@ -467,4 +467,81 @@ FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-11 20:47:51
 ================================================================================
 Subir a la rama dev y hacer push
 
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-11 20:53:25
+================================================================================
+Subir al repositorio cuando lo indique.
+Implementar Fase 2: Fusión Asistida de Bajo Impacto del 4.
+Plan de Acción Recomendado que se encuentra en el archivo diferencias.html
 
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-11 21:15:00
+================================================================================
+En caso de necesitarse compilar un objeto de la base de datos lo hare de manera manual lo mismo que las pruebas y validaciones.
+Deseo crear dos tablas una llamada smy_parametros para almacenar parametros del sistema como pueden ser tokens para conectarme a un api, informacion de conexion a otros sistemas, etc y otra llamada smy_archivos en la base de datos no se almacenaran los archivos sino en un servidor de archivos y se debe almacenar con un nombre de archivo con un hash entonces la tabla debe tener el nombre_archivo como el nombre_archivo_almacenado, los archivos no se borraran para lo cual debe haber un campo llamado visible cuando el usuario diga eliminar el campo sera 0 por defecto es 1 que equivale a visible. La idea es que un archivo este almacenado en una estructura de directorio entonces haz la propuesta de la tabla, para dar un ejemplo deseo que en el servidor de archivos haya un archivo por centro luego por residente luego por clase, etc puede ser dinamico, dame esta propuesta de las tablas en un archivo llamado adicion_tablas.sql para validar.
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-11 21:20:37
+================================================================================
+Piensas que en smy_archivos es mejor manejar el campo visible como un id_estado_archivo
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-11 21:25:09
+================================================================================
+Actualiza el archivo adicion_tablas.sql con el cambio incluyen un campo en smy_archivos con nombre_directorio_bd es para almadenar un archivo en que directorio de base de datos se encuentra puede ser nulo, despues actualiza el archivo de creacion_modelo_relacional.sql y documentacion_esquema.html
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-11 21:34:39
+================================================================================
+Hay algun skill en este proyecto
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-11 21:38:45
+================================================================================
+Borrar el archivo adicion_tablas.sql del proyecto ya lo corri en la base de datos.
+Adquiri una cuenta de google y tengo derecho a 1 Tera puedes configurar para almacenar los archivos creando un directorio llamado Samanya y adentro toda la estructura para cada centro y que desde el aplicativo se puedan visualizar los archivos.
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-11 21:42:26
+================================================================================
+Puedes hacer la Configuración de Google Drive o la tengo que hacer yo
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-11 21:55:34
+================================================================================
+No me descargo el .json, por donde lo puedo descargar
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-11 22:00:56
+================================================================================
+Ya quedo montado, puedes hacer un test creando un directorio y un archivo
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-11 22:04:45
+================================================================================
+Es la opcion 2 cuenta personal
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-11 22:09:16
+================================================================================
+Estoy en la grafica donde escojo Externo
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-11 22:14:29
+================================================================================
+Ya copie el archivo oauth_credentials.json en backend
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-11 22:26:18
+================================================================================
+Cerre y abri el antigraviy porque estaba en el proceso de CONFIGURACIÓN OAUTH 2.0 PARA GOOGLE DRIVE y se quedo pegado, intente abrir el enlace para autorizar SAMANYA y me aparece el error de la grafica
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-11 22:29:32
+================================================================================
+En este momento tengo como esta en la imagen
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-11 22:31:24
+================================================================================
+Ya le di Guardar

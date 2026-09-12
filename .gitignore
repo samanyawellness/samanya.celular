@@ -7,3 +7,6 @@ coverage/
 .env*
 !.env.example
 scratch/
+*credentials*.json
+*token*.json
+client_secret*.json

@@ -618,7 +618,7 @@ footer {
       <li>
         <a href="#diccionario"><span class="num">04</span>Diccionario de Datos</a>
         <ul class="nav-submenu">
-          <li><a href="#mod-lookups">0. Catálogos Maestros (44)</a></li>
+          <li><a href="#mod-lookups">0. Catálogos Maestros (48)</a></li>
           <li><a href="#mod-seguridad">1. Seguridad y Acceso</a></li>
           <li><a href="#mod-talento">2. Talento y Turnos</a></li>
           <li><a href="#mod-residentes">3. Residentes y Admisión</a></li>
@@ -651,10 +651,10 @@ footer {
       </p>
 
       <div class="meta-stats">
-        <div class="stat-pill"><span class="num">72</span><span class="label">Total de Tablas SMY_</span></div>
-        <div class="stat-pill"><span class="num">44</span><span class="label">Catálogos Maestros (Lookups)</span></div>
-        <div class="stat-pill"><span class="num">28</span><span class="label">Tablas Transaccionales</span></div>
-        <div class="stat-pill"><span class="num">1</span><span class="label">Vista Timeline Unificada</span></div>
+        <div class="stat-pill"><span class="num">78</span><span class="label">Total de Tablas SMY_</span></div>
+        <div class="stat-pill"><span class="num">48</span><span class="label">Catálogos Maestros (Lookups)</span></div>
+        <div class="stat-pill"><span class="num">30</span><span class="label">Tablas Transaccionales</span></div>
+        <div class="stat-pill"><span class="num">2</span><span class="label">Vistas del Sistema</span></div>
         <div class="stat-pill"><span class="num">100%</span><span class="label">Auditoría Completa</span></div>
         <div class="stat-pill"><span class="num">UTC-5</span><span class="label">Hora Bogotá Colombia</span></div>
       </div>
@@ -819,6 +819,12 @@ erDiagram
     SMY_USUARIOS ||--|{ SMY_CHAT_PARTICIPANTES : "ID_USUARIO"
     SMY_CONVERSACIONES_CHAT ||--o{ SMY_MENSAJES_CHAT : "ID_CONVERSACION_CHAT"
     SMY_USUARIOS ||--o{ SMY_NOTIFICACIONES_SISTEMA : "ID_USUARIO_DESTINO"
+
+    SMY_ESTADOS_PARAMETROS ||--o{ SMY_PARAMETROS : "ID_ESTADO_PARAMETRO"
+    SMY_CLASES_ARCHIVOS ||--o{ SMY_ARCHIVOS : "ID_CLASE_ARCHIVO"
+    SMY_CENTROS ||--o{ SMY_ARCHIVOS : "ID_CENTRO"
+    SMY_RESIDENTES ||--o{ SMY_ARCHIVOS : "ID_RESIDENTE"
+    SMY_ESTADOS_ARCHIVOS ||--o{ SMY_ARCHIVOS : "ID_ESTADO_ARCHIVO"
           </pre>
         </div>
       </div>
@@ -878,8 +884,8 @@ erDiagram
       <p>Todas las tablas contienen sus claves primarias generadas por secuencias/triggers, foráneas con prefijo <span class="mono">ID_*</span>, valores por defecto de fecha en hora legal de Bogotá (UTC-5) y los campos obligatorios de auditoría <span class="mono">FECHA_CREACION</span> e <span class="mono">ID_USUARIO_ULTIMA_MODIFICACION</span>.</p>
 
       <!-- 4.0 CATALOGOS MAESTROS -->
-      <h3 id="mod-lookups">4.0 Resumen de Tablas Maestras y Catálogos de Opciones (44 tablas)</h3>
-      <p>Cada una de estas 44 tablas cuenta con columnas <span class="mono">ID</span> (PK), <span class="mono">NOMBRE_*</span> (Descriptor), <span class="mono">FECHA_CREACION</span> e <span class="mono">ID_USUARIO_ULTIMA_MODIFICACION</span>:</p>
+      <h3 id="mod-lookups">4.0 Resumen de Tablas Maestras y Catálogos de Opciones (48 tablas)</h3>
+      <p>Cada una de estas 48 tablas cuenta con columnas <span class="mono">ID</span> (PK), <span class="mono">NOMBRE_*</span> (Descriptor), <span class="mono">FECHA_CREACION</span> e <span class="mono">ID_USUARIO_ULTIMA_MODIFICACION</span>:</p>
       
       <div class="table-container">
         <table class="data-dict">
@@ -938,6 +944,10 @@ erDiagram
             <tr><td class="col-name">SMY_TIPOS_CANALES_CHAT</td><td>ID</td><td>NOMBRE_TIPO_CANAL_CHAT</td><td>SMY_CONVERSACIONES_CHAT</td><td>ID_TIPO_CANAL_CHAT</td></tr>
             <tr><td class="col-name">SMY_TIPOS_ADJUNTOS_CHAT</td><td>ID</td><td>NOMBRE_TIPO_ADJUNTO_CHAT</td><td>SMY_MENSAJES_CHAT</td><td>ID_TIPO_ADJUNTO_CHAT</td></tr>
             <tr><td class="col-name">SMY_TIPOS_NOTIFICACIONES</td><td>ID</td><td>NOMBRE_TIPO_NOTIFICACION</td><td>SMY_NOTIFICACIONES_SISTEMA</td><td>ID_TIPO_NOTIFICACION</td></tr>
+            <tr><td class="col-name">SMY_ESTADOS_PARAMETROS</td><td>ID</td><td>NOMBRE_ESTADO_PARAMETRO</td><td>SMY_PARAMETROS</td><td>ID_ESTADO_PARAMETRO</td></tr>
+            <tr><td class="col-name">SMY_ESTADOS_ARCHIVOS</td><td>ID</td><td>NOMBRE_ESTADO_ARCHIVO</td><td>SMY_ARCHIVOS</td><td>ID_ESTADO_ARCHIVO</td></tr>
+            <tr><td class="col-name">SMY_CLASES_ARCHIVOS</td><td>ID</td><td>NOMBRE_CLASE / CODIGO_CLASE</td><td>SMY_ARCHIVOS</td><td>ID_CLASE_ARCHIVO</td></tr>
+            <tr><td class="col-name">SMY_CENTROS</td><td>ID</td><td>NOMBRE_CENTRO / CODIGO_CENTRO</td><td>SMY_ARCHIVOS</td><td>ID_CENTRO</td></tr>
           </tbody>
         </table>
       </div>
@@ -1025,6 +1035,33 @@ erDiagram
               <tr><td class="col-name">IP_ORIGEN</td><td class="col-type">VARCHAR2(50)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Dirección IP del cliente.</td></tr>
               <tr><td class="col-name">FECHA_HORA</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>Hora Bogotá (UTC-5)</td><td>Fecha y hora del evento.</td></tr>
               <tr><td class="col-name">FECHA_CREACION</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>Hora Bogotá (UTC-5)</td><td>Auditoría de creación.</td></tr>
+              <tr><td class="col-name">ID_USUARIO_ULTIMA_MODIFICACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Usuario que modificó.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card table-block" data-table="SMY_PARAMETROS">
+        <h4>Tabla: SMY_PARAMETROS</h4>
+        <p>Configuraciones de sistema, endpoints de integración, tokens seguros (WhatsApp, JWT) y parámetros de almacenamiento externo.</p>
+        <div class="table-container">
+          <table class="data-dict">
+            <thead><tr><th>Columna</th><th>Tipo Oracle</th><th>Nulo</th><th>Defecto (Bogotá UTC-5)</th><th>Descripción y Foráneas</th></tr></thead>
+            <tbody>
+              <tr><td class="col-name">ID</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-pk">PK</span></td><td>SEQ_SMY_PARAMETROS</td><td>ID único de parámetro.</td></tr>
+              <tr><td class="col-name">CODIGO_PARAMETRO</td><td class="col-type">VARCHAR2(100)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Código único del parámetro (ej. STORAGE_ROOT_PATH).</td></tr>
+              <tr><td class="col-name">NOMBRE_PARAMETRO</td><td class="col-type">VARCHAR2(150)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Nombre descriptivo técnico.</td></tr>
+              <tr><td class="col-name">DESCRIPCION</td><td class="col-type">VARCHAR2(500)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Detalle funcional de uso del parámetro.</td></tr>
+              <tr><td class="col-name">GRUPO_PARAMETRO</td><td class="col-type">VARCHAR2(50)</td><td><span class="badge badge-req">No</span></td><td>'GENERAL'</td><td>Agrupador (INTEGRACION, STORAGE, SEGURIDAD, NOTIFICACIONES).</td></tr>
+              <tr><td class="col-name">VALOR_TEXTO</td><td class="col-type">VARCHAR2(4000)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Valor alfanumérico o URL.</td></tr>
+              <tr><td class="col-name">VALOR_CLOB</td><td class="col-type">CLOB</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Tokens JWT, certificados o configuraciones JSON.</td></tr>
+              <tr><td class="col-name">VALOR_NUMERICO</td><td class="col-type">NUMBER(18, 4)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Límites de tamaño o timeouts.</td></tr>
+              <tr><td class="col-name">VALOR_FECHA</td><td class="col-type">DATE</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Vencimiento de tokens o credenciales.</td></tr>
+              <tr><td class="col-name">ES_ENCRIPTADO</td><td class="col-type">CHAR(1)</td><td><span class="badge badge-req">No</span></td><td>'N'</td><td>Indicador de cifrado ('S', 'N').</td></tr>
+              <tr><td class="col-name">ES_SISTEMA</td><td class="col-type">CHAR(1)</td><td><span class="badge badge-req">No</span></td><td>'N'</td><td>Protección de configuración crítica ('S', 'N').</td></tr>
+              <tr><td class="col-name">ID_ESTADO_PARAMETRO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>1</td><td>FK hacia SMY_ESTADOS_PARAMETROS(ID).</td></tr>
+              <tr><td class="col-name">FECHA_CREACION</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>Hora Bogotá (UTC-5)</td><td>Auditoría de registro.</td></tr>
+              <tr><td class="col-name">FECHA_ULTIMA_MODIFICACION</td><td class="col-type">DATE</td><td><span class="badge badge-opt">Sí</span></td><td>Hora Bogotá (UTC-5)</td><td>Fecha de última actualización.</td></tr>
               <tr><td class="col-name">ID_USUARIO_ULTIMA_MODIFICACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Usuario que modificó.</td></tr>
             </tbody>
           </table>
@@ -1351,6 +1388,40 @@ erDiagram
               <tr><td class="col-name">FECHA_ELIMINACION</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>Hora Bogotá (UTC-5)</td><td>Momento del borrado.</td></tr>
               <tr><td class="col-name">FECHA_CREACION</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>Hora Bogotá (UTC-5)</td><td>Fecha de auditoría.</td></tr>
               <tr><td class="col-name">ID_USUARIO_ULTIMA_MODIFICACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Usuario que modificó.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card table-block" data-table="SMY_ARCHIVOS">
+        <h4>Tabla: SMY_ARCHIVOS</h4>
+        <p>Gestor centralizado de metadatos de archivos con almacenamiento en file server / directorio Oracle, hash SHA-256 de integridad, ciclo de vida por estados y borrado lógico.</p>
+        <div class="table-container">
+          <table class="data-dict">
+            <thead><tr><th>Columna</th><th>Tipo Oracle</th><th>Nulo</th><th>Defecto (Bogotá UTC-5)</th><th>Descripción y Foráneas</th></tr></thead>
+            <tbody>
+              <tr><td class="col-name">ID</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-pk">PK</span></td><td>SEQ_SMY_ARCHIVOS</td><td>ID único del archivo.</td></tr>
+              <tr><td class="col-name">NOMBRE_ARCHIVO</td><td class="col-type">VARCHAR2(255)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Nombre original de carga del archivo.</td></tr>
+              <tr><td class="col-name">NOMBRE_ARCHIVO_ALMACENADO</td><td class="col-type">VARCHAR2(255)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Nombre único hasheado en disco/storage.</td></tr>
+              <tr><td class="col-name">HASH_ARCHIVO</td><td class="col-type">VARCHAR2(128)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Hash criptográfico SHA-256 para validación de integridad.</td></tr>
+              <tr><td class="col-name">NOMBRE_DIRECTORIO_BD</td><td class="col-type">VARCHAR2(128)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Objeto Directory de BD Oracle (CREATE DIRECTORY) para BFILE/UTL_FILE si aplica.</td></tr>
+              <tr><td class="col-name">RUTA_RELATIVA</td><td class="col-type">VARCHAR2(1000)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Ruta dinámica por centro/residente/clase.</td></tr>
+              <tr><td class="col-name">RUTA_COMPLETA_ALMACENAMIENTO</td><td class="col-type">VARCHAR2(1500)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>URI o ruta física completa en el storage server.</td></tr>
+              <tr><td class="col-name">EXTENSION</td><td class="col-type">VARCHAR2(20)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Extensión del archivo (.pdf, .jpg, .docx).</td></tr>
+              <tr><td class="col-name">TIPO_MIME</td><td class="col-type">VARCHAR2(100)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Tipo MIME (application/pdf, image/jpeg).</td></tr>
+              <tr><td class="col-name">TAMANO_BYTES</td><td class="col-type">NUMBER(14)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Tamaño total exacto en bytes.</td></tr>
+              <tr><td class="col-name">ID_CLASE_ARCHIVO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_CLASES_ARCHIVOS(ID).</td></tr>
+              <tr><td class="col-name">ID_CENTRO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_CENTROS(ID) para jerarquía institucional.</td></tr>
+              <tr><td class="col-name">ID_RESIDENTE</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_RESIDENTES(ID) para expediente del residente.</td></tr>
+              <tr><td class="col-name">ID_ESTADO_ARCHIVO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>1</td><td>FK hacia SMY_ESTADOS_ARCHIVOS(ID) (1=Activo/Disponible, 2=Eliminado/Papelera).</td></tr>
+              <tr><td class="col-name">TABLA_ORIGEN</td><td class="col-type">VARCHAR2(50)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Nombre de la tabla asociada (ej. SMY_DOCUMENTOS_CLINICOS).</td></tr>
+              <tr><td class="col-name">ID_REGISTRO_ORIGEN</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>ID del registro en la tabla asociada.</td></tr>
+              <tr><td class="col-name">METADATOS_JSON</td><td class="col-type">CLOB</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Metadatos flexibles en formato JSON nativo.</td></tr>
+              <tr><td class="col-name">FECHA_ELIMINACION</td><td class="col-type">DATE</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Momento en que el archivo fue enviado a papelera.</td></tr>
+              <tr><td class="col-name">ID_USUARIO_ELIMINACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Usuario que ordenó la eliminación lógica.</td></tr>
+              <tr><td class="col-name">FECHA_CREACION</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>Hora Bogotá (UTC-5)</td><td>Fecha de auditoría de registro.</td></tr>
+              <tr><td class="col-name">FECHA_ULTIMA_MODIFICACION</td><td class="col-type">DATE</td><td><span class="badge badge-opt">Sí</span></td><td>Hora Bogotá (UTC-5)</td><td>Fecha de última actualización en BD.</td></tr>
+              <tr><td class="col-name">ID_USUARIO_ULTIMA_MODIFICACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Usuario que realizó última modificación.</td></tr>
             </tbody>
           </table>
         </div>
@@ -1882,6 +1953,33 @@ erDiagram
         </div>
       </div>
 
+      <div class="card table-block" data-table="VW_SMY_ARCHIVOS_ACTIVOS">
+        <h4>Vista: VW_SMY_ARCHIVOS_ACTIVOS</h4>
+        <p>Vista especializada que expone únicamente los archivos activos y disponibles (<span class="mono">ID_ESTADO_ARCHIVO = 1</span>) junto con la información resuelta del centro asistencial, residente y clase de archivo para consumo ágil del frontend.</p>
+        <div class="table-container">
+          <table class="data-dict">
+            <thead><tr><th>Columna de la Vista</th><th>Tipo / Formato</th><th>Origen SQL</th><th>Descripción de Negocio</th></tr></thead>
+            <tbody>
+              <tr><td class="col-name">ID</td><td class="col-type">NUMBER(10)</td><td>a.ID</td><td>Identificador único del archivo.</td></tr>
+              <tr><td class="col-name">NOMBRE_ARCHIVO</td><td class="col-type">VARCHAR2(255)</td><td>a.NOMBRE_ARCHIVO</td><td>Nombre original del documento/adjunto.</td></tr>
+              <tr><td class="col-name">NOMBRE_ARCHIVO_ALMACENADO</td><td class="col-type">VARCHAR2(255)</td><td>a.NOMBRE_ARCHIVO_ALMACENADO</td><td>Nombre físico con hash en el storage.</td></tr>
+              <tr><td class="col-name">HASH_ARCHIVO</td><td class="col-type">VARCHAR2(128)</td><td>a.HASH_ARCHIVO</td><td>Hash SHA-256 de verificación.</td></tr>
+              <tr><td class="col-name">NOMBRE_DIRECTORIO_BD</td><td class="col-type">VARCHAR2(128)</td><td>a.NOMBRE_DIRECTORIO_BD</td><td>Directorio de BD Oracle (si aplica).</td></tr>
+              <tr><td class="col-name">RUTA_RELATIVA</td><td class="col-type">VARCHAR2(1000)</td><td>a.RUTA_RELATIVA</td><td>Ruta dinámica de carpetas.</td></tr>
+              <tr><td class="col-name">RUTA_COMPLETA_ALMACENAMIENTO</td><td class="col-type">VARCHAR2(1500)</td><td>a.RUTA_COMPLETA_ALMACENAMIENTO</td><td>URI o path físico completo en storage.</td></tr>
+              <tr><td class="col-name">EXTENSION</td><td class="col-type">VARCHAR2(20)</td><td>a.EXTENSION</td><td>Extensión del archivo.</td></tr>
+              <tr><td class="col-name">TIPO_MIME</td><td class="col-type">VARCHAR2(100)</td><td>a.TIPO_MIME</td><td>Tipo de contenido MIME.</td></tr>
+              <tr><td class="col-name">TAMANO_BYTES</td><td class="col-type">NUMBER(14)</td><td>a.TAMANO_BYTES</td><td>Tamaño en bytes.</td></tr>
+              <tr><td class="col-name">TAMANO_MB</td><td class="col-type">NUMBER</td><td>ROUND(a.TAMANO_BYTES / 1048576, 2)</td><td>Tamaño amigable en Megabytes.</td></tr>
+              <tr><td class="col-name">NOMBRE_CLASE</td><td class="col-type">VARCHAR2(100)</td><td>c.NOMBRE_CLASE</td><td>Clasificación del documento.</td></tr>
+              <tr><td class="col-name">NOMBRE_CENTRO</td><td class="col-type">VARCHAR2(120)</td><td>ce.NOMBRE_CENTRO</td><td>Sede geriátrica donde se origina.</td></tr>
+              <tr><td class="col-name">NOMBRE_RESIDENTE</td><td class="col-type">VARCHAR2(160)</td><td>r.NOMBRES || ' ' || r.APELLIDOS</td><td>Nombre completo del residente vinculado.</td></tr>
+              <tr><td class="col-name">NOMBRE_ESTADO_ARCHIVO</td><td class="col-type">VARCHAR2(50)</td><td>ea.NOMBRE_ESTADO_ARCHIVO</td><td>Estado operativo ('Activo / Disponible').</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
     </section>
 
     <!-- SECCION 5: TRIGGERS Y SECUENCIAS -->
@@ -2019,7 +2117,11 @@ const initialNodesData = [
   { id: 30, label: "SMY_ERRORES", group: "seguridad", shape: "box", color: { background: "#dc2626", border: "#991b1b" }, font: { color: "#fff", face: "IBM Plex Mono", size: 13 } },
   { id: 31, label: "SMY_TAREA_RESIDENTES", group: "operaciones", shape: "box", color: { background: "#f43f5e", border: "#e11d48" }, font: { color: "#fff", face: "IBM Plex Mono", size: 13 } },
   { id: 32, label: "SMY_DISPOSITIVOS_PUSH", group: "chat", shape: "box", color: { background: "#818cf8", border: "#6366f1" }, font: { color: "#000", face: "IBM Plex Mono", size: 13 } },
-  { id: 33, label: "V_SMY_TIMELINE_RESIDENTE", group: "clinico", shape: "ellipse", color: { background: "#142822", border: "#b3803f" }, font: { color: "#fff", face: "IBM Plex Mono", size: 13 } }
+  { id: 33, label: "V_SMY_TIMELINE_RESIDENTE", group: "clinico", shape: "ellipse", color: { background: "#142822", border: "#b3803f" }, font: { color: "#fff", face: "IBM Plex Mono", size: 13 } },
+  { id: 34, label: "SMY_PARAMETROS", group: "seguridad", shape: "box", color: { background: "#7a4f9e", border: "#583475" }, font: { color: "#fff", face: "IBM Plex Mono", size: 13 } },
+  { id: 35, label: "SMY_ARCHIVOS", group: "clinico", shape: "box", color: { background: "#274a3f", border: "#142822" }, font: { color: "#fff", face: "IBM Plex Mono", size: 14, bold: true } },
+  { id: 36, label: "SMY_CENTROS", group: "operaciones", shape: "box", color: { background: "#d97706", border: "#b45309" }, font: { color: "#fff", face: "IBM Plex Mono", size: 13 } },
+  { id: 37, label: "VW_SMY_ARCHIVOS_ACTIVOS", group: "clinico", shape: "ellipse", color: { background: "#142822", border: "#b3803f" }, font: { color: "#fff", face: "IBM Plex Mono", size: 13 } }
 ];
 
 const initialEdgesData = [
@@ -2067,7 +2169,10 @@ const initialEdgesData = [
   { from: 2, to: 29, label: "ID_USUARIO_DEST", arrows: "to" },
   { from: 2, to: 30, label: "ID_USUARIO_CREACION", arrows: "to", color: { color: "#dc2626" } },
   { from: 2, to: 32, label: "ID_USUARIO", arrows: "to", color: { color: "#818cf8" } },
-  { from: 7, to: 33, label: "ID_RESIDENTE", arrows: "to", dashes: true, color: { color: "#b3803f" } }
+  { from: 7, to: 33, label: "ID_RESIDENTE", arrows: "to", dashes: true, color: { color: "#b3803f" } },
+  { from: 7, to: 35, label: "ID_RESIDENTE", arrows: "to" },
+  { from: 36, to: 35, label: "ID_CENTRO", arrows: "to" },
+  { from: 35, to: 37, label: "VISTA", arrows: "to", dashes: true, color: { color: "#b3803f" } }
 ];
 
 function getCustomPositions() {

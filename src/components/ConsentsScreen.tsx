@@ -48,13 +48,30 @@ export const ConsentsScreen: React.FC = () => {
     }
   };
 
+  const formatRecipientDisplay = (r: { name: string; relationship?: string }) => {
+    const relStr = `${r.relationship || ''} ${r.name || ''}`.toLowerCase();
+    const tag = (relStr.includes('hijo') || relStr.includes('hija')) ? '(Hijo)' : '(Familiar)';
+
+    let cleanName = r.name
+      .replace(/\s*\([^)]*\)/g, '')
+      .replace(/Familiar de .*/i, '')
+      .replace(/Hijo de .*/i, '')
+      .replace(/Hija de .*/i, '')
+      .trim();
+
+    if (!cleanName || cleanName.toLowerCase() === 'familiar') {
+      return tag;
+    }
+
+    return `${cleanName} ${tag}`;
+  };
+
   return (
     <div className="space-y-4 pb-24 px-4 pt-1">
       {/* Header with New Consent Button */}
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-xl font-bold text-[#292A24]">Consentimientos</h2>
-          <p className="text-xs text-[#5C6058]">Gestión y autorizaciones clínicas firmadas</p>
         </div>
         <button
           id="btn-open-new-consent-modal"
@@ -139,10 +156,10 @@ export const ConsentsScreen: React.FC = () => {
                   </span>
                 )}
               </div>
-              <div>
-                <span>Destinatarios: </span>
-                <span className="font-semibold text-[#292A24]">
-                  {consent.recipients.map(r => `${r.name} (${r.relationship})`).join(', ')}
+              <div className="flex items-center justify-between gap-2">
+                <span className="shrink-0">Destinatarios:</span>
+                <span className="font-semibold text-[#292A24] text-right">
+                  {consent.recipients.map(formatRecipientDisplay).join(', ')}
                 </span>
               </div>
             </div>

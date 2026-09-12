@@ -4,7 +4,9 @@ import {
   Paperclip,
   Send,
   X,
-  Check
+  Check,
+  ChevronLeft,
+  Search
 } from 'lucide-react';
 import { ConsentType } from '../types';
 
@@ -124,30 +126,29 @@ export const NewConsentModal: React.FC = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-60 bg-black/60 backdrop-blur-[3px] flex items-center justify-center p-3 sm:p-4 animate-in fade-in">
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-label="Nuevo consentimiento"
-        className="w-full max-w-lg bg-white rounded-3xl p-5 sm:p-6 shadow-2xl border border-[#DEDBD1] space-y-4 max-h-[92vh] overflow-y-auto custom-scrollbar animate-in zoom-in-95"
-      >
-        {/* Header (Clean, no icon, no subtitle) */}
-        <div className="flex items-center justify-between pb-3 border-b border-[#DEDBD1]">
-          <h3 className="font-bold text-base text-[#292A24]">
-            Nuevo consentimiento
-          </h3>
+    <div className="fixed inset-0 z-50 bg-[#F7F7F8] overflow-y-auto animate-in fade-in duration-200">
+      <div className="min-h-screen max-w-lg mx-auto pb-28">
+        {/* Sticky Top Header with back navigation */}
+        <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-[#DEDBD1] px-4 py-3 flex items-center justify-between">
           <button
-            id="btn-close-new-consent-modal"
+            id="btn-back-new-consent"
             type="button"
             onClick={() => setIsNewConsentModalOpen(false)}
-            className="touch-target p-1.5 rounded-xl text-[#5C6058] hover:bg-[#F7F7F8]"
-            aria-label="Cerrar modal"
+            className="touch-target min-w-[44px] min-h-[44px] -ml-2 px-2 flex items-center gap-1 text-[#068591] font-bold text-sm active:scale-95 transition-all"
+            aria-label="Volver atrás"
           >
-            <X className="w-6 h-6" />
+            <ChevronLeft className="w-5 h-5" />
+            <span>Volver</span>
           </button>
+          <div>
+            <h1 className="font-bold text-base text-[#292A24]">
+              Nuevo Consentimiento
+            </h1>
+          </div>
+          <div className="w-16"></div>
         </div>
 
-        <form onSubmit={handleCreateConsentSubmit} className="space-y-4">
+        <form onSubmit={handleCreateConsentSubmit} className="p-4 sm:p-5 space-y-4">
           {/* 1. Resident Selection with Autocomplete/Search showing names only */}
           <div className="space-y-1.5" ref={residentDropdownRef}>
             <label className="block text-xs font-bold text-[#292A24]" htmlFor="input-consent-resident-search">
@@ -166,9 +167,23 @@ export const NewConsentModal: React.FC = () => {
                   setResidentSearch(e.target.value);
                   setIsResidentDropdownOpen(true);
                 }}
-                placeholder="Escribe el nombre del residente..."
-                className="w-full px-3.5 py-2.5 bg-[#F7F7F8] border border-[#DEDBD1] rounded-xl text-xs font-bold text-[#292A24] focus:outline-none focus:border-[#068591]"
+                placeholder="Escribe para buscar residente..."
+                className="w-full pl-9 pr-8 py-2.5 bg-[#F7F7F8] border border-[#DEDBD1] rounded-xl text-xs font-bold text-[#292A24] focus:outline-none focus:border-[#068591] focus:bg-white transition-colors"
               />
+              <Search className="w-4 h-4 text-[#5C6058] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              {residentSearch && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setResidentSearch('');
+                    setSelectedResId('');
+                  }}
+                  className="touch-target absolute right-2 top-1/2 -translate-y-1/2 p-1 text-[#5C6058] hover:text-[#292A24]"
+                  aria-label="Limpiar búsqueda"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
 
               {/* Dropdown with only names */}
               {isResidentDropdownOpen && (
@@ -267,7 +282,7 @@ export const NewConsentModal: React.FC = () => {
                     `Pauta_${consentType.replace(/\s+/g, '_')}_${Date.now().toString().slice(-4)}.pdf`
                   )
                 }
-                className="text-[#068591] font-bold hover:underline"
+                className="text-[#068591] font-bold hover:opacity-80 transition-opacity"
               >
                 Cambiar archivo
               </button>

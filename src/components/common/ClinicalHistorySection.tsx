@@ -328,7 +328,7 @@ export const ClinicalHistorySection: React.FC<ClinicalHistorySectionProps> = ({ 
                         <button
                           type="button"
                           onClick={() => handleOpenEdit(record)}
-                          className="text-xs font-bold text-[#075158] hover:underline"
+                          className="text-xs font-bold text-[#075158] hover:opacity-80 transition-opacity"
                         >
                           Editar
                         </button>
@@ -336,7 +336,7 @@ export const ClinicalHistorySection: React.FC<ClinicalHistorySectionProps> = ({ 
                         <button
                           type="button"
                           onClick={() => setRecordToDelete(record)}
-                          className="text-xs font-bold text-[#8C2E2E] hover:underline"
+                          className="text-xs font-bold text-[#8C2E2E] hover:opacity-80 transition-opacity"
                         >
                           Eliminar
                         </button>

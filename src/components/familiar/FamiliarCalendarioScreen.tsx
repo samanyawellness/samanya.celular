@@ -496,7 +496,7 @@ export const FamiliarCalendarioScreen: React.FC = () => {
             <button
               type="button"
               onClick={() => setActiveFilter('todos')}
-              className="inline-flex items-center gap-1 text-[11px] font-bold text-[#068591] hover:underline"
+              className="inline-flex items-center gap-1 text-[11px] font-bold text-[#068591] hover:opacity-80 transition-opacity"
             >
               <X className="w-3.5 h-3.5" />
               <span>Ver todos</span>

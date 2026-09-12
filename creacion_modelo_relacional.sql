@@ -1037,6 +1037,118 @@ COMMENT ON COLUMN SMY_TIPOS_NOTIFICACIONES.NOMBRE_TIPO_NOTIFICACION IS 'Nombre d
 COMMENT ON COLUMN SMY_TIPOS_NOTIFICACIONES.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
 COMMENT ON COLUMN SMY_TIPOS_NOTIFICACIONES.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
 
+-- 0.45 Estados de Parámetros del Sistema
+CREATE TABLE SMY_ESTADOS_PARAMETROS (
+    ID                              NUMBER(10)      NOT NULL,
+    NOMBRE_ESTADO_PARAMETRO         VARCHAR2(50)    NOT NULL, -- 'Activo', 'Inactivo', 'Deprecado'
+    DESCRIPCION                     VARCHAR2(200),
+    FECHA_CREACION                  DATE            DEFAULT CAST(SYSTIMESTAMP AT TIME ZONE '-05:00' AS DATE) NOT NULL,
+    ID_USUARIO_ULTIMA_MODIFICACION  NUMBER(10),
+    CONSTRAINT PK_SMY_ESTADOS_PARAMETROS PRIMARY KEY (ID),
+    CONSTRAINT UQ_SMY_EST_PAR_NOM UNIQUE (NOMBRE_ESTADO_PARAMETRO)
+);
+CREATE SEQUENCE SEQ_SMY_ESTADOS_PARAMETROS START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
+CREATE OR REPLACE TRIGGER TRG_SMY_ESTADOS_PARAMETROS_BI
+BEFORE INSERT ON SMY_ESTADOS_PARAMETROS FOR EACH ROW
+BEGIN
+    IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_ESTADOS_PARAMETROS.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
+END;
+/
+COMMENT ON TABLE SMY_ESTADOS_PARAMETROS IS 'Catálogo maestro de estados para los parámetros del sistema (Activo, Inactivo, Deprecado).';
+COMMENT ON COLUMN SMY_ESTADOS_PARAMETROS.ID IS 'Identificador único y clave primaria de la tabla SMY_ESTADOS_PARAMETROS.';
+COMMENT ON COLUMN SMY_ESTADOS_PARAMETROS.NOMBRE_ESTADO_PARAMETRO IS 'Nombre único del estado del parámetro.';
+COMMENT ON COLUMN SMY_ESTADOS_PARAMETROS.DESCRIPCION IS 'Descripción explicativa del estado.';
+COMMENT ON COLUMN SMY_ESTADOS_PARAMETROS.FECHA_CREACION IS 'Fecha y hora de registro con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_ESTADOS_PARAMETROS.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación.';
+
+-- 0.46 Estados de Archivos (Ciclo de Vida y Borrado Lógico)
+CREATE TABLE SMY_ESTADOS_ARCHIVOS (
+    ID                              NUMBER(10)      NOT NULL,
+    NOMBRE_ESTADO_ARCHIVO           VARCHAR2(50)    NOT NULL, -- 'Activo / Disponible', 'Eliminado / Papelera', 'En Carga', 'En Procesamiento', 'Archivado / Histórico', 'En Cuarentena / Error'
+    DESCRIPCION                     VARCHAR2(200),
+    FECHA_CREACION                  DATE            DEFAULT CAST(SYSTIMESTAMP AT TIME ZONE '-05:00' AS DATE) NOT NULL,
+    ID_USUARIO_ULTIMA_MODIFICACION  NUMBER(10),
+    CONSTRAINT PK_SMY_ESTADOS_ARCHIVOS PRIMARY KEY (ID),
+    CONSTRAINT UQ_SMY_EST_ARC_NOM UNIQUE (NOMBRE_ESTADO_ARCHIVO)
+);
+CREATE SEQUENCE SEQ_SMY_ESTADOS_ARCHIVOS START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
+CREATE OR REPLACE TRIGGER TRG_SMY_ESTADOS_ARCHIVOS_BI
+BEFORE INSERT ON SMY_ESTADOS_ARCHIVOS FOR EACH ROW
+BEGIN
+    IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_ESTADOS_ARCHIVOS.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
+END;
+/
+COMMENT ON TABLE SMY_ESTADOS_ARCHIVOS IS 'Catálogo maestro de estados operativos y de ciclo de vida del archivo (Activo, Eliminado/Papelera, En Carga, etc.).';
+COMMENT ON COLUMN SMY_ESTADOS_ARCHIVOS.ID IS 'Identificador único y clave primaria de la tabla SMY_ESTADOS_ARCHIVOS.';
+COMMENT ON COLUMN SMY_ESTADOS_ARCHIVOS.NOMBRE_ESTADO_ARCHIVO IS 'Nombre del estado operativo y de ciclo de vida del archivo.';
+COMMENT ON COLUMN SMY_ESTADOS_ARCHIVOS.DESCRIPCION IS 'Descripción del estado operativo del archivo.';
+COMMENT ON COLUMN SMY_ESTADOS_ARCHIVOS.FECHA_CREACION IS 'Fecha y hora de registro con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_ESTADOS_ARCHIVOS.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación.';
+
+-- 0.47 Clases y Clasificación de Archivos (Para estructuración dinámica de carpetas)
+CREATE TABLE SMY_CLASES_ARCHIVOS (
+    ID                              NUMBER(10)      NOT NULL,
+    CODIGO_CLASE                    VARCHAR2(40)    NOT NULL, -- 'HISTORIA_CLINICA', 'CONSENTIMIENTO', 'IDENTIFICACION', 'FOTOGRAFIA', 'EXAMEN_LAB', 'CONTRATO'
+    NOMBRE_CLASE                    VARCHAR2(100)   NOT NULL,
+    PATRON_DIRECTORIO               VARCHAR2(200)   NOT NULL, -- Plantilla dinámica: '{centro}/{residente}/{clase}/{ano}/{mes}/'
+    EXTENSIONES_PERMITIDAS          VARCHAR2(100),            -- 'pdf,jpg,jpeg,png,docx'
+    TAMANO_MAXIMO_MB                NUMBER(5)       DEFAULT 25 NOT NULL,
+    DESCRIPCION                     VARCHAR2(250),
+    FECHA_CREACION                  DATE            DEFAULT CAST(SYSTIMESTAMP AT TIME ZONE '-05:00' AS DATE) NOT NULL,
+    ID_USUARIO_ULTIMA_MODIFICACION  NUMBER(10),
+    CONSTRAINT PK_SMY_CLASES_ARCHIVOS PRIMARY KEY (ID),
+    CONSTRAINT UQ_SMY_CLA_ARC_COD UNIQUE (CODIGO_CLASE)
+);
+CREATE SEQUENCE SEQ_SMY_CLASES_ARCHIVOS START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
+CREATE OR REPLACE TRIGGER TRG_SMY_CLASES_ARCHIVOS_BI
+BEFORE INSERT ON SMY_CLASES_ARCHIVOS FOR EACH ROW
+BEGIN
+    IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_CLASES_ARCHIVOS.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
+END;
+/
+COMMENT ON TABLE SMY_CLASES_ARCHIVOS IS 'Catálogo maestro de clases/categorías de archivos con reglas de almacenamiento y patrón de directorios dinámico.';
+COMMENT ON COLUMN SMY_CLASES_ARCHIVOS.ID IS 'Identificador único y clave primaria de la tabla SMY_CLASES_ARCHIVOS.';
+COMMENT ON COLUMN SMY_CLASES_ARCHIVOS.CODIGO_CLASE IS 'Código mnemotécnico único de la clase de archivo (ej. HISTORIA_CLINICA, CONSENTIMIENTO).';
+COMMENT ON COLUMN SMY_CLASES_ARCHIVOS.NOMBRE_CLASE IS 'Nombre legible descriptivo de la clase de archivo.';
+COMMENT ON COLUMN SMY_CLASES_ARCHIVOS.PATRON_DIRECTORIO IS 'Plantilla de ruta dinámica en el file server (ej. {centro}/{residente}/{clase}/{ano}/{mes}/).';
+COMMENT ON COLUMN SMY_CLASES_ARCHIVOS.EXTENSIONES_PERMITIDAS IS 'Lista de extensiones permitidas separadas por coma.';
+COMMENT ON COLUMN SMY_CLASES_ARCHIVOS.TAMANO_MAXIMO_MB IS 'Tamaño máximo permitido en Megabytes para esta clase de archivo.';
+COMMENT ON COLUMN SMY_CLASES_ARCHIVOS.FECHA_CREACION IS 'Fecha y hora de registro con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_CLASES_ARCHIVOS.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación.';
+
+-- 0.48 Centros / Sedes Geriátricas
+CREATE TABLE SMY_CENTROS (
+    ID                              NUMBER(10)      NOT NULL,
+    CODIGO_CENTRO                   VARCHAR2(20)    NOT NULL, -- 'SEDE-CENTRO', 'SEDE-NORTE'
+    NOMBRE_CENTRO                   VARCHAR2(120)   NOT NULL,
+    SLUG_DIRECTORIO                 VARCHAR2(60)    NOT NULL, -- 'centro_madrid', 'sede_norte' (limpio para filesystem)
+    CIUDAD                          VARCHAR2(80)    NOT NULL,
+    DIRECCION                       VARCHAR2(200),
+    TELEFONO                        VARCHAR2(30),
+    EMAIL_CONTACTO                  VARCHAR2(100),
+    CAPACIDAD_RESIDENTES            NUMBER(5)       DEFAULT 0 NOT NULL,
+    ID_ESTADO_CENTRO                NUMBER(10)      DEFAULT 1 NOT NULL,
+    FECHA_CREACION                  DATE            DEFAULT CAST(SYSTIMESTAMP AT TIME ZONE '-05:00' AS DATE) NOT NULL,
+    ID_USUARIO_ULTIMA_MODIFICACION  NUMBER(10),
+    CONSTRAINT PK_SMY_CENTROS PRIMARY KEY (ID),
+    CONSTRAINT UQ_SMY_CEN_COD UNIQUE (CODIGO_CENTRO),
+    CONSTRAINT UQ_SMY_CEN_SLUG UNIQUE (SLUG_DIRECTORIO)
+);
+CREATE SEQUENCE SEQ_SMY_CENTROS START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
+CREATE OR REPLACE TRIGGER TRG_SMY_CENTROS_BI
+BEFORE INSERT ON SMY_CENTROS FOR EACH ROW
+BEGIN
+    IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_CENTROS.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
+END;
+/
+COMMENT ON TABLE SMY_CENTROS IS 'Catálogo maestro de centros y sedes asistenciales que permite estructurar los archivos por centro geriátrico.';
+COMMENT ON COLUMN SMY_CENTROS.ID IS 'Identificador único y clave primaria de la tabla SMY_CENTROS.';
+COMMENT ON COLUMN SMY_CENTROS.CODIGO_CENTRO IS 'Código de negocio único de la sede (ej. SEDE-CENTRO).';
+COMMENT ON COLUMN SMY_CENTROS.NOMBRE_CENTRO IS 'Nombre oficial de la institución o sede geriátrica.';
+COMMENT ON COLUMN SMY_CENTROS.SLUG_DIRECTORIO IS 'Identificador normalizado para nombres de directorio en el servidor de archivos.';
+COMMENT ON COLUMN SMY_CENTROS.FECHA_CREACION IS 'Fecha y hora de registro con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_CENTROS.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación.';
+
 -- =============================================================================
 -- SECCIÓN 1: MÓDULO DE SEGURIDAD, USUARIOS Y CONTROL DE ACCESO
 -- =============================================================================
@@ -1190,6 +1302,60 @@ COMMENT ON COLUMN SMY_ERRORES.TEXTO_ERROR IS 'Traza técnica detallada del error
 COMMENT ON COLUMN SMY_ERRORES.MENSAJE_ERROR IS 'Mensaje de error procesado y comprensible para el usuario o soporte funcional.';
 COMMENT ON COLUMN SMY_ERRORES.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
 COMMENT ON COLUMN SMY_ERRORES.ID_USUARIO_CREACION IS 'Identificador del usuario que originó o registró el evento.';
+
+-- Tabla: SMY_PARAMETROS
+CREATE TABLE SMY_PARAMETROS (
+    ID                              NUMBER(10)          NOT NULL,
+    CODIGO_PARAMETRO                VARCHAR2(100)       NOT NULL, -- 'API_TOKEN_WHATSAPP', 'STORAGE_BASE_PATH', 'ORACLE_WALLET_PATH'
+    NOMBRE_PARAMETRO                VARCHAR2(150)       NOT NULL,
+    DESCRIPCION                     VARCHAR2(500),
+    GRUPO_PARAMETRO                 VARCHAR2(50)        DEFAULT 'GENERAL' NOT NULL, -- 'INTEGRACION', 'STORAGE', 'SEGURIDAD', 'NOTIFICACIONES'
+    VALOR_TEXTO                     VARCHAR2(4000),     -- Valores de texto estándar, URLs, rutas
+    VALOR_CLOB                      CLOB,               -- Tokens JWT extensos, certificados PEM, configuraciones JSON complejas
+    VALOR_NUMERICO                  NUMBER(18, 4),      -- Límites, timeouts en segundos, cuotas
+    VALOR_FECHA                     DATE,               -- Vencimiento de tokens, fecha de rotación de credenciales
+    ES_ENCRIPTADO                   CHAR(1)             DEFAULT 'N' NOT NULL, -- 'S'=Encriptado con AES/Wallet, 'N'=Plano
+    ES_SISTEMA                      CHAR(1)             DEFAULT 'N' NOT NULL, -- 'S'=Protegido contra eliminación accidental, 'N'=Editable
+    ID_ESTADO_PARAMETRO             NUMBER(10)          DEFAULT 1 NOT NULL,
+    FECHA_CREACION                  DATE                DEFAULT CAST(SYSTIMESTAMP AT TIME ZONE '-05:00' AS DATE) NOT NULL,
+    FECHA_ULTIMA_MODIFICACION       DATE,
+    ID_USUARIO_ULTIMA_MODIFICACION  NUMBER(10),
+    CONSTRAINT PK_SMY_PARAMETROS PRIMARY KEY (ID),
+    CONSTRAINT UQ_SMY_PAR_CODIGO UNIQUE (CODIGO_PARAMETRO),
+    CONSTRAINT CK_SMY_PAR_ENCRIPTADO CHECK (ES_ENCRIPTADO IN ('S', 'N')),
+    CONSTRAINT CK_SMY_PAR_SISTEMA CHECK (ES_SISTEMA IN ('S', 'N')),
+    CONSTRAINT FK_SMY_PAR_ESTADO FOREIGN KEY (ID_ESTADO_PARAMETRO) REFERENCES SMY_ESTADOS_PARAMETROS (ID)
+);
+CREATE SEQUENCE SEQ_SMY_PARAMETROS START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
+CREATE OR REPLACE TRIGGER TRG_SMY_PARAMETROS_BI
+BEFORE INSERT ON SMY_PARAMETROS FOR EACH ROW
+BEGIN
+    IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_PARAMETROS.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
+    :NEW.FECHA_ULTIMA_MODIFICACION := CAST(SYSTIMESTAMP AT TIME ZONE '-05:00' AS DATE);
+END;
+/
+CREATE OR REPLACE TRIGGER TRG_SMY_PARAMETROS_BU
+BEFORE UPDATE ON SMY_PARAMETROS FOR EACH ROW
+BEGIN
+    :NEW.FECHA_ULTIMA_MODIFICACION := CAST(SYSTIMESTAMP AT TIME ZONE '-05:00' AS DATE);
+END;
+/
+COMMENT ON TABLE SMY_PARAMETROS IS 'Tabla central de parámetros de configuración del sistema: tokens de APIs, credenciales de conexión, URLs y flags de comportamiento.';
+COMMENT ON COLUMN SMY_PARAMETROS.ID IS 'Identificador único y clave primaria de la tabla SMY_PARAMETROS.';
+COMMENT ON COLUMN SMY_PARAMETROS.CODIGO_PARAMETRO IS 'Clave alfanumérica única del parámetro (ej. STORAGE_LOCAL_ROOT, API_TOKEN_WHATSAPP).';
+COMMENT ON COLUMN SMY_PARAMETROS.NOMBRE_PARAMETRO IS 'Nombre comprensible para administración técnica.';
+COMMENT ON COLUMN SMY_PARAMETROS.DESCRIPCION IS 'Documentación funcional sobre el propósito y uso del parámetro.';
+COMMENT ON COLUMN SMY_PARAMETROS.GRUPO_PARAMETRO IS 'Agrupador temático del parámetro (INTEGRACION, STORAGE, SEGURIDAD, NOTIFICACIONES).';
+COMMENT ON COLUMN SMY_PARAMETROS.VALOR_TEXTO IS 'Valor de configuración en formato cadena de texto hasta 4000 caracteres.';
+COMMENT ON COLUMN SMY_PARAMETROS.VALOR_CLOB IS 'Almacén de longitud extendida para tokens JWT largos, llaves privadas, certificados o JSON.';
+COMMENT ON COLUMN SMY_PARAMETROS.VALOR_NUMERICO IS 'Valor numérico para tiempos de espera, puertos o tamaños máximos.';
+COMMENT ON COLUMN SMY_PARAMETROS.VALOR_FECHA IS 'Fecha límite de vigencia de tokens o rotación de contraseñas.';
+COMMENT ON COLUMN SMY_PARAMETROS.ES_ENCRIPTADO IS 'Indicador booleano (S/N) que especifica si el contenido debe tratarse cifrado.';
+COMMENT ON COLUMN SMY_PARAMETROS.ES_SISTEMA IS 'Indicador booleano (S/N) para proteger parámetros críticos del núcleo.';
+COMMENT ON COLUMN SMY_PARAMETROS.ID_ESTADO_PARAMETRO IS 'Clave foránea hacia SMY_ESTADOS_PARAMETROS (Activo/Inactivo).';
+COMMENT ON COLUMN SMY_PARAMETROS.FECHA_CREACION IS 'Fecha y hora de registro con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_PARAMETROS.FECHA_ULTIMA_MODIFICACION IS 'Fecha y hora de la última modificación en base de datos.';
+COMMENT ON COLUMN SMY_PARAMETROS.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación.';
 
 -- =============================================================================
 -- SECCIÓN 2: MÓDULO DE TALENTO HUMANO, TURNOS Y AUSENCIAS
@@ -1776,6 +1942,79 @@ COMMENT ON COLUMN SMY_DOCUMENTOS_ELIMINADOS_LOG.MOTIVO_ELIMINACION IS 'Causa o j
 COMMENT ON COLUMN SMY_DOCUMENTOS_ELIMINADOS_LOG.FECHA_ELIMINACION IS 'Fecha y hora exacta en que se efectuó la anulación en sistema.';
 COMMENT ON COLUMN SMY_DOCUMENTOS_ELIMINADOS_LOG.FECHA_CREACION IS 'Fecha y hora de registro en base de datos con zona horaria legal de Bogotá (UTC-5).';
 COMMENT ON COLUMN SMY_DOCUMENTOS_ELIMINADOS_LOG.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación del registro.';
+
+-- Tabla: SMY_ARCHIVOS
+CREATE TABLE SMY_ARCHIVOS (
+    ID                              NUMBER(10)          NOT NULL,
+    NOMBRE_ARCHIVO                  VARCHAR2(255)       NOT NULL, -- Nombre original proporcionado por el usuario (ej. 'examen_sangre_carmen.pdf')
+    NOMBRE_ARCHIVO_ALMACENADO       VARCHAR2(255)       NOT NULL, -- Nombre con hash en disco (ej. 'a7f9b2c34d...9e.pdf')
+    HASH_ARCHIVO                    VARCHAR2(128)       NOT NULL, -- Hash criptográfico (SHA-256 o MD5) para validación de integridad y deduplicación
+    NOMBRE_DIRECTORIO_BD            VARCHAR2(128),                -- Directorio Oracle (DIRECTORY object de BD ej. 'DIR_ARCHIVOS_SAMANYA') para BFILE/UTL_FILE (puede ser nulo)
+    RUTA_RELATIVA                   VARCHAR2(1000)      NOT NULL, -- Estructura de directorio dinámica (ej. '/centros/1/residentes/102/historias_clinicas/2026/09/')
+    RUTA_COMPLETA_ALMACENAMIENTO    VARCHAR2(1500)      NOT NULL, -- URI o ruta física completa en el storage server
+    EXTENSION                       VARCHAR2(20)        NOT NULL, -- '.pdf', '.jpg', '.png', '.docx'
+    TIPO_MIME                       VARCHAR2(100)       NOT NULL, -- 'application/pdf', 'image/jpeg'
+    TAMANO_BYTES                    NUMBER(14)          NOT NULL, -- Tamaño exacto en bytes
+    ID_CLASE_ARCHIVO                NUMBER(10)          NOT NULL, -- Relación con SMY_CLASES_ARCHIVOS
+    ID_CENTRO                       NUMBER(10),                   -- Relación con SMY_CENTROS (Jerarquía centro/sede)
+    ID_RESIDENTE                    NUMBER(10),                   -- Relación con SMY_RESIDENTES (Jerarquía residente)
+    ID_ESTADO_ARCHIVO               NUMBER(10)          DEFAULT 1 NOT NULL, -- Relación con SMY_ESTADOS_ARCHIVOS (1=Activo/Disponible, 2=Eliminado/Papelera, etc.)
+    TABLA_ORIGEN                    VARCHAR2(50),                 -- Nombre de la tabla de negocio vinculada (ej. 'SMY_DOCUMENTOS_CLINICOS', 'SMY_CONSENTIMIENTOS')
+    ID_REGISTRO_ORIGEN              NUMBER(10),                   -- ID del registro en la tabla de negocio
+    METADATOS_JSON                  CLOB,                         -- Información adicional flexible en formato JSON nativo
+    FECHA_ELIMINACION               DATE,                         -- Fecha en la cual el usuario marcó el archivo como eliminado (ID_ESTADO_ARCHIVO = 2)
+    ID_USUARIO_ELIMINACION          NUMBER(10),                   -- Usuario que solicitó la eliminación
+    FECHA_CREACION                  DATE                DEFAULT CAST(SYSTIMESTAMP AT TIME ZONE '-05:00' AS DATE) NOT NULL,
+    FECHA_ULTIMA_MODIFICACION       DATE,
+    ID_USUARIO_ULTIMA_MODIFICACION  NUMBER(10),
+    CONSTRAINT PK_SMY_ARCHIVOS PRIMARY KEY (ID),
+    CONSTRAINT UQ_SMY_ARC_ALMACENADO UNIQUE (NOMBRE_ARCHIVO_ALMACENADO),
+    CONSTRAINT FK_SMY_ARC_CLASE FOREIGN KEY (ID_CLASE_ARCHIVO) REFERENCES SMY_CLASES_ARCHIVOS (ID),
+    CONSTRAINT FK_SMY_ARC_CENTRO FOREIGN KEY (ID_CENTRO) REFERENCES SMY_CENTROS (ID),
+    CONSTRAINT FK_SMY_ARC_RESIDENTE FOREIGN KEY (ID_RESIDENTE) REFERENCES SMY_RESIDENTES (ID),
+    CONSTRAINT FK_SMY_ARC_ESTADO FOREIGN KEY (ID_ESTADO_ARCHIVO) REFERENCES SMY_ESTADOS_ARCHIVOS (ID)
+);
+CREATE SEQUENCE SEQ_SMY_ARCHIVOS START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
+CREATE OR REPLACE TRIGGER TRG_SMY_ARCHIVOS_BI
+BEFORE INSERT ON SMY_ARCHIVOS FOR EACH ROW
+BEGIN
+    IF :NEW.ID IS NULL THEN SELECT SEQ_SMY_ARCHIVOS.NEXTVAL INTO :NEW.ID FROM DUAL; END IF;
+    :NEW.FECHA_ULTIMA_MODIFICACION := CAST(SYSTIMESTAMP AT TIME ZONE '-05:00' AS DATE);
+END;
+/
+CREATE OR REPLACE TRIGGER TRG_SMY_ARCHIVOS_BU
+BEFORE UPDATE ON SMY_ARCHIVOS FOR EACH ROW
+BEGIN
+    :NEW.FECHA_ULTIMA_MODIFICACION := CAST(SYSTIMESTAMP AT TIME ZONE '-05:00' AS DATE);
+    -- Si el estado cambia a Eliminado/Papelera (ID_ESTADO_ARCHIVO = 2), se audita el momento del borrado lógico
+    IF :NEW.ID_ESTADO_ARCHIVO = 2 AND :OLD.ID_ESTADO_ARCHIVO <> 2 AND :NEW.FECHA_ELIMINACION IS NULL THEN
+        :NEW.FECHA_ELIMINACION := CAST(SYSTIMESTAMP AT TIME ZONE '-05:00' AS DATE);
+    END IF;
+END;
+/
+COMMENT ON TABLE SMY_ARCHIVOS IS 'Repositorio de metadatos de archivos físicos almacenados en servidor externo o directorio Oracle con nombres hasheados y ciclo de vida por estados.';
+COMMENT ON COLUMN SMY_ARCHIVOS.ID IS 'Identificador único y clave primaria de la tabla SMY_ARCHIVOS.';
+COMMENT ON COLUMN SMY_ARCHIVOS.NOMBRE_ARCHIVO IS 'Nombre original con el que el usuario cargó el archivo (ej. cedula_carmen.pdf).';
+COMMENT ON COLUMN SMY_ARCHIVOS.NOMBRE_ARCHIVO_ALMACENADO IS 'Nombre único del archivo en el servidor de archivos basado en hash criptográfico (ej. e3b0c442...pdf).';
+COMMENT ON COLUMN SMY_ARCHIVOS.HASH_ARCHIVO IS 'Hash criptográfico (SHA-256) del contenido para verificación de integridad y prevención de duplicados.';
+COMMENT ON COLUMN SMY_ARCHIVOS.NOMBRE_DIRECTORIO_BD IS 'Nombre del Directory Object de Oracle (DIRECTORIO de BD creado con CREATE DIRECTORY) en el que se ubica el archivo; puede ser nulo si el archivo se aloja exclusivamente en storage externo o nube.';
+COMMENT ON COLUMN SMY_ARCHIVOS.RUTA_RELATIVA IS 'Ruta relativa de directorios dinámica calculada según centro, residente y clase de archivo.';
+COMMENT ON COLUMN SMY_ARCHIVOS.RUTA_COMPLETA_ALMACENAMIENTO IS 'Ruta completa física o URI accesible por el servidor de almacenamiento.';
+COMMENT ON COLUMN SMY_ARCHIVOS.EXTENSION IS 'Extensión normalizada del archivo (.pdf, .jpg, .png).';
+COMMENT ON COLUMN SMY_ARCHIVOS.TIPO_MIME IS 'Tipo de contenido MIME del archivo (application/pdf, image/jpeg).';
+COMMENT ON COLUMN SMY_ARCHIVOS.TAMANO_BYTES IS 'Tamaño total del archivo medido en bytes.';
+COMMENT ON COLUMN SMY_ARCHIVOS.ID_CLASE_ARCHIVO IS 'Clave foránea hacia SMY_CLASES_ARCHIVOS.';
+COMMENT ON COLUMN SMY_ARCHIVOS.ID_CENTRO IS 'Clave foránea hacia SMY_CENTROS (permite aislamiento y partición de archivos por sede).';
+COMMENT ON COLUMN SMY_ARCHIVOS.ID_RESIDENTE IS 'Clave foránea hacia SMY_RESIDENTES (permite carpetas específicas por residente).';
+COMMENT ON COLUMN SMY_ARCHIVOS.ID_ESTADO_ARCHIVO IS 'Clave foránea hacia SMY_ESTADOS_ARCHIVOS (1=Activo/Disponible, 2=Eliminado/Papelera, etc.); reemplaza banderas binarias permitiendo trazabilidad de ciclo de vida.';
+COMMENT ON COLUMN SMY_ARCHIVOS.TABLA_ORIGEN IS 'Nombre de la tabla de negocio asociada para relación polimórfica (ej. SMY_DOCUMENTOS_CLINICOS).';
+COMMENT ON COLUMN SMY_ARCHIVOS.ID_REGISTRO_ORIGEN IS 'ID del registro en la tabla de negocio asociada.';
+COMMENT ON COLUMN SMY_ARCHIVOS.METADATOS_JSON IS 'Metadatos adicionales en formato JSON nativo (resolución, autor, escaneado, etc.).';
+COMMENT ON COLUMN SMY_ARCHIVOS.FECHA_ELIMINACION IS 'Fecha y hora en que se ejecutó el borrado lógico (ID_ESTADO_ARCHIVO = 2).';
+COMMENT ON COLUMN SMY_ARCHIVOS.ID_USUARIO_ELIMINACION IS 'Identificador del usuario que ordenó la eliminación del archivo.';
+COMMENT ON COLUMN SMY_ARCHIVOS.FECHA_CREACION IS 'Fecha y hora de registro con zona horaria legal de Bogotá (UTC-5).';
+COMMENT ON COLUMN SMY_ARCHIVOS.FECHA_ULTIMA_MODIFICACION IS 'Fecha y hora de la última modificación en base de datos.';
+COMMENT ON COLUMN SMY_ARCHIVOS.ID_USUARIO_ULTIMA_MODIFICACION IS 'Identificador del usuario que realizó la última modificación.';
 
 -- =============================================================================
 -- SECCIÓN 5: MÓDULO DE BITÁCORA DIARIA Y SIGNOS VITALES
@@ -2738,6 +2977,43 @@ JOIN SMY_USUARIOS U ON C.ID_USUARIO_CREADOR = U.ID;
 
 COMMENT ON TABLE V_SMY_TIMELINE_RESIDENTE IS 'Vista consolidada de novedades y eventos cronológicos del residente para alimentar el Timeline asistencial y del portal familiar.';
 
+-- Vista: VW_SMY_ARCHIVOS_ACTIVOS
+CREATE OR REPLACE VIEW VW_SMY_ARCHIVOS_ACTIVOS AS
+SELECT a.ID,
+       a.NOMBRE_ARCHIVO,
+       a.NOMBRE_ARCHIVO_ALMACENADO,
+       a.HASH_ARCHIVO,
+       a.NOMBRE_DIRECTORIO_BD,
+       a.RUTA_RELATIVA,
+       a.RUTA_COMPLETA_ALMACENAMIENTO,
+       a.EXTENSION,
+       a.TIPO_MIME,
+       a.TAMANO_BYTES,
+       ROUND(a.TAMANO_BYTES / 1048576, 2) AS TAMANO_MB,
+       a.ID_CLASE_ARCHIVO,
+       c.CODIGO_CLASE,
+       c.NOMBRE_CLASE,
+       a.ID_CENTRO,
+       ce.NOMBRE_CENTRO,
+       ce.SLUG_DIRECTORIO AS SLUG_CENTRO,
+       a.ID_RESIDENTE,
+       r.NOMBRES || ' ' || r.APELLIDOS AS NOMBRE_RESIDENTE,
+       r.CODIGO_EXPEDIENTE,
+       a.ID_ESTADO_ARCHIVO,
+       ea.NOMBRE_ESTADO_ARCHIVO,
+       a.TABLA_ORIGEN,
+       a.ID_REGISTRO_ORIGEN,
+       a.FECHA_CREACION,
+       a.ID_USUARIO_ULTIMA_MODIFICACION
+  FROM SMY_ARCHIVOS a
+  JOIN SMY_CLASES_ARCHIVOS c   ON a.ID_CLASE_ARCHIVO  = c.ID
+  JOIN SMY_ESTADOS_ARCHIVOS ea ON a.ID_ESTADO_ARCHIVO = ea.ID
+  LEFT JOIN SMY_CENTROS ce     ON a.ID_CENTRO         = ce.ID
+  LEFT JOIN SMY_RESIDENTES r   ON a.ID_RESIDENTE      = r.ID
+ WHERE a.ID_ESTADO_ARCHIVO = 1;
+
+COMMENT ON TABLE VW_SMY_ARCHIVOS_ACTIVOS IS 'Vista especializada que expone únicamente los archivos activos y disponibles (ID_ESTADO_ARCHIVO = 1) con su contexto de centro, residente y clase.';
+
 -- =============================================================================
 -- SECCIÓN 13: ÍNDICES DE RENDIMIENTO (OPTIMIZACIÓN PARA CONSULTAS FRECUENTES)
 -- =============================================================================
@@ -2769,6 +3045,13 @@ CREATE INDEX IDX_SMY_MC_CONV ON SMY_MENSAJES_CHAT(ID_CONVERSACION_CHAT, ENVIADO_
 CREATE INDEX IDX_SMY_NOTIF_USER_LEI ON SMY_NOTIFICACIONES_SISTEMA(ID_USUARIO_DESTINO, LEIDO);
 CREATE INDEX IDX_SMY_ERR_FECHA ON SMY_ERRORES(FECHA_CREACION);
 CREATE INDEX IDX_SMY_ERR_PROG ON SMY_ERRORES(NOMBRE_PROGRAMA);
+CREATE INDEX IDX_SMY_PAR_GRUPO ON SMY_PARAMETROS(GRUPO_PARAMETRO, ID_ESTADO_PARAMETRO);
+CREATE INDEX IDX_SMY_ARC_HASH ON SMY_ARCHIVOS(HASH_ARCHIVO);
+CREATE INDEX IDX_SMY_ARC_RES_EST ON SMY_ARCHIVOS(ID_RESIDENTE, ID_ESTADO_ARCHIVO);
+CREATE INDEX IDX_SMY_ARC_CEN_EST ON SMY_ARCHIVOS(ID_CENTRO, ID_ESTADO_ARCHIVO);
+CREATE INDEX IDX_SMY_ARC_CLA_EST ON SMY_ARCHIVOS(ID_CLASE_ARCHIVO, ID_ESTADO_ARCHIVO);
+CREATE INDEX IDX_SMY_ARC_ORIGEN ON SMY_ARCHIVOS(TABLA_ORIGEN, ID_REGISTRO_ORIGEN, ID_ESTADO_ARCHIVO);
+CREATE INDEX IDX_SMY_ARC_DIR_BD ON SMY_ARCHIVOS(NOMBRE_DIRECTORIO_BD);
 
 -- =============================================================================
 -- SECCIÓN 14: INSERCIÓN DE DATOS SEMILLA EN TABLAS MAESTRAS
@@ -3056,6 +3339,64 @@ VALUES (2, 'TT', 'Turno Tarde', '14:00', '22:00', 8.00, '#F59E0B', 1);
 
 INSERT INTO SMY_PLANTILLAS_TURNO (ID, CODIGO, NOMBRE, HORA_INICIO, HORA_FIN, TOTAL_HORAS, COLOR_HEX, ID_ESTADO_PLANTILLA)
 VALUES (3, 'TN', 'Turno Noche', '22:00', '06:00', 8.00, '#8B5CF6', 1);
+
+-- Estados de Parámetros del Sistema
+INSERT INTO SMY_ESTADOS_PARAMETROS (ID, NOMBRE_ESTADO_PARAMETRO, DESCRIPCION) VALUES (1, 'Activo', 'Parámetro vigente utilizado activamente por los servicios del sistema.');
+INSERT INTO SMY_ESTADOS_PARAMETROS (ID, NOMBRE_ESTADO_PARAMETRO, DESCRIPCION) VALUES (2, 'Inactivo', 'Parámetro deshabilitado temporalmente.');
+INSERT INTO SMY_ESTADOS_PARAMETROS (ID, NOMBRE_ESTADO_PARAMETRO, DESCRIPCION) VALUES (3, 'Deprecado', 'Parámetro obsoleto en proceso de retiro.');
+
+-- Estados de Archivos (Ciclo de vida y borrado lógico)
+INSERT INTO SMY_ESTADOS_ARCHIVOS (ID, NOMBRE_ESTADO_ARCHIVO, DESCRIPCION) VALUES (1, 'Activo / Disponible', 'Archivo activo, cargado, validado e indexado para consulta en el sistema.');
+INSERT INTO SMY_ESTADOS_ARCHIVOS (ID, NOMBRE_ESTADO_ARCHIVO, DESCRIPCION) VALUES (2, 'Eliminado / Papelera', 'Archivo marcado como eliminado por el usuario (borrado lógico), preservado en storage para trazabilidad.');
+INSERT INTO SMY_ESTADOS_ARCHIVOS (ID, NOMBRE_ESTADO_ARCHIVO, DESCRIPCION) VALUES (3, 'En Carga', 'Carga en curso hacia el servidor de almacenamiento o filesystem de base de datos.');
+INSERT INTO SMY_ESTADOS_ARCHIVOS (ID, NOMBRE_ESTADO_ARCHIVO, DESCRIPCION) VALUES (4, 'En Procesamiento', 'Archivo pasando por validaciones de antivirus, compresión o indexado.');
+INSERT INTO SMY_ESTADOS_ARCHIVOS (ID, NOMBRE_ESTADO_ARCHIVO, DESCRIPCION) VALUES (5, 'Archivado / Histórico', 'Archivo preservado a largo plazo con acceso restringido para consultas históricas.');
+INSERT INTO SMY_ESTADOS_ARCHIVOS (ID, NOMBRE_ESTADO_ARCHIVO, DESCRIPCION) VALUES (6, 'En Cuarentena / Error', 'Fallo de verificación de integridad, archivo corrupto o storage no disponible.');
+
+-- Clases de Archivos con Patrones de Directorio Dinámicos
+INSERT INTO SMY_CLASES_ARCHIVOS (ID, CODIGO_CLASE, NOMBRE_CLASE, PATRON_DIRECTORIO, EXTENSIONES_PERMITIDAS, TAMANO_MAXIMO_MB, DESCRIPCION)
+VALUES (1, 'HISTORIA_CLINICA', 'Historia Clínica y Documentación Médica', '{slug_centro}/residentes/{id_residente}/historias_clinicas/{ano}/{mes}/', 'pdf,docx,jpg,png', 50, 'Documentos clínicos, evoluciones, resúmenes médicos y diagnósticos.');
+
+INSERT INTO SMY_CLASES_ARCHIVOS (ID, CODIGO_CLASE, NOMBRE_CLASE, PATRON_DIRECTORIO, EXTENSIONES_PERMITIDAS, TAMANO_MAXIMO_MB, DESCRIPCION)
+VALUES (2, 'CONSENTIMIENTO', 'Consentimientos y Autorizaciones Firmadas', '{slug_centro}/residentes/{id_residente}/consentimientos/{ano}/', 'pdf,png,jpg', 25, 'Consentimientos informados firmados digital o manualmente por familiares.');
+
+INSERT INTO SMY_CLASES_ARCHIVOS (ID, CODIGO_CLASE, NOMBRE_CLASE, PATRON_DIRECTORIO, EXTENSIONES_PERMITIDAS, TAMANO_MAXIMO_MB, DESCRIPCION)
+VALUES (3, 'IDENTIFICACION', 'Documentos de Identidad y Carnés EPS', '{slug_centro}/residentes/{id_residente}/identificacion/', 'pdf,jpg,png', 10, 'Cédulas, pasaportes, carnés de seguridad social y poderes legales.');
+
+INSERT INTO SMY_CLASES_ARCHIVOS (ID, CODIGO_CLASE, NOMBRE_CLASE, PATRON_DIRECTORIO, EXTENSIONES_PERMITIDAS, TAMANO_MAXIMO_MB, DESCRIPCION)
+VALUES (4, 'RECETA_MEDICA', 'Recetas y Prescripciones Farmacológicas', '{slug_centro}/residentes/{id_residente}/recetas/{ano}/{mes}/', 'pdf,jpg,png', 15, 'Fórmulas médicas, autorizaciones de dispensación y órdenes de farmacia.');
+
+INSERT INTO SMY_CLASES_ARCHIVOS (ID, CODIGO_CLASE, NOMBRE_CLASE, PATRON_DIRECTORIO, EXTENSIONES_PERMITIDAS, TAMANO_MAXIMO_MB, DESCRIPCION)
+VALUES (5, 'EVIDENCIA_ASISTENCIAL', 'Evidencia Fotográfica Asistencial', '{slug_centro}/residentes/{id_residente}/evidencias/{ano}/{mes}/', 'jpg,jpeg,png', 15, 'Fotografías de toma de medicamentos, ingesta de comidas o curaciones.');
+
+INSERT INTO SMY_CLASES_ARCHIVOS (ID, CODIGO_CLASE, NOMBRE_CLASE, PATRON_DIRECTORIO, EXTENSIONES_PERMITIDAS, TAMANO_MAXIMO_MB, DESCRIPCION)
+VALUES (6, 'ADMINISTRATIVO_CENTRO', 'Documentación General del Centro', '{slug_centro}/institucional/{ano}/', 'pdf,xlsx,docx', 100, 'Manuales de bioseguridad, pólizas del centro, licencias de funcionamiento.');
+
+-- Centros Geriátricos Iniciales
+INSERT INTO SMY_CENTROS (ID, CODIGO_CENTRO, NOMBRE_CENTRO, SLUG_DIRECTORIO, CIUDAD, DIRECCION, CAPACIDAD_RESIDENTES)
+VALUES (1, 'SEDE-CENTRAL', 'Sede Central Bogotá', 'sede_central_bogota', 'Bogotá D.C.', 'Calle 127 # 19-45, Usaquén', 60);
+
+INSERT INTO SMY_CENTROS (ID, CODIGO_CENTRO, NOMBRE_CENTRO, SLUG_DIRECTORIO, CIUDAD, DIRECCION, CAPACIDAD_RESIDENTES)
+VALUES (2, 'SEDE-NORTE', 'Sede Campestre La Calera', 'sede_campestre_calera', 'La Calera', 'Km 4 Vía La Calera', 45);
+
+-- Parámetros del Sistema de Demostración
+INSERT INTO SMY_PARAMETROS (ID, CODIGO_PARAMETRO, NOMBRE_PARAMETRO, DESCRIPCION, GRUPO_PARAMETRO, VALOR_TEXTO, ES_ENCRIPTADO, ES_SISTEMA)
+VALUES (1, 'STORAGE_PROVIDER_TYPE', 'Proveedor del File Server', 'Tipo de almacenamiento externo: LOCAL_DISK, S3, MINIO, SFTP, NFS', 'STORAGE', 'LOCAL_DISK', 'N', 'S');
+
+INSERT INTO SMY_PARAMETROS (ID, CODIGO_PARAMETRO, NOMBRE_PARAMETRO, DESCRIPCION, GRUPO_PARAMETRO, VALOR_TEXTO, ES_ENCRIPTADO, ES_SISTEMA)
+VALUES (2, 'STORAGE_ROOT_PATH', 'Ruta Base del Servidor de Archivos', 'Ruta raíz en el disco o punto de montaje donde se estructura el almacenamiento.', 'STORAGE', '/var/samanya/storage', 'N', 'S');
+
+INSERT INTO SMY_PARAMETROS (ID, CODIGO_PARAMETRO, NOMBRE_PARAMETRO, DESCRIPCION, GRUPO_PARAMETRO, VALOR_NUMERICO, ES_ENCRIPTADO, ES_SISTEMA)
+VALUES (3, 'STORAGE_MAX_UPLOAD_SIZE_MB', 'Límite Máximo Global de Carga (MB)', 'Tamaño máximo permitido para la subida de cualquier archivo.', 'STORAGE', 50, 'N', 'N');
+
+INSERT INTO SMY_PARAMETROS (ID, CODIGO_PARAMETRO, NOMBRE_PARAMETRO, DESCRIPCION, GRUPO_PARAMETRO, VALOR_TEXTO, ES_ENCRIPTADO, ES_SISTEMA)
+VALUES (4, 'API_WHATSAPP_ENDPOINT', 'Endpoint API Notificaciones WhatsApp', 'URL del servicio de mensajería para alertas a acudientes y familiares.', 'INTEGRACION', 'https://api.whatsapp.com/v1/messages', 'N', 'N');
+
+INSERT INTO SMY_PARAMETROS (ID, CODIGO_PARAMETRO, NOMBRE_PARAMETRO, DESCRIPCION, GRUPO_PARAMETRO, VALOR_CLOB, ES_ENCRIPTADO, ES_SISTEMA)
+VALUES (5, 'API_WHATSAPP_BEARER_TOKEN', 'Bearer Token API WhatsApp', 'Token de autenticación de larga duración para el gateway de WhatsApp.', 'INTEGRACION', 'EAA...TOKEN_DEMOSTRACION_BEARER_WHATSAPP...XYZ', 'S', 'N');
+
+INSERT INTO SMY_PARAMETROS (ID, CODIGO_PARAMETRO, NOMBRE_PARAMETRO, DESCRIPCION, GRUPO_PARAMETRO, VALOR_NUMERICO, ES_ENCRIPTADO, ES_SISTEMA)
+VALUES (6, 'AUTH_JWT_EXPIRATION_MINUTES', 'Tiempo de Expiración Token JWT (Minutos)', 'Minutos de validez de la sesión antes de requerir refresh token.', 'SEGURIDAD', 15, 'N', 'S');
 
 COMMIT;
 
