@@ -1,4 +1,47 @@
-export type UserRole = 'cuidador' | 'familiar';
+export type UserRole = 'cuidador' | 'familiar' | 'admin';
+export type AdminSubrole = 'administrador' | 'dueno';
+export type AdminTab = 'perfil' | 'turnos' | 'inicio' | 'tareas';
+
+export interface SedeInfo {
+  id: string;
+  name: string;
+  shortName: string;
+  city: string;
+  address: string;
+  residentCount: number;
+  activeShiftsCount: number;
+  totalWorkers: number;
+}
+
+export interface ShiftWorkerInfo {
+  id: string;
+  name: string;
+  role: string;
+  avatar: string;
+  scheduledHours?: string;
+}
+
+export interface ShiftInfo {
+  id: string;
+  sedeId: string;
+  name: string;
+  timeRange: string;
+  status: 'cerrado' | 'activo' | 'futuro';
+  assignedWorkers: ShiftWorkerInfo[];
+  coveredResidentsCount: number;
+  isFinishingSoon?: boolean; // 10 minutes before shift ends
+  pendingTasksCount?: number;
+  totalTasksCount?: number;
+  closedReport?: {
+    completionRate: number; // e.g. 96
+    completedTasksCount: number;
+    pendingTasksCount: number;
+    pendingTasksList: string[];
+    incidentsCount: number;
+    incidentsSummary?: string;
+  };
+}
+
 export type AppTab = 'inicio' | 'tareas' | 'residentes' | 'consentimientos' | 'perfil';
 export type FamiliarTab = 'perfil' | 'bitacora' | 'inicio' | 'residente' | 'calendario';
 
@@ -104,6 +147,14 @@ export interface TaskItem {
     pendingResidents?: string[];
     registeredResidentIds?: string[];
   };
+  date?: string; // YYYY-MM-DD
+  // Admin & Worker audit fields
+  assignedWorkerId?: string;
+  assignedWorkerName?: string;
+  completedByWorkerName?: string;
+  completedByWorkerRole?: string;
+  completedAtTime?: string;
+  executionNote?: string;
 }
 
 export interface ActivityEvent {

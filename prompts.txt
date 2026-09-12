@@ -243,7 +243,228 @@ FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-05 22:54:56
 Ocultar Modo de visualizacion, siempre entra con un rol
 
 ================================================================================
+arrancar el servidor local para ver la aplicacion
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-04 22:56:11
+================================================================================
+Ajustar la palabra consentimientos teniendo en cuenta que es un diseño para celular
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-04 23:01:29
+================================================================================
+Analiza el archivo creacion_modelo_relacional.sql y el archivo documentacion_esquema.html si cumple para realizar el aplicativo o hace falta algo que adicionar.
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-04 23:10:14
+================================================================================
+Aplica estas adiciones directamente en creacion_modelo_relacional.sql y actualiza la documentacion en documentacion_esquema.html
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-04 23:18:16
+================================================================================
+Subir al repositorio solo los archivos prompts.txt, creacion_modelo_relacional.sql y documentacion_esquema.html y hacer push
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-05 06:41:36
+================================================================================
+Subir al repositorio cuando lo indique.
+Comportate como un experto en UIX y adiciona un boton e implementa el modo oscuro para la aplicacion.
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-05 08:05:29
+================================================================================
+En la grafica se muestra que debajo del nombre no se alcanza a leer en modo oscuro la habitacion y la cama
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-05 08:19:54
+================================================================================
+En la autorizacion pendiente de firma no se ve el nombre en modo oscuro
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-05 08:34:41
+================================================================================
+Subir al repositorio y hacer push
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-05 09:25:10
+================================================================================
+Subir al repositorio cuando lo indique.
+En el proyecto coloque una carpeta llamada Tempo donde se encuentra otra carpeta llamada skills deseo implementar el skill llamado oracle-plsql-architecture en este proyecto, despues de implementarlo borrare la carpeta Tempo
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-05 09:42:31
+================================================================================
+>Subir al repositorio y hacer push
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-05 10:26:22
+================================================================================
+Subir al repositorio cuando lo indique.
+Actúa como arquitecto de software senior especializado en React Native y Node.js. Vas a construir la aplicación móvil de SAMANYA OS, un sistema de gestión integral para centros geriátricos.
+
+CONTEXTO
+Ya existe un modelo de base de datos Oracle completo y normalizado (79 tablas con prefijo SMY_), con catálogos maestros para cada estado/tipo y auditoría total (FECHA_CREACION, ID_USUARIO_ULTIMA_MODIFICACION) en cada tabla. Cubre tres dominios: gestión administrativa (empleados, turnos, permisos), gestión clínica del residente (bitácora, medicamentos, alimentación, signos vitales, incidentes, consentimientos) y portal de acudientes (notificaciones, chat, calendario de eventos). Adjunto el script DDL completo (creacion_modelo_relacional.sql) y su documentación técnica (documentacion_esquema.html).
+
+El sistema tiene tres roles de acceso definidos en SMY_ROLES: ADMIN (administrador del centro), CUIDADOR (personal asistencial/empleado) y FAMILIAR (acudiente).
+
+INSUMOS QUE DEBES REVISAR ANTES DE ESCRIBIR CÓDIGO
+1. creacion_modelo_relacional.sql (adjunto) — DDL completo del esquema.
+2. documentacion_esquema.html (adjunto) — diccionario de datos y ERD.
+3. El skill "oracle-plsql-architecture" en la carpeta del proyecto — estándar obligatorio para cualquier PL/SQL nuevo (paquetes _DAO, pkgca_, pkgcn_, pkgln_; manejo de excepciones específico; SYSREFCURSOR para resultados multi-fila; JSON_OBJECT/JSON_ARRAYAGG...RETURNING CLOB para salidas JSON).
+4. Los prototipos de pantallas en la carpeta del proyecto — son la referencia visual y de flujo de UX obligatoria. Impleméntalas, no las rediseñes.
+
+REGLAS NO NEGOCIABLES
+- La app React Native NUNCA se conecta directamente a Oracle. Toda comunicación pasa por una API intermedia en Node.js + Express, que expone endpoints REST/JSON. Esa API es la única capa que abre conexión con la base de datos (vía node-oracledb).
+- Ningún objeto de base de datos se compila ni se migra automáticamente. Cualquier tabla, trigger o paquete PL/SQL que propongas se entrega como script para que yo lo revise y compile manualmente — nunca lo ejecutes ni lo apliques tú directamente contra el esquema.
+- Todo PL/SQL nuevo sigue estrictamente el estándar del skill oracle-plsql-architecture, sin excepciones.
+- No modifiques la estructura de creacion_modelo_relacional.sql sin justificarlo explícitamente.
+- La arquitectura debe ser escalable: separación clara por capas (api / servicios / hooks / navegación por rol / pantallas / componentes compartidos), pensada para crecer en número de módulos sin reescritura.
+
+CONEXIÓN A BASE DE DATOS (entorno de desarrollo, solo para la API backend)
+DB_USER=SAMANYA
+DB_PASSWORD=T3k3r_2025_DEV
+DB_CONNECT_STRING=tekersalud-db.maxapex.net:1521/orclpdb1
+Configúralas como variables de entorno del servidor Node/Express. Nunca las incluyas en el bundle de la app móvil ni en el cliente.
+
+QUÉ QUIERO QUE ENTREGUES PRIMERO (antes de generar código extenso)
+1. Un plan de estructura de carpetas para el proyecto React Native (evalúa Expo + TypeScript) y para la API Node/Express intermedia.
+2. Un mapa de navegación por rol (ADMIN / CUIDADOR / FAMILIAR) basado en los módulos del esquema SMY_ y en los prototipos de pantallas ya existentes.
+3. La definición de la capa de API: endpoints REST agrupados por dominio (autenticación, empleados, turnos, residentes, bitácora, medicamentos, alimentación, incidentes, consentimientos, chat, notificaciones).
+4. Un plan de manejo de estado, autenticación por rol/token, y notificaciones push (FCM/APNs), coherente con la tabla SMY_DISPOSITIVOS_PUSH.
+
+No generes el scaffolding de código todavía. Preséntame este plan primero para que lo valide contigo antes de que empieces a construir.
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-05 10:31:10
+================================================================================
+Confirmo  para proceder con el siguiente paso.
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-05 11:06:21
+================================================================================
+Crear un script dentro de la carpeta de backend/db/script con el nombre de build_all.sql y dentro debe estar el script para mandar a compilar todos los objetos de base de datos que se encuentren en la carpeta, si se adiciona in objeto de base de datos mas adelante adicionarlo al archivo.
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-05 11:09:25
+================================================================================
+Deseo que en el archivo build_all.sql, &&_DATE corresponda siempre a la hora de bogota colombia, mostrar el tiempo de compilacion de cada objeto y el tiempo total de todo el script
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-05 11:20:34
+================================================================================
+Puedes crear todos los paquetes _DAO de todas las tablas que se encuentran en el archivo creacion_modelo_relacional.sql sin pedirme autorizacion de darle submit archivo por archivo
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-05 11:28:54
+================================================================================
+Deseo que se hago una modificacion en el skill en la generacion de los _DAO que la funcion f_json que no devuelva un VARCHAR2 sino un CLOB y corregir los archivos _DAO generados con este cambio sin pedirme autorizacion de darle submit archivo por archivo
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-05 11:35:29
+================================================================================
+Crear en el repositorio una rama llamada dev y subir este proyecto a esa rama sin pasar nada a la rama main hasta que lo indique
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-05 20:30:57
+================================================================================
+Subir al repositorio cuando lo indique.
+Crea un archivo con un script para correr en la base de datos para llenar las tablas con datos dummy y poder probar la aplicacion con datos, por lo menos 10 residentes, 4 empleados y 14 famiiares para que por lo menos 2 residentes tengan 2 familiares.
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-05 21:27:12
+================================================================================
+Al compilar los DAO me sale error en:
+FUNCTION f_existe (
+        pty_id       IN  smy_estados_pagos.id%TYPE,
+        pro_smy_estados_pagos  OUT smy_estados_pagos%ROWTYPE,
+        p_rowid      OUT VARCHAR2
+    ) RETURN BOOLEAN
+    IS
+    BEGIN
+        SELECT t.*, ROWIDTOCHAR(t.ROWID)
+          INTO pro_smy_estados_pagos, p_rowid
+          FROM smy_estados_pagos t
+         WHERE t.id = pty_id;
+
+        RETURN TRUE;
+    EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+            RETURN FALSE;
+    END f_existe;
+el error es:
+[Error] Compilation (120: 9): PLS-00494: coercion into multiple record targets not supported
+[Error] Compilation (121: 16): PL/SQL: ORA-03056: invalid expression in SELECT INTO clause
+
+Cuando este solucionado, corrige el archivo PKGSMY_ESTADOS_PAGOS_DAO solamente para yo compilarlo para ver que quedo bien
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-05 21:31:06
+================================================================================
+Prueba exitosa aplicar a la plantilla generadora y corregir los archivos _DAO generados con este cambio sin pedirme autorizacion de darle submit archivo por archivo
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-05 21:52:51
+================================================================================
+Al compilar PKGCA_RESIDENTES aparece el error:
+[Error] Compilation (76: 22): PL/SQL: ORA-00942: table or view does not exist
+
+revisar la tabla smy_residentes_acudientes si debe estar en el archivo creacion_modelo_relacional.sql y en documentacion_esquema.sql, adicionarla si es necesaria
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-05 22:06:48
+================================================================================
+subir al repositorio de dev incluyendo los archivos uti_ge_excepciones_pkg.sql, f_fecha_actual, datos_prueba_dummy.sql
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-05 22:13:58
+================================================================================
+Subir al repositorio cuando lo indique.
+Arrancar el servidor para ver la aplicacion
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-05 22:18:32
+================================================================================
+Deseo que no muestre datos dummy sino de la base de datos arrancando por la pagina de login
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-05 22:43:12
+================================================================================
+Cuando estoy en la lista de Tareas y le doy Iniciar Registro debe abrir la ventana para hacer ese registro pero siempre abre con la tarea de Registro de Alimentacion
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-05 22:54:56
+================================================================================
+Ocultar Modo de visualizacion, siempre entra con un rol
+
+================================================================================
 FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-05 22:59:12
 ================================================================================
 Subir al repositorio y hacer push en dev
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-11 20:04:55
+================================================================================
+Antes de realizar cualquier accion esccribir el prompt completo de solicitud en el archivo prompts.txt con la fecha y hora e Bogota Colombia sin omitir nada.
+Deseo aplicar el Plan de Acción Recomendado (Estrategia de Fusión) pero fase a fase, comienza con la fase 1
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-11 20:35:10
+================================================================================
+Al intentar ingresar me arroja:
+Error 500: Internal Server Error
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-11 20:42:07
+================================================================================
+Crear el archivo de conexion con los datos:
+DB_USER=ALEJANDRO
+DB_PASSWORD=Samanya2026*
+DB_CONNECT_STRING=tekersalud-db.maxapex.net:1521/orclpdb1
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-11 20:47:51
+================================================================================
+Subir a la rama dev y hacer push
+
 

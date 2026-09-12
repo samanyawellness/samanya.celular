@@ -15,7 +15,11 @@ import {
   ClinicalRecord,
   DeletedClinicalRecord,
   SupplyEntry,
-  StaffWorker
+  StaffWorker,
+  AdminTab,
+  AdminSubrole,
+  SedeInfo,
+  ShiftInfo
 } from '../types';
 import {
   INITIAL_RESIDENTS,
@@ -29,7 +33,9 @@ import {
   INITIAL_CLINICAL_RECORDS,
   INITIAL_DELETED_CLINICAL_RECORDS,
   INITIAL_SUPPLIES,
-  STAFF_WORKERS
+  STAFF_WORKERS,
+  INITIAL_SEDES,
+  INITIAL_SHIFTS
 } from '../data/mockData';
 import { api, removeAuthToken } from '../services/api';
 
@@ -54,7 +60,7 @@ interface AppContextType {
   };
   login: (email: string, pass: string) => Promise<boolean>;
   logout: () => void;
-  switchRole: (newRole: UserRole) => void;
+  switchRole: (newRole: UserRole, subrole?: AdminSubrole) => void;
 
   // Navigation (Cuidador)
   activeTab: 'inicio' | 'tareas' | 'residentes' | 'consentimientos' | 'perfil';
@@ -69,6 +75,33 @@ interface AppContextType {
   setSelectedFamiliarResidentId: (id: string) => void;
   selectedFamiliarResident: Resident;
   familiarResidents: Resident[];
+
+  // Navigation & Management (Administrador / Dueño)
+  activeAdminTab: AdminTab;
+  setActiveAdminTab: (tab: AdminTab) => void;
+  adminSubrole: AdminSubrole;
+  setAdminSubrole: (subrole: AdminSubrole) => void;
+  selectedSedeId: string;
+  setSelectedSedeId: (id: string) => void;
+  selectedSede: SedeInfo;
+  sedes: SedeInfo[];
+  shifts: ShiftInfo[];
+  selectedShiftForDetail: ShiftInfo | null;
+  setSelectedShiftForDetail: (shift: ShiftInfo | null) => void;
+  isShiftDetailModalOpen: boolean;
+  setIsShiftDetailModalOpen: (open: boolean) => void;
+  isSedePickerModalOpen: boolean;
+  setIsSedePickerModalOpen: (open: boolean) => void;
+  highlightedShiftId: string | null;
+  setHighlightedShiftId: (id: string | null) => void;
+  isSimulatingFinishingShift: boolean;
+  setIsSimulatingFinishingShift: (val: boolean) => void;
+  selectedTaskForAdminDetail: TaskItem | null;
+  setSelectedTaskForAdminDetail: (task: TaskItem | null) => void;
+  adminTasksStatusFilter: 'todas' | 'pendientes' | 'completadas';
+  setAdminTasksStatusFilter: (status: 'todas' | 'pendientes' | 'completadas') => void;
+  tasksDateFilter: string;
+  setTasksDateFilter: (date: string) => void;
 
   // Core Data
   residents: Resident[];
@@ -200,6 +233,25 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [selectedFamiliarResidentId, setSelectedFamiliarResidentId] = useState<string>('res-1');
   const [currentScreen, setCurrentScreen] = useState<string>('app');
   const [selectedDate, setSelectedDate] = useState<string>('2026-08-19');
+
+  // Admin & Sede States
+  const [activeAdminTab, setActiveAdminTab] = useState<AdminTab>('inicio');
+  const [adminSubrole, setAdminSubrole] = useState<AdminSubrole>('administrador');
+  const [sedes, setSedes] = useState<SedeInfo[]>(INITIAL_SEDES);
+  const [selectedSedeId, setSelectedSedeId] = useState<string>('sede-1');
+  const [shifts, setShifts] = useState<ShiftInfo[]>(INITIAL_SHIFTS);
+  const [selectedShiftForDetail, setSelectedShiftForDetail] = useState<ShiftInfo | null>(null);
+  const [isShiftDetailModalOpen, setIsShiftDetailModalOpen] = useState(false);
+  const [isSedePickerModalOpen, setIsSedePickerModalOpen] = useState(false);
+  const [highlightedShiftId, setHighlightedShiftId] = useState<string | null>(null);
+  const [isSimulatingFinishingShift, setIsSimulatingFinishingShift] = useState(false);
+  const [selectedTaskForAdminDetail, setSelectedTaskForAdminDetail] = useState<TaskItem | null>(null);
+  const [adminTasksStatusFilter, setAdminTasksStatusFilter] = useState<'todas' | 'pendientes' | 'completadas'>('todas');
+  const [tasksDateFilter, setTasksDateFilter] = useState<string>('2026-08-19');
+
+  const selectedSede = React.useMemo(() => {
+    return sedes.find(s => s.id === selectedSedeId) || sedes[0];
+  }, [sedes, selectedSedeId]);
 
   // Dark Mode Theme State
   const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
@@ -453,15 +505,50 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     showToast('Sesión cerrada correctamente', 'info');
   };
 
-  const switchRole = (newRole: UserRole) => {
+  const switchRole = (newRole: UserRole, subrole?: AdminSubrole) => {
+    const targetSubrole = subrole || adminSubrole;
+    if (subrole) {
+      setAdminSubrole(subrole);
+    }
     setCurrentUser(prev => ({
       ...prev,
       role: newRole,
-      name: newRole === 'cuidador' ? 'Elena Morales' : 'Javier Pérez',
-      shift: newRole === 'cuidador' ? 'Turno Mañana (07:00 - 15:00)' : 'Familiar asignado a Manuel Pérez'
+      name:
+        newRole === 'cuidador'
+          ? 'Elena Morales'
+          : newRole === 'familiar'
+          ? 'Javier Pérez'
+          : targetSubrole === 'dueno'
+          ? 'Fernando Ruiz (Dueño)'
+          : 'Carlos Vega (Administrador)',
+      shift:
+        newRole === 'cuidador'
+          ? 'Turno Mañana (07:00 - 15:00)'
+          : newRole === 'familiar'
+          ? 'Familiar asignado a Manuel Pérez'
+          : targetSubrole === 'dueno'
+          ? 'Dirección General / Dueño'
+          : 'Administrador de Sede Central',
+      avatar:
+        newRole === 'admin'
+          ? targetSubrole === 'dueno'
+            ? 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=250'
+            : 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=250'
+          : prev.avatar
     }));
     setIsRoleMenuOpen(false);
-    showToast(`Cambiado al perfil de ${newRole === 'cuidador' ? 'Trabajador / Cuidador' : 'Responsable / Familiar'}`, 'info');
+    showToast(
+      `Cambiado al perfil de ${
+        newRole === 'cuidador'
+          ? 'Trabajador / Cuidador'
+          : newRole === 'familiar'
+          ? 'Responsable / Familiar'
+          : targetSubrole === 'dueno'
+          ? 'Dueño de Residencia'
+          : 'Administrador de Centro'
+      }`,
+      'info'
+    );
   };
 
   const openResidentHub = (resident: Resident, asModal = false) => {
@@ -1184,6 +1271,31 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setSelectedFamiliarResidentId,
         selectedFamiliarResident,
         familiarResidents,
+        activeAdminTab,
+        setActiveAdminTab,
+        adminSubrole,
+        setAdminSubrole,
+        selectedSedeId,
+        setSelectedSedeId,
+        selectedSede,
+        sedes,
+        shifts,
+        selectedShiftForDetail,
+        setSelectedShiftForDetail,
+        isShiftDetailModalOpen,
+        setIsShiftDetailModalOpen,
+        isSedePickerModalOpen,
+        setIsSedePickerModalOpen,
+        highlightedShiftId,
+        setHighlightedShiftId,
+        isSimulatingFinishingShift,
+        setIsSimulatingFinishingShift,
+        selectedTaskForAdminDetail,
+        setSelectedTaskForAdminDetail,
+        adminTasksStatusFilter,
+        setAdminTasksStatusFilter,
+        tasksDateFilter,
+        setTasksDateFilter,
         currentScreen,
         setCurrentScreen,
         residents,

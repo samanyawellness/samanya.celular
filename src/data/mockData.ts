@@ -1,4 +1,4 @@
-import { Resident, TaskItem, ActivityEvent, ConsentRecord, AppNotification, BitacoraEntry, VitalSigns, IncidentReport, ClinicalRecord, DeletedClinicalRecord, SupplyEntry, StaffWorker } from '../types';
+import { Resident, TaskItem, ActivityEvent, ConsentRecord, AppNotification, BitacoraEntry, VitalSigns, IncidentReport, ClinicalRecord, DeletedClinicalRecord, SupplyEntry, StaffWorker, SedeInfo, ShiftInfo } from '../types';
 
 export const INITIAL_RESIDENTS: Resident[] = [
   {
@@ -830,6 +830,151 @@ export const INITIAL_SUPPLIES: SupplyEntry[] = [
     time: '12:15',
     recordedByName: 'Elena Morales',
     recordedByRole: 'cuidador'
+  }
+];
+
+export const INITIAL_SEDES: SedeInfo[] = [
+  {
+    id: 'sede-1',
+    name: 'Sede Central (Madrid Centro)',
+    shortName: 'Sede Central',
+    city: 'Madrid',
+    address: 'C/ Mayor 48, Centro, Madrid',
+    residentCount: 24,
+    activeShiftsCount: 1,
+    totalWorkers: 16
+  },
+  {
+    id: 'sede-2',
+    name: 'Sede Norte (Miraflores)',
+    shortName: 'Sede Norte',
+    city: 'Madrid',
+    address: 'Av. de la Sierra 12, Miraflores',
+    residentCount: 18,
+    activeShiftsCount: 1,
+    totalWorkers: 12
+  },
+  {
+    id: 'sede-3',
+    name: 'Sede Jardines (El Pinar)',
+    shortName: 'Sede Jardines',
+    city: 'Pozuelo de Alarcón',
+    address: 'Paseo de los Pinos 5, Pozuelo',
+    residentCount: 30,
+    activeShiftsCount: 1,
+    totalWorkers: 20
+  }
+];
+
+export const INITIAL_SHIFTS: ShiftInfo[] = [
+  {
+    id: 'shift-noche',
+    sedeId: 'sede-1',
+    name: 'Turno Noche',
+    timeRange: '23:00 - 07:00',
+    status: 'cerrado',
+    coveredResidentsCount: 24,
+    assignedWorkers: [
+      {
+        id: 'worker-1',
+        name: 'Roberto Méndez',
+        role: 'Auxiliar Nocturno',
+        avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=250',
+        scheduledHours: '23:00 - 07:00'
+      },
+      {
+        id: 'worker-2',
+        name: 'Patricia Gómez',
+        role: 'Enfermera de Guardia',
+        avatar: 'https://images.unsplash.com/photo-1594824813596-f947e4f35b40?auto=format&fit=crop&q=80&w=250',
+        scheduledHours: '23:00 - 07:00'
+      }
+    ],
+    closedReport: {
+      completionRate: 96,
+      completedTasksCount: 24,
+      pendingTasksCount: 1,
+      pendingTasksList: [
+        'Revisión postural y confort 04:30 — Manuel Pérez González'
+      ],
+      incidentsCount: 0,
+      incidentsSummary: 'Sin incidencias médicas, caídas ni traslados de urgencia reportados durante la madrugada.'
+    }
+  },
+  {
+    id: 'shift-manana',
+    sedeId: 'sede-1',
+    name: 'Turno Mañana',
+    timeRange: '07:00 - 15:00',
+    status: 'activo',
+    coveredResidentsCount: 24,
+    isFinishingSoon: true,
+    pendingTasksCount: 3,
+    totalTasksCount: 12,
+    assignedWorkers: [
+      {
+        id: 'staff-1',
+        name: 'Elena Morales',
+        role: 'Cuidadora Principal (Planta 1)',
+        avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=250',
+        scheduledHours: '07:00 - 15:00'
+      },
+      {
+        id: 'staff-4',
+        name: 'Javier Ortega',
+        role: 'Fisioterapeuta y Rehabilitación',
+        avatar: 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?auto=format&fit=crop&q=80&w=250',
+        scheduledHours: '08:30 - 14:30'
+      },
+      {
+        id: 'staff-3',
+        name: 'Marta Gil',
+        role: 'Enfermera de Turno',
+        avatar: 'https://images.unsplash.com/photo-1594824813596-f947e4f35b40?auto=format&fit=crop&q=80&w=250',
+        scheduledHours: '07:00 - 15:00'
+      }
+    ]
+  },
+  {
+    id: 'shift-tarde',
+    sedeId: 'sede-1',
+    name: 'Turno Tarde',
+    timeRange: '15:00 - 23:00',
+    status: 'futuro',
+    coveredResidentsCount: 24,
+    assignedWorkers: [
+      {
+        id: 'worker-3',
+        name: 'Lucía Santos',
+        role: 'Cuidadora de Tarde',
+        avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=250',
+        scheduledHours: '15:00 - 23:00'
+      },
+      {
+        id: 'worker-4',
+        name: 'David Ramos',
+        role: 'Auxiliar de Cuidados Asistenciales',
+        avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=250',
+        scheduledHours: '15:00 - 23:00'
+      }
+    ]
+  },
+  {
+    id: 'shift-noche-siguiente',
+    sedeId: 'sede-1',
+    name: 'Turno Noche (Próximo)',
+    timeRange: '23:00 - 07:00',
+    status: 'futuro',
+    coveredResidentsCount: 24,
+    assignedWorkers: [
+      {
+        id: 'worker-1',
+        name: 'Roberto Méndez',
+        role: 'Auxiliar Nocturno',
+        avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=250',
+        scheduledHours: '23:00 - 07:00'
+      }
+    ]
   }
 ];
 
