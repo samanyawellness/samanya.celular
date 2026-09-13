@@ -1139,10 +1139,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const canEditOrDeleteClinicalRecord = (record: ClinicalRecord) => {
+    // Administradores siempre tienen permisos completos para editar y eliminar
+    if (currentUser.role === 'admin' || (currentUser as any).role === 'administrador' || adminSubrole === 'administrador') {
+      return true;
+    }
     const createdTimestamp = new Date(record.createdAt).getTime();
     // Valid for 24 hours: 24 * 60 * 60 * 1000 ms
-    const isWithin24Hours = (Date.now() - createdTimestamp) <= 24 * 60 * 60 * 1000;
-    const isOwner = currentUser.role === record.uploadedByRole;
+    const isWithin24Hours = isNaN(createdTimestamp) || (Date.now() - createdTimestamp) <= 24 * 60 * 60 * 1000;
+    const isOwner = !record.uploadedByRole || currentUser.role === record.uploadedByRole;
     return isWithin24Hours && isOwner;
   };
 

@@ -177,7 +177,11 @@ AS
         END IF;
 
         v_extension_norm := fn_normalizar_extension(p_extension);
-        v_hash_hex := LOWER(STANDARD_HASH(TO_CHAR(p_id), 'SHA256'));
+
+        -- STANDARD_HASH es función SQL de Oracle; se ejecuta en contexto SQL vía SELECT ... INTO FROM DUAL
+        SELECT LOWER(STANDARD_HASH(TO_CHAR(p_id), 'SHA256'))
+          INTO v_hash_hex
+          FROM DUAL;
 
         RETURN v_hash_hex || v_extension_norm;
     EXCEPTION
@@ -356,18 +360,18 @@ AS
             RAISE_APPLICATION_ERROR(-20003, 'El residente con ID ' || p_id_residente || ' no existe en el sistema.');
         END IF;
 
-        vn_id_centro_ef := NVL(p_id_centro, vro_residente.id_centro);
+        vn_id_centro_ef := NVL(p_id_centro, 1);
 
         -- 2. Validar sede / centro vía DAO
         vro_centro := PKGSMY_CENTROS_DAO.f_traer(vn_id_centro_ef);
         IF vro_centro.id IS NULL THEN
             p_nombre_carpeta_sede := fn_construir_ruta_sede(vn_id_centro_ef, 'SEDE-PRINCIPAL');
         ELSE
-            p_nombre_carpeta_sede := fn_construir_ruta_sede(vro_centro.id, vro_centro.nombre);
+            p_nombre_carpeta_sede := fn_construir_ruta_sede(vro_centro.id, vro_centro.nombre_centro);
         END IF;
 
         -- 3. Carpeta del residente
-        p_nombre_carpeta_residente := fn_construir_ruta_residente(vro_residente.id, vro_residente.numero_identificacion);
+        p_nombre_carpeta_residente := fn_construir_ruta_residente(vro_residente.id, vro_residente.identificacion);
 
         -- 4. Validar clase de archivo si fue provista
         IF p_id_clase_archivo IS NOT NULL THEN
@@ -463,7 +467,6 @@ AS
         vro_archivo.metadatos_json               := p_metadatos_json;
         vro_archivo.fecha_creacion               := CAST(SYSTIMESTAMP AT TIME ZONE '-05:00' AS DATE);
         vro_archivo.fecha_ultima_modificacion    := CAST(SYSTIMESTAMP AT TIME ZONE '-05:00' AS DATE);
-        vro_archivo.id_usuario_creacion          := p_id_usuario_creacion;
         vro_archivo.id_usuario_ultima_modificacion := p_id_usuario_creacion;
 
         -- 3. Inserción delegada al DAO (Cero DML directo en pkgln_)
@@ -709,9 +712,10 @@ AS
 
         -- 2. Actualizar documento clínico vía DAO
         IF PKGSMY_DOCUMENTOS_CLINICOS_DAO.f_existe(p_id_documento_clinico, vro_doc) = TRUE THEN
-            vro_doc.id_archivo                     := pro_archivo.id;
+            vro_doc.url_archivo                    := pro_archivo.ruta_completa_almacenamiento;
+            vro_doc.nombre_archivo                 := pro_archivo.nombre_archivo;
+            vro_doc.peso_archivo                   := TO_CHAR(ROUND(NVL(pro_archivo.tamano_bytes, 0) / 1024, 1)) || ' KB';
             vro_doc.id_usuario_ultima_modificacion := p_id_usuario;
-            vro_doc.fecha_ultima_modificacion      := CAST(SYSTIMESTAMP AT TIME ZONE '-05:00' AS DATE);
             PKGSMY_DOCUMENTOS_CLINICOS_DAO.p_actualizar(vro_doc);
         END IF;
 
@@ -749,9 +753,10 @@ AS
 
         -- 2. Desvincular en documento clínico vía DAO
         IF PKGSMY_DOCUMENTOS_CLINICOS_DAO.f_existe(p_id_documento_clinico, vro_doc) = TRUE THEN
-            vro_doc.id_archivo                     := NULL;
+            vro_doc.url_archivo                    := NULL;
+            vro_doc.nombre_archivo                 := NULL;
+            vro_doc.peso_archivo                   := NULL;
             vro_doc.id_usuario_ultima_modificacion := p_id_usuario;
-            vro_doc.fecha_ultima_modificacion      := CAST(SYSTIMESTAMP AT TIME ZONE '-05:00' AS DATE);
             PKGSMY_DOCUMENTOS_CLINICOS_DAO.p_actualizar(vro_doc);
         END IF;
 

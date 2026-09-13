@@ -1,12 +1,16 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import { Resident, ClinicalRecord, ClinicalRecordCategory, DeletedClinicalRecord } from '../../types';
+import { api } from '../../services/api';
 import {
   X,
   Download,
   FileText,
   Image as ImageIcon,
-  ChevronDown
+  ChevronDown,
+  Upload,
+  CheckCircle2,
+  Loader2
 } from 'lucide-react';
 
 interface ClinicalHistorySectionProps {
@@ -21,6 +25,7 @@ export const ClinicalHistorySection: React.FC<ClinicalHistorySectionProps> = ({ 
     updateClinicalRecord,
     deleteClinicalRecord,
     canEditOrDeleteClinicalRecord,
+    showToast,
     selectedDate
   } = useApp();
 
@@ -36,6 +41,7 @@ export const ClinicalHistorySection: React.FC<ClinicalHistorySectionProps> = ({ 
   // Modals state
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [recordToEdit, setRecordToEdit] = useState<ClinicalRecord | null>(null);
   const [recordToDelete, setRecordToDelete] = useState<ClinicalRecord | null>(null);
   const [previewFile, setPreviewFile] = useState<ClinicalRecord | null>(null);
@@ -48,6 +54,194 @@ export const ClinicalHistorySection: React.FC<ClinicalHistorySectionProps> = ({ 
   const [formFileType, setFormFileType] = useState<'pdf' | 'imagen'>('pdf');
   const [formFileName, setFormFileName] = useState('');
   const [formDescription, setFormDescription] = useState('');
+
+  // File upload states for adding a record
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [formFileSize, setFormFileSize] = useState('');
+  const [fileObjectUrl, setFileObjectUrl] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+
+  // Archivos registrados en base de datos para este residente
+  const [residentArchivos, setResidentArchivos] = useState<any[]>([]);
+
+  const fetchResidentArchivos = () => {
+    const resNumericId = Number(String(resident.id).replace(/\D/g, '')) || 1;
+    api.getArchivosResidente(resNumericId)
+      .then(archivos => {
+        if (Array.isArray(archivos)) {
+          setResidentArchivos(archivos);
+
+          // Sincronizar archivos activos de SMY_ARCHIVOS con clinicalRecords si no están presentes
+          archivos.forEach((a: any) => {
+            if (a.idEstadoArchivo === 1) {
+              const alreadyExists = clinicalRecords.some(
+                r => r.idArchivo === a.id ||
+                     (r.fileName && r.fileName.toLowerCase() === a.nombreArchivo?.toLowerCase())
+              );
+              if (!alreadyExists) {
+                addClinicalRecord({
+                  residentId: resident.id,
+                  residentName: resident.name,
+                  title: (a.nombreArchivo || 'Documento adjunto').replace(/\.[^/.]+$/, ''),
+                  category: 'examen',
+                  categoryLabel: a.nombreClase || 'Documentación médica',
+                  entryType: 'archivo',
+                  fileType: a.extension?.toLowerCase().includes('pdf') ? 'pdf' : 'imagen',
+                  fileName: a.nombreArchivo,
+                  fileSize: `${Math.round((a.tamanoBytes || 0) / 1024)} KB`,
+                  fileUrl: api.getArchivoVerUrl(a.id),
+                  idArchivo: a.id,
+                  description: `Archivo oficial registrado en Oracle DB (ID: ${a.id})`,
+                  date: a.fechaCreacion ? a.fechaCreacion.split('T')[0] : new Date().toISOString().split('T')[0]
+                });
+              }
+            }
+          });
+        }
+      })
+      .catch(err => console.warn('No se pudieron obtener archivos del residente:', err));
+  };
+
+  useEffect(() => {
+    fetchResidentArchivos();
+  }, [resident.id]);
+
+  // Resuelve la URL de visualización (imagen o documento)
+  const getRecordViewUrl = (record: ClinicalRecord): string | undefined => {
+    // Si ya contiene la URL de streaming de nuestra API con token
+    if (record.fileUrl && record.fileUrl.includes('/ver')) {
+      return record.fileUrl;
+    }
+
+    // Buscar coincidencia en archivos registrados de BD
+    if (record.fileName && residentArchivos.length > 0) {
+      const match = residentArchivos.find(
+        (a: any) =>
+          a.nombreArchivo?.toLowerCase() === record.fileName?.toLowerCase() ||
+          a.nombreArchivoAlmacenado?.toLowerCase() === record.fileName?.toLowerCase()
+      );
+      if (match && match.id) {
+        return api.getArchivoVerUrl(match.id);
+      }
+    }
+
+    // Si es un blob recién generado en la sesión actual
+    if (record.fileUrl && record.fileUrl.startsWith('blob:')) {
+      return record.fileUrl;
+    }
+
+    return record.fileUrl;
+  };
+
+  // Resuelve la URL de descarga directa
+  const getRecordDownloadUrl = (record: ClinicalRecord): string | undefined => {
+    if (record.fileName && residentArchivos.length > 0) {
+      const match = residentArchivos.find(
+        (a: any) =>
+          a.nombreArchivo?.toLowerCase() === record.fileName?.toLowerCase() ||
+          a.nombreArchivoAlmacenado?.toLowerCase() === record.fileName?.toLowerCase()
+      );
+      if (match && match.id) {
+        return api.getArchivoDescargarUrl(match.id);
+      }
+    }
+
+    if (record.fileUrl && record.fileUrl.includes('/ver')) {
+      return record.fileUrl.replace('/ver', '/descargar');
+    }
+
+    return record.fileUrl;
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  };
+
+  const processSelectedFile = (file: File) => {
+    setSelectedFile(file);
+    setFormFileName(file.name);
+    setFormFileSize(formatFileSize(file.size));
+
+    // Determinar formato de archivo a partir del archivo
+    const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+    if (isPdf) {
+      setFormFileType('pdf');
+    } else {
+      setFormFileType('imagen');
+    }
+
+    // Si el título del documento o nota está vacío, sugerir a partir del nombre del archivo
+    if (!formTitle.trim()) {
+      const cleanTitle = file.name
+        .replace(/\.[^/.]+$/, '')
+        .replace(/[_-]+/g, ' ')
+        .trim();
+      if (cleanTitle) {
+        setFormTitle(cleanTitle.charAt(0).toUpperCase() + cleanTitle.slice(1));
+      }
+    }
+
+    if (fileObjectUrl) {
+      URL.revokeObjectURL(fileObjectUrl);
+    }
+    const url = URL.createObjectURL(file);
+    setFileObjectUrl(url);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      processSelectedFile(file);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      processSelectedFile(file);
+    }
+  };
+
+  const handleClearFile = () => {
+    setSelectedFile(null);
+    setFormFileName('');
+    setFormFileSize('');
+    if (fileObjectUrl) {
+      URL.revokeObjectURL(fileObjectUrl);
+      setFileObjectUrl(null);
+    }
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const handleCloseAddModal = () => {
+    setIsAddModalOpen(false);
+    setFormTitle('');
+    setFormDescription('');
+    setFormFileName('');
+    setFormFileSize('');
+    setSelectedFile(null);
+    if (fileObjectUrl) {
+      URL.revokeObjectURL(fileObjectUrl);
+      setFileObjectUrl(null);
+    }
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+    setFormCategory('receta');
+    setFormEntryType('archivo');
+  };
 
   // Form states for editing
   const [editTitle, setEditTitle] = useState('');
@@ -97,13 +291,49 @@ export const ClinicalHistorySection: React.FC<ClinicalHistorySectionProps> = ({ 
   }, [deletedClinicalRecords, resident]);
 
   // Handle Add Submit
-  const handleAddSubmit = (e: React.FormEvent) => {
+  const handleAddSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formTitle.trim()) return;
 
     let finalFileName = formFileName.trim();
     if (formEntryType === 'archivo' && !finalFileName) {
       finalFileName = formFileType === 'pdf' ? `${formTitle.replace(/\s+/g, '_')}.pdf` : `${formTitle.replace(/\s+/g, '_')}.jpg`;
+    }
+
+    let cloudFileUrl = formEntryType === 'archivo' && fileObjectUrl ? fileObjectUrl : undefined;
+    let uploadedArchivoId: number | undefined = undefined;
+
+    // Si se seleccionó un archivo físico, subir a Google Drive y registrar en SMY_ARCHIVOS
+    if (formEntryType === 'archivo' && selectedFile) {
+      setIsUploading(true);
+      try {
+        const resNumericId = Number(String(resident.id).replace(/\D/g, '')) || 1;
+        const uploadResult = await api.uploadArchivo({
+          file: selectedFile,
+          idCentro: 1,
+          idResidente: resNumericId,
+          idClaseArchivo: 1, // 1 = Documentación médica / clínica
+          tablaOrigen: 'SMY_DOCUMENTOS_CLINICOS'
+        });
+
+        if (uploadResult?.data) {
+          const fileData = uploadResult.data;
+          if (fileData.id) {
+            uploadedArchivoId = fileData.id;
+            cloudFileUrl = api.getArchivoVerUrl(fileData.id);
+          } else if (fileData.enlaceVisualizacion) {
+            cloudFileUrl = fileData.enlaceVisualizacion;
+          }
+          if (fileData.nombreArchivo || fileData.nombreOriginal) {
+            finalFileName = fileData.nombreArchivo || fileData.nombreOriginal;
+          }
+          fetchResidentArchivos();
+        }
+      } catch (uploadError: any) {
+        console.error('Error al subir archivo a Google Drive / Oracle:', uploadError);
+      } finally {
+        setIsUploading(false);
+      }
     }
 
     addClinicalRecord({
@@ -115,18 +345,15 @@ export const ClinicalHistorySection: React.FC<ClinicalHistorySectionProps> = ({ 
       entryType: formEntryType,
       fileType: formEntryType === 'archivo' ? formFileType : undefined,
       fileName: formEntryType === 'archivo' ? finalFileName : undefined,
-      fileSize: formEntryType === 'archivo' ? '1.4 MB' : undefined,
+      fileSize: formEntryType === 'archivo' ? (formFileSize || '1.4 MB') : undefined,
+      fileUrl: cloudFileUrl,
+      idArchivo: uploadedArchivoId,
       description: formDescription.trim() || undefined,
       date: selectedDate || new Date().toISOString().split('T')[0]
     });
 
     // Reset and close
-    setFormTitle('');
-    setFormDescription('');
-    setFormFileName('');
-    setFormCategory('receta');
-    setFormEntryType('archivo');
-    setIsAddModalOpen(false);
+    handleCloseAddModal();
   };
 
   // Open Edit Modal
@@ -154,19 +381,125 @@ export const ClinicalHistorySection: React.FC<ClinicalHistorySectionProps> = ({ 
     setRecordToEdit(null);
   };
 
-  // Confirm Delete
-  const handleConfirmDelete = () => {
+  // Confirm Delete (Borrado lógico en BD: ID_ESTADO_ARCHIVO = 2)
+  const handleConfirmDelete = async () => {
     if (!recordToDelete) return;
-    deleteClinicalRecord(recordToDelete.id);
-    setRecordToDelete(null);
-    if (viewMode === 'activos') {
-      setHasSeenDeleted(false);
+    setIsDeleting(true);
+
+    try {
+      const resNumericId = Number(String(resident.id).replace(/\D/g, '')) || 1;
+
+      // 1. Obtener lista actualizada de archivos desde la base de datos si es necesario
+      let archivosList = residentArchivos;
+      try {
+        const freshArchivos = await api.getArchivosResidente(resNumericId);
+        if (Array.isArray(freshArchivos) && freshArchivos.length > 0) {
+          archivosList = freshArchivos;
+          setResidentArchivos(freshArchivos);
+        }
+      } catch (fetchErr) {
+        console.warn('Error al verificar lista de archivos en backend:', fetchErr);
+      }
+
+      // 2. Resolver el ID del archivo en SMY_ARCHIVOS
+      let targetArchivoId: number | undefined = recordToDelete.idArchivo;
+
+      // Por URL de API SAMANYA: /archivos/123/ver
+      if (!targetArchivoId && recordToDelete.fileUrl) {
+        const matchUrl = recordToDelete.fileUrl.match(/\/archivos\/(\d+)\//);
+        if (matchUrl) {
+          targetArchivoId = Number(matchUrl[1]);
+        }
+      }
+
+      // Por enlace o ID de Google Drive
+      if (!targetArchivoId && recordToDelete.fileUrl) {
+        const driveMatch = recordToDelete.fileUrl.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) ||
+                           recordToDelete.fileUrl.match(/id=([a-zA-Z0-9_-]+)/);
+        if (driveMatch) {
+          const driveId = driveMatch[1];
+          const matchDrive = archivosList.find(
+            (a: any) =>
+              a.metadatosJson?.gdriveFileId === driveId ||
+              a.rutaCompletaAlmacenamiento?.includes(driveId)
+          );
+          if (matchDrive && matchDrive.id) {
+            targetArchivoId = matchDrive.id;
+          }
+        }
+      }
+
+      // Por coincidencia exacta de nombre de archivo
+      if (!targetArchivoId && recordToDelete.fileName && archivosList.length > 0) {
+        const matchName = archivosList.find(
+          (a: any) =>
+            a.nombreArchivo?.toLowerCase() === recordToDelete.fileName?.toLowerCase() ||
+            a.nombreArchivoAlmacenado?.toLowerCase() === recordToDelete.fileName?.toLowerCase()
+        );
+        if (matchName && matchName.id) {
+          targetArchivoId = matchName.id;
+        }
+      }
+
+      // Por nombre sin extensión o por título
+      if (!targetArchivoId && archivosList.length > 0) {
+        const targetClean = (recordToDelete.fileName || recordToDelete.title || '')
+          .replace(/\.[^/.]+$/, '')
+          .toLowerCase()
+          .trim();
+
+        const matchFuzzy = archivosList.find((a: any) => {
+          const aClean = (a.nombreArchivo || '').replace(/\.[^/.]+$/, '').toLowerCase().trim();
+          return aClean === targetClean || aClean.includes(targetClean) || targetClean.includes(aClean);
+        });
+
+        if (matchFuzzy && matchFuzzy.id) {
+          targetArchivoId = matchFuzzy.id;
+        }
+      }
+
+      // 3. Si se localizó el archivo en SMY_ARCHIVOS, actualizar ID_ESTADO_ARCHIVO = 2 vía API backend
+      if (targetArchivoId) {
+        try {
+          const res = await api.deleteArchivo(targetArchivoId, 'Eliminado por el usuario desde Historia Clínica');
+          console.log(`✅ Archivo ID ${targetArchivoId} marcado con ID_ESTADO_ARCHIVO = 2 en SMY_ARCHIVOS:`, res);
+          showToast(`Archivo ID ${targetArchivoId} marcado como eliminado (Estado 2 en BD)`, 'success');
+          fetchResidentArchivos();
+        } catch (dbError: any) {
+          console.error('Error al marcar ID_ESTADO_ARCHIVO = 2 en la base de datos:', dbError);
+          showToast(`Aviso BD: ${dbError.message || 'No se pudo actualizar estado en BD'}`, 'alert');
+        }
+      } else {
+        console.warn('Documento local eliminado sin registro asociado en SMY_ARCHIVOS:', recordToDelete);
+      }
+
+      // 4. Registrar eliminación lógica en la interfaz y timeline
+      deleteClinicalRecord(recordToDelete.id);
+      setRecordToDelete(null);
+      if (viewMode === 'activos') {
+        setHasSeenDeleted(false);
+      }
+    } finally {
+      setIsDeleting(false);
     }
   };
 
   // Trigger file download
   const handleDownloadFile = (record: ClinicalRecord) => {
     const filename = record.fileName || `${record.title.replace(/\s+/g, '_')}.${record.fileType === 'imagen' ? 'jpg' : 'pdf'}`;
+    const downloadUrl = getRecordDownloadUrl(record);
+
+    if (downloadUrl) {
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = filename;
+      link.target = '_blank';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      return;
+    }
+
     const fileContent = `SAMANYA SENIOR LIVING - DOCUMENTO OFICIAL\n\nResidente: ${record.residentName}\nDocumento: ${record.title}\nCategoría: ${record.categoryLabel}\nFecha de registro: ${record.date} ${record.time}\nSubido por: ${cleanPersonName(record.uploadedByName)}\n\n${record.description ? `Notas / Descripción:\n${record.description}\n\n` : ''}Archivo adjunto certificado: ${filename}`;
     
     const blob = new Blob([fileContent], { type: 'text/plain;charset=utf-8' });
@@ -422,41 +755,61 @@ export const ClinicalHistorySection: React.FC<ClinicalHistorySectionProps> = ({ 
               </button>
             </div>
 
-            <div className="bg-[#F7F7F8] p-5 rounded-2xl border border-[#DEDBD1] space-y-4 text-center">
-              <div className="w-12 h-12 rounded-2xl bg-white border border-[#DEDBD1] mx-auto flex items-center justify-center text-[#068591]">
-                {previewFile.fileType === 'imagen' ? (
-                  <ImageIcon className="w-6 h-6" />
-                ) : (
-                  <FileText className="w-6 h-6" />
-                )}
-              </div>
+            {(() => {
+              const viewUrl = getRecordViewUrl(previewFile);
 
-              <div>
-                <div className="font-bold text-sm text-[#292A24]">
-                  {previewFile.fileName}
-                </div>
-                <div className="text-xs text-[#5C6058] mt-0.5">
-                  {previewFile.fileSize || '1.4 MB'} · Formato {previewFile.fileType?.toUpperCase()}
-                </div>
-              </div>
+              return (
+                <div className="bg-[#F7F7F8] p-5 rounded-2xl border border-[#DEDBD1] space-y-4 text-center">
+                  {previewFile.fileType === 'imagen' && viewUrl ? (
+                    <div className="max-h-60 overflow-hidden rounded-2xl border border-[#DEDBD1] bg-black/5 flex items-center justify-center p-2">
+                      <img
+                        src={viewUrl}
+                        alt={previewFile.fileName}
+                        className="max-h-56 object-contain rounded-xl shadow-xs"
+                        onError={(e) => {
+                          console.warn('Error al cargar imagen en vista previa:', viewUrl);
+                          (e.target as HTMLElement).style.display = 'none';
+                        }}
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-12 h-12 rounded-2xl bg-white border border-[#DEDBD1] mx-auto flex items-center justify-center text-[#068591]">
+                      {previewFile.fileType === 'imagen' ? (
+                        <ImageIcon className="w-6 h-6" />
+                      ) : (
+                        <FileText className="w-6 h-6" />
+                      )}
+                    </div>
+                  )}
 
-              <button
-                type="button"
-                id="btn-download-file"
-                onClick={() => handleDownloadFile(previewFile)}
-                className="touch-target w-full py-2.5 px-4 bg-[#068591] text-white rounded-xl text-xs font-bold hover:bg-[#056c76] active:scale-[0.99] transition-all flex items-center justify-center gap-2 shadow-xs"
-              >
-                <Download className="w-4 h-4" />
-                <span>Descargar archivo</span>
-              </button>
+                  <div>
+                    <div className="font-bold text-sm text-[#292A24]">
+                      {previewFile.fileName}
+                    </div>
+                    <div className="text-xs text-[#5C6058] mt-0.5">
+                      {previewFile.fileSize || '1.4 MB'} · Formato {previewFile.fileType?.toUpperCase()}
+                    </div>
+                  </div>
 
-              {previewFile.description && (
-                <div className="pt-3 text-xs text-[#5C6058] border-t border-[#DEDBD1]/60 text-left leading-relaxed">
-                  <div className="font-semibold text-[#292A24] mb-1">Notas asistenciales:</div>
-                  {previewFile.description}
+                  <button
+                    type="button"
+                    id="btn-download-file"
+                    onClick={() => handleDownloadFile(previewFile)}
+                    className="touch-target w-full py-2.5 px-4 bg-[#068591] text-white rounded-xl text-xs font-bold hover:bg-[#056c76] active:scale-[0.99] transition-all flex items-center justify-center gap-2 shadow-xs"
+                  >
+                    <Download className="w-4 h-4" />
+                    <span>Descargar archivo</span>
+                  </button>
+
+                  {previewFile.description && (
+                    <div className="pt-3 text-xs text-[#5C6058] border-t border-[#DEDBD1]/60 text-left leading-relaxed">
+                      <div className="font-semibold text-[#292A24] mb-1">Notas asistenciales:</div>
+                      {previewFile.description}
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
+              );
+            })()}
 
             <div className="flex items-center justify-between text-[11px] text-[#5C6058] pt-1">
               <span>Subido por: <strong className="text-[#292A24]">{cleanPersonName(previewFile.uploadedByName)}</strong></span>
@@ -477,7 +830,7 @@ export const ClinicalHistorySection: React.FC<ClinicalHistorySectionProps> = ({ 
               <button
                 type="button"
                 id="btn-close-add-modal"
-                onClick={() => setIsAddModalOpen(false)}
+                onClick={handleCloseAddModal}
                 aria-label="Cerrar"
                 className="touch-target p-1.5 text-[#5C6058] hover:text-[#292A24] hover:bg-[#F7F7F8] rounded-xl transition-colors"
               >
@@ -552,17 +905,105 @@ export const ClinicalHistorySection: React.FC<ClinicalHistorySectionProps> = ({ 
 
               {formEntryType === 'archivo' && (
                 <div className="space-y-3 bg-[#F7F7F8] p-3.5 rounded-2xl border border-[#DEDBD1]">
+                  {/* Selector nativo oculto */}
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleFileChange}
+                    accept=".pdf,application/pdf,image/*"
+                    className="hidden"
+                  />
+
+                  {/* 1. Solicitar el archivo */}
                   <div>
-                    <label className="font-bold text-[#292A24] block mb-1.5">
-                      Formato de archivo
-                    </label>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="font-bold text-[#292A24] block">
+                        Archivo adjunto <span className="text-[#8C2E2E]">*</span>
+                      </label>
+                      {selectedFile && (
+                        <span className="text-[11px] font-semibold text-[#068591] flex items-center gap-1">
+                          <CheckCircle2 className="w-3.5 h-3.5" /> Archivo cargado
+                        </span>
+                      )}
+                    </div>
+
+                    {!selectedFile ? (
+                      <div
+                        onClick={() => fileInputRef.current?.click()}
+                        onDragOver={handleDragOver}
+                        onDrop={handleDrop}
+                        className="border-2 border-dashed border-[#DEDBD1] hover:border-[#068591] bg-white rounded-2xl p-4 text-center cursor-pointer transition-all hover:bg-[#F7F7F8] group"
+                      >
+                        <div className="w-10 h-10 rounded-full bg-[#068591]/10 text-[#068591] mx-auto flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                          <Upload className="w-5 h-5" />
+                        </div>
+                        <div className="font-bold text-xs text-[#292A24] group-hover:text-[#068591] transition-colors">
+                          Haz clic aquí para seleccionar tu archivo o arrástralo
+                        </div>
+                        <p className="text-[11px] text-[#5C6058] mt-1">
+                          PDF o Imágenes (JPG, PNG, WEBP). Se autocompletará el formato y nombre.
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="bg-white border border-[#DEDBD1] rounded-2xl p-3 flex items-center justify-between gap-3 shadow-2xs">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-10 h-10 rounded-xl bg-[#068591]/10 text-[#068591] flex items-center justify-center shrink-0">
+                            {formFileType === 'imagen' ? (
+                              <ImageIcon className="w-5 h-5" />
+                            ) : (
+                              <FileText className="w-5 h-5" />
+                            )}
+                          </div>
+                          <div className="min-w-0">
+                            <div className="font-bold text-xs text-[#292A24] truncate" title={selectedFile.name}>
+                              {selectedFile.name}
+                            </div>
+                            <div className="text-[11px] text-[#5C6058]">
+                              {formFileSize} · {formFileType === 'pdf' ? 'PDF detectado' : 'Imagen detectada'}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1 shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => fileInputRef.current?.click()}
+                            className="px-2.5 py-1 text-[11px] font-bold text-[#068591] hover:bg-[#068591]/10 rounded-lg transition-colors"
+                          >
+                            Cambiar
+                          </button>
+                          <button
+                            type="button"
+                            onClick={handleClearFile}
+                            aria-label="Quitar archivo"
+                            className="p-1 text-[#5C6058] hover:text-[#8C2E2E] hover:bg-red-50 rounded-lg transition-colors"
+                            title="Quitar archivo"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 2. Formato de archivo (autollenado a partir del archivo) */}
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="font-bold text-[#292A24] block">
+                        Formato de archivo
+                      </label>
+                      {selectedFile && (
+                        <span className="text-[10px] text-[#5C6058] italic font-medium">
+                          (Autodetectado del archivo)
+                        </span>
+                      )}
+                    </div>
                     <div className="flex gap-2">
                       <button
                         type="button"
                         onClick={() => setFormFileType('pdf')}
                         className={`flex-1 py-2 rounded-xl text-xs font-bold border transition-all ${
                           formFileType === 'pdf'
-                            ? 'bg-white text-[#075158] border-[#068591]'
+                            ? 'bg-white text-[#075158] border-[#068591] shadow-2xs'
                             : 'bg-[#F7F7F8] text-[#5C6058] border-[#DEDBD1]'
                         }`}
                       >
@@ -573,7 +1014,7 @@ export const ClinicalHistorySection: React.FC<ClinicalHistorySectionProps> = ({ 
                         onClick={() => setFormFileType('imagen')}
                         className={`flex-1 py-2 rounded-xl text-xs font-bold border transition-all ${
                           formFileType === 'imagen'
-                            ? 'bg-white text-[#075158] border-[#068591]'
+                            ? 'bg-white text-[#075158] border-[#068591] shadow-2xs'
                             : 'bg-[#F7F7F8] text-[#5C6058] border-[#DEDBD1]'
                         }`}
                       >
@@ -582,10 +1023,18 @@ export const ClinicalHistorySection: React.FC<ClinicalHistorySectionProps> = ({ 
                     </div>
                   </div>
 
+                  {/* 3. Nombre de archivo (autollenado a partir del archivo) */}
                   <div>
-                    <label className="font-bold text-[#292A24] block mb-1.5">
-                      Nombre de archivo
-                    </label>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="font-bold text-[#292A24] block">
+                        Nombre de archivo
+                      </label>
+                      {selectedFile && (
+                        <span className="text-[10px] text-[#5C6058] italic font-medium">
+                          (Autocompletado del archivo)
+                        </span>
+                      )}
+                    </div>
                     <input
                       type="text"
                       placeholder={formFileType === 'pdf' ? 'archivo_informe.pdf' : 'captura_documento.jpg'}
@@ -613,16 +1062,26 @@ export const ClinicalHistorySection: React.FC<ClinicalHistorySectionProps> = ({ 
               <div className="pt-2 flex items-center justify-end gap-2 border-t border-[#DEDBD1]">
                 <button
                   type="button"
-                  onClick={() => setIsAddModalOpen(false)}
+                  onClick={handleCloseAddModal}
                   className="touch-target px-4 py-2.5 rounded-xl border border-[#DEDBD1] text-xs font-bold text-[#5C6058] hover:bg-[#F7F7F8]"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="touch-target px-4 py-2.5 rounded-xl bg-[#068591] text-white text-xs font-bold hover:bg-[#056c76] shadow-xs"
+                  disabled={isUploading}
+                  className={`touch-target px-4 py-2.5 rounded-xl bg-[#068591] text-white text-xs font-bold hover:bg-[#056c76] shadow-xs flex items-center gap-2 ${
+                    isUploading ? 'opacity-70 cursor-not-allowed' : ''
+                  }`}
                 >
-                  Guardar documento
+                  {isUploading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Subiendo a Google Drive y BD...</span>
+                    </>
+                  ) : (
+                    <span>Guardar documento</span>
+                  )}
                 </button>
               </div>
             </form>
@@ -752,10 +1211,11 @@ export const ClinicalHistorySection: React.FC<ClinicalHistorySectionProps> = ({ 
               </button>
               <button
                 type="button"
+                disabled={isDeleting}
                 onClick={handleConfirmDelete}
-                className="touch-target px-4 py-2.5 rounded-xl bg-[#8C2E2E] text-white text-xs font-bold hover:bg-[#722525] shadow-xs"
+                className="touch-target px-4 py-2.5 rounded-xl bg-[#8C2E2E] text-white text-xs font-bold hover:bg-[#722525] disabled:opacity-50 shadow-xs"
               >
-                Confirmar eliminación
+                {isDeleting ? 'Eliminando...' : 'Confirmar eliminación'}
               </button>
             </div>
           </div>

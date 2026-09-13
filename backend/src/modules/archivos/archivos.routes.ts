@@ -68,3 +68,25 @@ archivosRoutes.get(
   authenticate,
   (req, res, next) => archivosController.listarPorResidente(req, res, next)
 );
+
+/**
+ * @route   GET /api/v1/archivos/:id/ver
+ * @desc    Visualización de archivo (streaming binario con mime type)
+ * @access  Privado (acepta Bearer header o ?token=...)
+ */
+archivosRoutes.get(
+  '/:id/ver',
+  authenticate,
+  (req, res, next) => archivosController.verArchivo(req, res, next)
+);
+
+/**
+ * @route   GET /api/v1/archivos/:id/descargar
+ * @desc    Descarga binaria de archivo adjunto con Content-Disposition
+ * @access  Privado (acepta Bearer header o ?token=...)
+ */
+archivosRoutes.get(
+  '/:id/descargar',
+  authenticate,
+  (req, res, next) => archivosController.descargarArchivo(req, res, next)
+);

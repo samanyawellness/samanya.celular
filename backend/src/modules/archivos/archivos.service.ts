@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import { Readable } from 'stream';
 import oracledb from 'oracledb';
 import { withConnection } from '../../config/oracle.js';
 import { googleDriveService } from './gdrive.service.js';
@@ -23,6 +24,8 @@ export interface ArchivoDTO {
   hashArchivo: string;
   rutaRelativa: string;
   rutaCompletaAlmacenamiento: string;
+  enlaceVisualizacion?: string;
+  enlaceDescarga?: string;
   extension: string;
   tipoMime: string;
   tamanoBytes: number;
@@ -170,6 +173,8 @@ export class ArchivosService {
         hashArchivo: hashContenido,
         rutaRelativa,
         rutaCompletaAlmacenamiento: rutaCompleta,
+        enlaceVisualizacion: `/api/v1/archivos/${idReserva}/ver`,
+        enlaceDescarga: `/api/v1/archivos/${idReserva}/descargar`,
         extension,
         tipoMime,
         tamanoBytes: gdriveRes.sizeBytes || params.buffer.length,
@@ -335,6 +340,8 @@ export class ArchivosService {
         hashArchivo: r.HASH_ARCHIVO,
         rutaRelativa: r.RUTA_RELATIVA,
         rutaCompletaAlmacenamiento: r.RUTA_COMPLETA_ALMACENAMIENTO,
+        enlaceVisualizacion: `/api/v1/archivos/${r.ID}/ver`,
+        enlaceDescarga: `/api/v1/archivos/${r.ID}/descargar`,
         extension: r.EXTENSION,
         tipoMime: r.TIPO_MIME,
         tamanoBytes: r.TAMANO_BYTES,
@@ -349,6 +356,54 @@ export class ArchivosService {
         metadatosJson: r.METADATOS_JSON ? (typeof r.METADATOS_JSON === 'string' ? JSON.parse(r.METADATOS_JSON) : r.METADATOS_JSON) : null,
         fechaCreacion: r.FECHA_CREACION
       }));
+    });
+  }
+
+  /**
+   * Obtiene el stream de lectura y metadatos de un archivo registrado en SMY_ARCHIVOS
+   */
+  async obtenerStreamArchivo(idArchivo: number): Promise<{
+    stream: Readable;
+    tipoMime: string;
+    nombreArchivo: string;
+    tamanoBytes: number;
+    gdriveFileId: string;
+  }> {
+    return withConnection(async (connection) => {
+      const res = await connection.execute<any>(
+        `SELECT ID, NOMBRE_ARCHIVO, TIPO_MIME, TAMANO_BYTES, METADATOS_JSON
+         FROM SMY_ARCHIVOS
+         WHERE ID = :id AND ID_ESTADO_ARCHIVO = 1`,
+        { id: idArchivo }
+      );
+
+      if (!res.rows || res.rows.length === 0) {
+        throw new Error(`Archivo con ID ${idArchivo} no encontrado o inactivo.`);
+      }
+
+      const row = res.rows[0];
+      let fileId = '';
+      if (row.METADATOS_JSON) {
+        try {
+          const meta = typeof row.METADATOS_JSON === 'string' ? JSON.parse(row.METADATOS_JSON) : row.METADATOS_JSON;
+          fileId = meta.gdriveFileId;
+        } catch (e) {
+          console.error('Error parseando METADATOS_JSON:', e);
+        }
+      }
+
+      if (!fileId) {
+        throw new Error(`El archivo ${idArchivo} no tiene ID de Google Drive asociado.`);
+      }
+
+      const stream = await googleDriveService.obtenerStreamArchivo(fileId);
+      return {
+        stream,
+        tipoMime: row.TIPO_MIME || 'application/octet-stream',
+        nombreArchivo: row.NOMBRE_ARCHIVO,
+        tamanoBytes: Number(row.TAMANO_BYTES) || 0,
+        gdriveFileId: fileId
+      };
     });
   }
 }

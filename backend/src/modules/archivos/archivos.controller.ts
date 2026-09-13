@@ -18,10 +18,13 @@ export class ArchivosController {
 
       const { idCentro, idResidente, idClaseArchivo, tablaOrigen, idRegistroOrigen } = req.body;
 
-      if (!idCentro || !idResidente) {
+      const centroId = idCentro ? Number(idCentro) : 1;
+      const resId = Number(String(idResidente || '').replace(/\D/g, '')) || Number(idResidente);
+
+      if (!resId) {
         res.status(400).json({
           success: false,
-          message: 'Los parámetros idCentro e idResidente son obligatorios.'
+          message: 'El parámetro idResidente es obligatorio y debe ser un identificador válido.'
         });
         return;
       }
@@ -29,8 +32,8 @@ export class ArchivosController {
       const idUsuario = req.user?.id ? Number(req.user.id) : undefined;
 
       const resultado = await archivosService.subirArchivo({
-        idCentro: Number(idCentro),
-        idResidente: Number(idResidente),
+        idCentro: centroId,
+        idResidente: resId,
         nombreOriginal: req.file.originalname,
         buffer: req.file.buffer,
         tipoMime: req.file.mimetype,
@@ -173,6 +176,57 @@ export class ArchivosController {
         data: archivos,
         meta: { timestamp: new Date().toISOString() }
       });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Visualización directa (inline) de archivo desde Google Drive (imágenes, PDFs, etc.)
+   * GET /api/v1/archivos/:id/ver
+   */
+  async verArchivo(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const id = Number(req.params.id);
+      if (!id || isNaN(id)) {
+        res.status(400).json({ success: false, message: 'ID de archivo inválido.' });
+        return;
+      }
+
+      const info = await archivosService.obtenerStreamArchivo(id);
+      res.setHeader('Content-Type', info.tipoMime);
+      if (info.tamanoBytes > 0) {
+        res.setHeader('Content-Length', info.tamanoBytes);
+      }
+      res.setHeader('Content-Disposition', `inline; filename="${encodeURIComponent(info.nombreArchivo)}"`);
+      res.setHeader('Cache-Control', 'public, max-age=86400');
+
+      info.stream.pipe(res);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Descarga de archivo desde Google Drive
+   * GET /api/v1/archivos/:id/descargar
+   */
+  async descargarArchivo(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const id = Number(req.params.id);
+      if (!id || isNaN(id)) {
+        res.status(400).json({ success: false, message: 'ID de archivo inválido.' });
+        return;
+      }
+
+      const info = await archivosService.obtenerStreamArchivo(id);
+      res.setHeader('Content-Type', info.tipoMime);
+      if (info.tamanoBytes > 0) {
+        res.setHeader('Content-Length', info.tamanoBytes);
+      }
+      res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(info.nombreArchivo)}"`);
+
+      info.stream.pipe(res);
     } catch (error) {
       next(error);
     }

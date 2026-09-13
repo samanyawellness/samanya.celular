@@ -47,8 +47,9 @@ AS
          WHERE EXISTS (
              SELECT 1
                FROM smy_documentos_clinicos d
-              WHERE d.id_archivo = a.id
-                AND d.id = p_id_documento_clinico
+              WHERE d.id = p_id_documento_clinico
+                AND a.tabla_origen = 'SMY_DOCUMENTOS_CLINICOS'
+                AND a.id_registro_origen = d.id
          );
         -- Sin COMMIT; el commit pertenece al orquestador pkgln_
     END pr_desvincular_archivos_doc;

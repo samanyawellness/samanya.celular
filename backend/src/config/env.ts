@@ -15,7 +15,7 @@ const envSchema = z.object({
   DB_WALLET_LOCATION: z.string().optional(),
   DB_WALLET_PASSWORD: z.string().optional(),
   JWT_SECRET: z.string().min(16, 'JWT_SECRET debe tener al menos 16 caracteres'),
-  JWT_EXPIRES_IN: z.string().default('15m'),
+  JWT_EXPIRES_IN: z.string().default('24h'),
   JWT_REFRESH_SECRET: z.string().min(16, 'JWT_REFRESH_SECRET debe tener al menos 16 caracteres'),
   JWT_REFRESH_EXPIRES_IN: z.string().default('15d'),
   CORS_ORIGIN: z.string().default('*')

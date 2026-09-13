@@ -17,8 +17,16 @@ export function createApp() {
   // Middlewares de seguridad y parsing
   app.use(helmet());
   app.use(cors({ origin: env.CORS_ORIGIN, credentials: true }));
-  app.use(express.json({ limit: '10mb' }));
+  app.use(express.json({ limit: '50mb' }));
   app.use(express.urlencoded({ extended: true }));
+
+  // Logging de peticiones API para observabilidad y auditoría
+  app.use((req, res, next) => {
+    if (req.url.startsWith('/api')) {
+      console.log(`📡 [${req.method}] ${req.url}`);
+    }
+    next();
+  });
 
   // Healthcheck
   app.get('/api/health', (req, res) => {

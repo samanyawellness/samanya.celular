@@ -168,4 +168,75 @@ export const api = {
     const res = await request<{ success: boolean; data: any[] }>('/notificaciones');
     return res.data;
   },
+
+  // Gestión de Archivos y Google Drive (SMY_ARCHIVOS)
+  async uploadArchivo(data: {
+    file: File;
+    idCentro?: number | string;
+    idResidente: number | string;
+    idClaseArchivo?: number;
+    tablaOrigen?: string;
+    idRegistroOrigen?: number;
+  }) {
+    const token = getAuthToken();
+    const formData = new FormData();
+    formData.append('file', data.file);
+    formData.append('idCentro', String(data.idCentro || 1));
+    formData.append('idResidente', String(data.idResidente));
+    if (data.idClaseArchivo) {
+      formData.append('idClaseArchivo', String(data.idClaseArchivo));
+    }
+    if (data.tablaOrigen) {
+      formData.append('tablaOrigen', data.tablaOrigen);
+    }
+    if (data.idRegistroOrigen) {
+      formData.append('idRegistroOrigen', String(data.idRegistroOrigen));
+    }
+
+    const headers: Record<string, string> = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    const response = await fetch(`${API_BASE}/archivos/upload`, {
+      method: 'POST',
+      headers,
+      body: formData,
+    });
+
+    if (!response.ok) {
+      let errorMsg = `Error al subir archivo (${response.status}): ${response.statusText}`;
+      try {
+        const errorJson = await response.json();
+        if (errorJson.message) {
+          errorMsg = errorJson.message;
+        }
+      } catch (_) {}
+      throw new Error(errorMsg);
+    }
+
+    return response.json();
+  },
+
+  async getArchivosResidente(idResidente: number | string) {
+    const res = await request<{ success: boolean; data: any[] }>(`/archivos/residente/${idResidente}`);
+    return res.data;
+  },
+
+  getArchivoVerUrl(idArchivo: number | string) {
+    const token = getAuthToken();
+    return `${API_BASE}/archivos/${idArchivo}/ver${token ? `?token=${encodeURIComponent(token)}` : ''}`;
+  },
+
+  getArchivoDescargarUrl(idArchivo: number | string) {
+    const token = getAuthToken();
+    return `${API_BASE}/archivos/${idArchivo}/descargar${token ? `?token=${encodeURIComponent(token)}` : ''}`;
+  },
+
+  async deleteArchivo(idArchivo: number | string, motivo?: string) {
+    return request<{ success: boolean; message: string }>(`/archivos/${idArchivo}`, {
+      method: 'DELETE',
+      body: JSON.stringify({ motivo: motivo || 'Eliminado desde la interfaz de usuario' })
+    });
+  },
 };

@@ -277,6 +277,7 @@ export interface ClinicalRecord {
   fileName?: string;
   fileSize?: string;
   fileUrl?: string;
+  idArchivo?: number;
   uploadedByRole: 'familiar' | 'cuidador';
   uploadedByName: string;
   createdAt: string; // ISO string e.g. "2026-08-22T06:30:00"
