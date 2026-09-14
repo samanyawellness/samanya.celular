@@ -15,8 +15,20 @@ export function createApp() {
   const app = express();
 
   // Middlewares de seguridad y parsing
-  app.use(helmet());
-  app.use(cors({ origin: env.CORS_ORIGIN, credentials: true }));
+  app.use(
+    helmet({
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
+    })
+  );
+  app.use(
+    cors({
+      origin: (origin, callback) => {
+        // Permitir peticiones desde apps móviles (http://localhost, capacitor://localhost) y desarrollo
+        callback(null, true);
+      },
+      credentials: true,
+    })
+  );
   app.use(express.json({ limit: '50mb' }));
   app.use(express.urlencoded({ extended: true }));
 

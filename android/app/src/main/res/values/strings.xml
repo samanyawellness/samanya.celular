@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">SAMANYA Senior Living</string>
+    <string name="title_activity_main">SAMANYA Senior Living</string>
+    <string name="package_name">com.samanya.os</string>
+    <string name="custom_url_scheme">com.samanya.os</string>
+</resources>

@@ -3,7 +3,59 @@
  * Conecta el frontend React con la API intermedia Node/Express y Oracle DB
  */
 
-const API_BASE = '/api/v1';
+import { Capacitor } from '@capacitor/core';
+
+/**
+ * Resolución dinámica de la URL base de la API:
+ * - En navegador web local: utiliza el proxy relativo '/api/v1'
+ * - En dispositivo móvil nativo (Android APK): apunta a la IP local del servidor backend (o variable de entorno)
+ */
+const DEFAULT_NATIVE_API = 'http://192.168.1.16:4000/api/v1';
+
+export function getApiBaseUrl(): string {
+  if (typeof window !== 'undefined') {
+    const customUrl = localStorage.getItem('samanya_custom_api_url');
+    if (customUrl) return customUrl.replace(/\/+$/, '');
+  }
+  if (import.meta.env.VITE_API_BASE_URL) {
+    return (import.meta.env.VITE_API_BASE_URL as string).replace(/\/+$/, '');
+  }
+  // Detección robusta de entorno nativo (Capacitor Android / iOS)
+  const isCapacitorNative =
+    (typeof window !== 'undefined' && (window as any).Capacitor?.isNativePlatform?.()) ||
+    Capacitor.isNativePlatform() ||
+    Capacitor.getPlatform() !== 'web' ||
+    (typeof window !== 'undefined' &&
+      (window.location.protocol === 'capacitor:' ||
+        (window.location.hostname === 'localhost' && window.location.port !== '3000')));
+
+  if (isCapacitorNative) {
+    return DEFAULT_NATIVE_API;
+  }
+  return '/api/v1';
+}
+
+export async function testApiHealth(targetUrl?: string): Promise<{ ok: boolean; message: string }> {
+  try {
+    const base = targetUrl ? targetUrl.replace(/\/+$/, '') : getApiBaseUrl();
+    const healthUrl = base.replace(/\/api\/v1\/?$/, '/api/health');
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+    const res = await fetch(healthUrl, { method: 'GET', signal: controller.signal });
+    clearTimeout(timeoutId);
+    if (res.ok) {
+      return { ok: true, message: 'Conexión con el servidor backend exitosa.' };
+    }
+    return { ok: false, message: `El servidor respondió con código ${res.status}` };
+  } catch (err: any) {
+    return {
+      ok: false,
+      message: err?.name === 'AbortError'
+        ? 'Tiempo de espera agotado (5s). El servidor no respondió.'
+        : `Error de red: ${err?.message || 'Failed to fetch'}. Verifique la IP y que el Firewall de Windows permita el puerto 4000.`
+    };
+  }
+}
 
 function getAuthToken(): string | null {
   return localStorage.getItem('samanya_token');
@@ -28,7 +80,8 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${API_BASE}${endpoint}`, {
+  const baseUrl = getApiBaseUrl();
+  const response = await fetch(`${baseUrl}${endpoint}`, {
     ...options,
     headers,
   });
@@ -198,7 +251,7 @@ export const api = {
       headers['Authorization'] = `Bearer ${token}`;
     }
 
-    const response = await fetch(`${API_BASE}/archivos/upload`, {
+    const response = await fetch(`${getApiBaseUrl()}/archivos/upload`, {
       method: 'POST',
       headers,
       body: formData,
@@ -225,12 +278,12 @@ export const api = {
 
   getArchivoVerUrl(idArchivo: number | string) {
     const token = getAuthToken();
-    return `${API_BASE}/archivos/${idArchivo}/ver${token ? `?token=${encodeURIComponent(token)}` : ''}`;
+    return `${getApiBaseUrl()}/archivos/${idArchivo}/ver${token ? `?token=${encodeURIComponent(token)}` : ''}`;
   },
 
   getArchivoDescargarUrl(idArchivo: number | string) {
     const token = getAuthToken();
-    return `${API_BASE}/archivos/${idArchivo}/descargar${token ? `?token=${encodeURIComponent(token)}` : ''}`;
+    return `${getApiBaseUrl()}/archivos/${idArchivo}/descargar${token ? `?token=${encodeURIComponent(token)}` : ''}`;
   },
 
   async deleteArchivo(idArchivo: number | string, motivo?: string) {

@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
-import { LogIn, KeyRound, Mail, ArrowLeft, CheckCircle2, ShieldCheck, Heart } from 'lucide-react';
+import { LogIn, KeyRound, Mail, ArrowLeft, CheckCircle2, ShieldCheck, Heart, Server, Wifi, RefreshCw, AlertCircle, Settings } from 'lucide-react';
+import { getApiBaseUrl, testApiHealth } from '../services/api';
 
 export const LoginScreen: React.FC = () => {
   const { login } = useApp();
@@ -10,6 +11,47 @@ export const LoginScreen: React.FC = () => {
   const [recoverEmail, setRecoverEmail] = useState('');
   const [recoverSuccess, setRecoverSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Configuración y diagnóstico del servidor backend
+  const [showServerConfig, setShowServerConfig] = useState(false);
+  const [serverUrl, setServerUrl] = useState('');
+  const [testState, setTestState] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [testMessage, setTestMessage] = useState('');
+
+  useEffect(() => {
+    setServerUrl(getApiBaseUrl());
+  }, []);
+
+  const handleTestConnection = async () => {
+    setTestState('loading');
+    setTestMessage('Probando conexión con el servidor...');
+    const result = await testApiHealth(serverUrl);
+    if (result.ok) {
+      setTestState('success');
+      setTestMessage(result.message);
+    } else {
+      setTestState('error');
+      setTestMessage(result.message);
+    }
+  };
+
+  const handleSaveServerUrl = () => {
+    if (serverUrl.trim()) {
+      localStorage.setItem('samanya_custom_api_url', serverUrl.trim());
+    } else {
+      localStorage.removeItem('samanya_custom_api_url');
+    }
+    setTestState('idle');
+    setTestMessage('URL guardada. Puedes volver a probar la conexión.');
+  };
+
+  const handleResetServerUrl = () => {
+    localStorage.removeItem('samanya_custom_api_url');
+    const defaultUrl = getApiBaseUrl();
+    setServerUrl(defaultUrl);
+    setTestState('idle');
+    setTestMessage('Restablecido a la configuración por defecto.');
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -251,8 +293,94 @@ export const LoginScreen: React.FC = () => {
         )}
       </div>
 
+      {/* Selector / Diagnóstico de Conexión al Servidor */}
+      <div className="mt-4 mb-2">
+        <div className="text-center">
+          <button
+            type="button"
+            onClick={() => setShowServerConfig(!showServerConfig)}
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#068591] bg-white hover:bg-[#D9F0F1] px-3.5 py-2 rounded-full border border-[#068591]/25 shadow-xs transition-colors"
+          >
+            <Server className="w-3.5 h-3.5 text-[#068591]" />
+            <span>Servidor API: {serverUrl ? serverUrl.replace(/^https?:\/\//, '').replace(/\/api\/v1\/?$/, '') : 'Detectando...'}</span>
+            <Settings className={`w-3 h-3 text-[#5C6058] transition-transform ${showServerConfig ? 'rotate-90 text-[#068591]' : ''}`} />
+          </button>
+        </div>
+
+        {showServerConfig && (
+          <div className="mt-3 p-4 bg-white rounded-2xl border border-[#DEDBD1] shadow-sm text-left animate-in fade-in slide-in-from-top-2 duration-200">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-bold text-[#292A24] flex items-center gap-1.5">
+                <Wifi className="w-4 h-4 text-[#068591]" />
+                Conectividad Móvil / Servidor
+              </span>
+              <button
+                type="button"
+                onClick={handleResetServerUrl}
+                className="text-xs text-[#5C6058] hover:text-[#068591] underline"
+              >
+                Restablecer
+              </button>
+            </div>
+
+            <p className="text-xs text-[#5C6058] mb-2.5">
+              Si tu teléfono muestra <em>Failed to fetch</em>, comprueba la IP de tu PC y pulsa <strong>Probar Conexión</strong>.
+            </p>
+
+            <div className="space-y-2">
+              <input
+                type="text"
+                value={serverUrl}
+                onChange={(e) => setServerUrl(e.target.value)}
+                placeholder="http://192.168.1.16:4000/api/v1"
+                className="w-full text-xs font-mono px-3 py-2 bg-[#F7F7F8] border border-[#DEDBD1] rounded-xl text-[#292A24] focus:outline-none focus:border-[#068591]"
+              />
+
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  disabled={testState === 'loading'}
+                  onClick={handleTestConnection}
+                  className="flex-1 text-xs font-bold py-2 px-3 rounded-xl bg-[#068591] text-white hover:bg-[#056c76] flex items-center justify-center gap-1.5 disabled:opacity-60 transition-colors"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${testState === 'loading' ? 'animate-spin' : ''}`} />
+                  <span>{testState === 'loading' ? 'Verificando...' : 'Probar Conexión'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleSaveServerUrl}
+                  className="text-xs font-bold py-2 px-3 rounded-xl bg-[#F7F7F8] border border-[#DEDBD1] text-[#292A24] hover:bg-[#EAE8E1] transition-colors"
+                >
+                  Guardar
+                </button>
+              </div>
+
+              {testState === 'success' && (
+                <div className="flex items-start gap-1.5 p-2.5 rounded-xl bg-[#DFF3E7] text-[#1E7A4C] text-xs">
+                  <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" />
+                  <span>{testMessage}</span>
+                </div>
+              )}
+
+              {testState === 'error' && (
+                <div className="space-y-1 p-2.5 rounded-xl bg-[#FDE8E8] text-[#9B1C1C] text-xs">
+                  <div className="flex items-start gap-1.5 font-bold">
+                    <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                    <span>{testMessage}</span>
+                  </div>
+                  <p className="text-[11px] text-[#771D1D] pl-5">
+                    💡 <strong>Tip:</strong> En Windows, ve a <em>Configuración &gt; Red e Internet &gt; Wi-Fi</em>, haz clic en la red conectada y cámbiala de <em>Pública</em> a <strong>Red Privada</strong>.
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+
       {/* Footer accessibility notice */}
-      <div className="text-center py-4 text-xs text-[#5C6058] flex items-center justify-center gap-1.5">
+      <div className="text-center py-3 text-xs text-[#5C6058] flex items-center justify-center gap-1.5">
         <ShieldCheck className="w-4 h-4 text-[#068591]" />
         <span>Acceso seguro protegido · Protocolo sanitario RGPD</span>
       </div>
