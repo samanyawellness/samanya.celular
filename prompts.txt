@@ -545,3 +545,486 @@ En este momento tengo como esta en la imagen
 FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-11 22:31:24
 ================================================================================
 Ya le di Guardar
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-12 09:24:48
+================================================================================
+Deseo un script para borrar todos los objetos de la base de datos en un archivo llamado inicializar_bd.sql
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-12 09:28:59
+================================================================================
+Al correr el script me aparece:
+Borrar salida
+
+
+
+Descargar salida de script
+
+SP2-0738: Restricted command:
+
+"set heading off"
+
+not available
+
+
+
+Mostrar información
+
+SP2-0738: Restricted command:
+
+"set linesize 200"
+
+not available
+
+
+
+Mostrar información
+
+SP2-0738: Restricted command:
+
+"set pagesize 0"
+
+not available
+
+
+
+Mostrar información
+
+SP2-0738: Restricted command:
+
+"whenever sqlerror continue"
+
+not available
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-12 09:37:29
+================================================================================
+Revisar el archivo creacion_modelo_relacional.sql para actualizar el archivo build_all.sql en caso de faltar tablas.
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-12 11:26:50
+================================================================================
+Al correr build_all.sql me aparece el error:
+SP2-0738: Restricted command:
+
+"set heading off"
+
+not available
+
+
+
+Mostrar información
+
+SP2-0738: Restricted command:
+
+"set linesize 200"
+
+not available
+
+
+
+Mostrar información
+
+SP2-0738: Restricted command:
+
+"set pagesize 0"
+
+not available
+
+
+
+Mostrar información
+
+SP2-0738: Restricted command:
+
+"whenever sqlerror continue"
+
+not available
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-12 11:36:11
+================================================================================
+Al correr el script para cada tabla me aparecio
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-12 11:46:33
+================================================================================
+Subir al repositorio y hacer push
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-12 12:09:02
+================================================================================
+Subir al repositorio cuando lo indique.
+Deseo cambiar la conexion a la base de datos y tengo un archivo zip con el wallet para conectarlo a OCI, el archivo se llama Wallet_SAMANYA.zip este archivo no subirlo al repositorio. La clave del archivo zip es Samanya2026*
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-12 13:07:13
+================================================================================
+arrancar el servidor local para ver la aplicacion
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-12 15:38:06
+================================================================================
+Quiero que las credenciales de google  se almacenen en la base de datos en la tabla smy_parametros, dame el script para insertar los registros en un archivo llamado configuraciones.txt
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-12 16:12:38
+================================================================================
+Deseo que la aplicacion cuando ingrese un usuario valide las credenciales de google para utilizar los servicios de almacenamiento que se encuentran en smy_parametros.
+Cuando se va a subir un documento utilizar la cuenta de google y almacenarlo de acuerdo a la siguiente estructura de archivos.
+id +'_' + Nombre de Sede - id +'_' + identificacion Residente + Documentos 
+Ejemplo:
+1_SEDE-CENTRAL directorio
+1_19234567 directorio
+Documentos directorio
+y ahi los archivos de los documentos de ese residente
+La informacion del archivo cargado se debe almacenar en la tabla smy_archivos.
+Todas las funcionalidades con respecto a archivos deseo que se cree en un paquete llamado pkgln_archivos en este paquete crear todos los metodos que se puedan llegar utilizar para el manejo de archivos como son copiar, renombrar, borrar_archivos que para el caso lo va dejar como un estado para que no sea visible, etc.
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-12 16:39:34
+================================================================================
+Cuando se va a subir un documento utilizar la cuenta de google y almacenarlo de acuerdo a la siguiente estructura de archivos.
+id +'_' + Nombre de Sede - id +'_' + identificacion Residente + Documentos 
+Ejemplo:
+1_SEDE-CENTRAL directorio
+1_19234567 directorio
+Documentos directorio
+y ahi los archivos de los documentos de ese residente
+La informacion del archivo cargado se debe almacenar en la tabla smy_archivos.
+Todas las funcionalidades con respecto a archivos deseo que se cree en un paquete llamado pkgln_archivos en este paquete crear todos los metodos que se puedan llegar utilizar para el manejo de archivos como son copiar, renombrar, borrar_archivos que para el caso lo va dejar como un estado para que no sea visible, etc.
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-12 16:44:47
+================================================================================
+EL nombre del archivo debe ser formado por el hash partiendo del id de la tabla smy_archivos + extension del archivo, ese nombre se deben almacenar en el campo nombre_archivo_almacenado en la tabla smy_archivos, modificar el plan de implementacion antes de ejecutar
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-12 16:49:03
+================================================================================
+Tambien adicionar la documentacion de los paquetes y funcionalidades creadas dentro del archivo documentacion_esquema.html incluir los graficos como el del flujo de carga y persistencia.
+Proceder con el plan
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-12 16:59:39
+================================================================================
+Cuando se cree un paquete adicionarlo al archivo build_all.sql
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-12 17:10:23
+================================================================================
+Deseo que el archivo build_all.sql haga es el llamado a los archivos de los paquetes, ejemplo:
+@@f_fecha_actual.sql
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-12 17:12:51
+================================================================================
+subir al repositorio y hacer push
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-12 17:22:48
+================================================================================
+Subir al repositorio cuando lo indique.
+En la definicion del skill hay un error, los paquetes pkgcn_ deben contener solo las sentencias DML que pertenecen a un proceso e involucran mas de una tabla, la logica de negocio se lleva en los pkgln_ y no tiene sentencias DML y las consulta/modificacion de la informacion se hace por medido de los _DAO los pkgca_ y pkgcn_ y en este va el commit, en el pkgln_ 
+un ejemplo de pkgln_
+IF pkgcmy_usuarios_dao.f_existe(p_id_usuario, vro_usuario) = TRUE THEN
+   vor_usuario.nombres := 'Carlos':
+END IF;
+COMMIT;
+Arreglar el skill y volver a revisar los pkgcn_ y pkgln_ generados
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-12 17:38:45
+================================================================================
+En los paquetes pkgcn_ solo debe tener un metodo por cada sentencia, la sentencia DML debe tener por minimo dos tablas, los paquetes pkgln_ en el paquete pkgcn_auth no debe existir pr_registrar_acceso_exitoso, este deberia existir en pkgln_ con el siguiente flujo:
+IF pkgsmy_usuarios_dao.f_existe(p_id_usuario, vro_usuario) = TRUE THEN
+    vro_ultimo_acceso := CAST(SYSTIMESTAMP AT TIME ZONE '-05:00' AS DATE);
+   pkgsmy_usuarios_dao.p_actualizar(vro_usuario);
+END IF;
+vro_auditoria_accesos.id_usuario := p_id_usuario;
+vro_auditoria_accesos.accion := 'LOGIN_EXITOSO';
+vro_auditoria_accesos.direccion_ip := SUBSTR(p_direccion_ip, 1, 45);
+vro_auditoria_accesos.detalles:= 'Dispositivo: ' || SUBSTR(p_dispositivo_info, 1, 200) || ' | Autenticación exitosa';
+vro_auditoria_accesos.fecha_creacion:= CAST(SYSTIMESTAMP AT TIME ZONE '-05:00' AS DATE);
+COMMIT;
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-12 17:52:55
+================================================================================
+En el skill adicionar los paquetes pkgln_ no deben tener sentencias DML, al hacer la verificacion veo que en el paquete pkgln_auth.sql para buscar el usuario utiliza un select eso deben hacerse por medio de un paquete pkgca_smy_usuarios llamando la funcion para buscar por nombre o email, cuando la busqueda sea por el id se usa pkg_smy_usuarios_dao, para asignar un id utilizar la asignacion directa para no hacer un select ejemplo:
+vro_auditoria.id := SEQ_SMY_AUDITORIA_ACCESOS.NEXTVAL;
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-12 18:00:11
+================================================================================
+Subir al repositorio y hacer push
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-12 18:08:34
+================================================================================
+Adicionar el procedimiento:
+CREATE OR REPLACE PROCEDURE p_do_commit (
+    p_contexto IN VARCHAR2 DEFAULT 'General'
+) AS
+BEGIN
+    -- Aquí puedes agregar lógica de control o auditoría previa
+    DBMS_OUTPUT.PUT_LINE('Ejecutando COMMIT controlado para: ' || p_contexto);
+    
+    COMMIT;
+    
+EXCEPTION
+    WHEN OTHERS THEN
+        -- Control de errores en caso de que el commit falle
+        DBMS_OUTPUT.PUT_LINE('Error al ejecutar COMMIT en ' || p_contexto || ': ' || SQLERRM);
+        RAISE;
+END;
+Adicionarla el procedimiento a la documentacion y donde exista un commit reemplazarlo por este procedimiento mandando como parametro el nombre del objeto, si es un paquete el nombre del paquete + el nombre del metodo, ejemplo:
+p_do_commit('pkgln_auth.pr_registrar_dispositivo_push');
+Adicionar esta regla al skill
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-12 18:14:48
+================================================================================
+Subir al repositorio y hacer push
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-12 18:17:42
+================================================================================
+arrancar el servidor para ver la aplicacion
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-12 18:25:57
+================================================================================
+Para subir un archivo solicitar el archivo y apartir de ahi llenar el formato del archivo y el nombre del archivo
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-12 18:33:09
+================================================================================
+Las pruebas las hago yo, cargue un archivo en la aplicacion se vio exitoso pero en la base de datos no se ve el registro en smy_archivos y tampoco esta en el google drive
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-12 18:40:16
+================================================================================
+Al compilar el paquete pkgln_archivos me aparecio error porque STANDARD_HASH(TO_CHAR(p_id), 'SHA256') se debe declarar y estoy usando Oracle AI Database 26ai Enterprise Edition Release 23.26.3.3.0 - Production en una cuenta gratuita de OCI
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-12 18:45:59
+================================================================================
+Al compilar pkgln_archivos aparece:
+Error(319,9): PL/SQL: Statement ignored
+
+Error(319,21): PLS-00302: el componente 'ID_USUARIO_CREACION' se debe declarar
+
+Error(565,13): PL/SQL: Statement ignored
+
+Error(565,21): PLS-00302: el componente 'ID_ARCHIVO' se debe declarar
+
+Error(567,13): PL/SQL: Statement ignored
+
+Error(567,21): PLS-00302: el componente 'FECHA_ULTIMA_MODIFICACION' se debe declarar
+
+Error(605,13): PL/SQL: Statement ignored
+
+Error(605,21): PLS-00302: el componente 'ID_ARCHIVO' se debe declarar
+
+Error(607,13): PL/SQL: Statement ignored
+
+Error(607,21): PLS-00302: el componente 'FECHA_ULTIMA_MODIFICACION' se debe declarar
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-12 18:55:16
+================================================================================
+En google drive no creo los directorios 1_SEDE_CENTRAL_BOGOTA
+1_19234567
+Documentos
+el archivo lo dejo en la raiz y debio crear los directorios y dejarlo en la carpeta de Documentos
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-12 19:04:48
+================================================================================
+Los archivos deben quedar dentro de la carpeta Samanya no quedar en la raiz
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-12 19:13:00
+================================================================================
+Cuando deseo ver el archivo no lo veo
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-12 19:24:43
+================================================================================
+Eliminar el boton de Ver en Google Drive
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-12 19:30:37
+================================================================================
+Cuando se da click en Eliminar el registro en la tabla smy_archivos debe quedar con id_estado_archivo = 2
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-12 19:44:20
+================================================================================
+Subir al repositorio y hacer push
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-13 19:47:39
+================================================================================
+Puedes crear un apk de la aplicacion
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-13 20:38:08
+================================================================================
+Me aparece en el telefono Failed To fetch
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-13 21:37:38
+================================================================================
+En windows coloque la red privada como la grafica y no puede acceder al sitio desde el telefono
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-13 21:44:24
+================================================================================
+subir al repositorio y hacer push
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-13 21:47:31
+================================================================================
+parar el servidor local
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-14 07:36:01
+================================================================================
+arrancar el servidor local para ver la aplicacion.
+
+Subir al repositorio cuando lo indique.
+En caso de necesitarse compilar un objeto de la base de datos lo hare de manera manual lo mismo que las pruebas y validaciones.
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-14 07:40:16
+================================================================================
+arrancar el servidor local para ver la aplicacion. Subir al repositorio cuando lo indique. En caso de necesitarse compilar un objeto de la base de datos lo hare de manera manual lo mismo que las pruebas y validaciones.
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-14 08:28:18
+================================================================================
+Cuando un paciente no esta marcado como paciente_giris en la tabla tkr_citas se debe buscar el id_coordinador en la tabla tkr_entidades cuando el id_entidad de tkr_citas sea igual al id de la tabla tkr_entidades.
+En el filtro de coordinadores se debe estos coordinadores.
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-14 08:56:26
+================================================================================
+Subir al repositorio y hacer push
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-14 11:24:59
+================================================================================
+detener el servidor local
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-14 11:29:45
+================================================================================
+arrancar el servidor para ver la aplicacion.
+Subir al repositorio cuando lo indique.
+En caso de necesitarse compilar un objeto de la base de datos lo hare de manera manual lo mismo que las pruebas y validaciones.
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-14 11:47:42
+================================================================================
+Para visualizar el cuadro médico asignado, se debe correr el siguiente script:
+DECLARE
+
+    v_id_usuario    NUMBER;
+
+    v_json_salida   CLOB;
+
+BEGIN
+
+    v_id_usuario := 471;
+
+    pkgcn_citas.p_equipo_medico_paciente (v_id_usuario, v_json_salida);
+
+END;
+donde se le pasa el id_usuario que es el id de la tabla tkr_usuarios y el json de salida tiene la siguiente estructura:
+{
+
+  "profesionales" : "[{\"id_profesional\":28,\"profesional_id\":\"CC-1231234\",\"usuario\":\"carlos\",\"registro_medico\":null,\"profesional\":\"Carlos 28 Monsalve\",\"profesional_email\":\"vqorlando@hotmail.com\",\"profesional_tel\":\"3219596165\",\"especialidad\":[{\"id\":17,\"nombre_especialidad\":\"Medicina General\",\"tipo_especialidad\":\"N\"}],\"url_foto_profesional\":\"https://tekerapp.maxapex.net/FILES_DEV_TEKER/Id_203_2A8AB4B4313765EB985D02EDF3AD33FB706B8199.png\"},{\"id_profesional\":65,\"profesional_id\":\"CC-121212\",\"usuario\":\"rodolfo\",\"registro_medico\":\"12345678\",\"profesional\":\"65-Rodolfo Vargas\",\"profesional_email\":\"vqorlando@hotmail.com\",\"profesional_tel\":\"3168226095\",\"especialidad\":[{\"id\":2,\"nombre_especialidad\":\"Cardio\",\"tipo_especialidad\":\"S\"}],\"url_foto_profesional\":\"https://tekerapp.maxapex.net/FILES_DEV_TEKER/Id_754_42346B624C5605F93C2D3067493C0927A9B561F2.JPG\"}]"
+
+}
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-14 16:41:53
+================================================================================
+En el menu de agendas, la agenda programada se debe traer llamando la funcion pkgcn_cohortes.f_atenciones_programadas(p_id_usuario)  
+pasando en p_id_usuario el id de la tabla tkr_usuarios, el json que retorna tiene la siguiente estructura:
+[
+
+  {
+
+    "codigo_cita": "2A2",
+
+    "fecha_cita": "Diciembre  23 de 2026 11:50 AM",
+
+    "nombre_especialidad": "Cardio",
+
+    "id_profesional": 65,
+
+    "nombre_profesional": "65-Rodolfo Vargas",
+
+    "url_foto_profesional": "https://tekerapp.maxapex.net/FILES_DEV_TEKER/Id_754_42346B624C5605F93C2D3067493C0927A9B561F2.JPG",
+
+    "estado_cita": "Solicitud de Cita"
+
+  },
+
+  {
+
+    "codigo_cita": "2A3",
+
+    "fecha_cita": "Enero      22 de 2027 11:50 AM",
+
+    "nombre_especialidad": "Cardio",
+
+    "id_profesional": 65,
+
+    "nombre_profesional": "65-Rodolfo Vargas",
+
+    "url_foto_profesional": "https://tekerapp.maxapex.net/FILES_DEV_TEKER/Id_754_42346B624C5605F93C2D3067493C0927A9B561F2.JPG",
+
+    "estado_cita": "Solicitud de Cita"
+
+  }
+
+]
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-14 21:03:07
+================================================================================
+Deseo que este proyecto se cargue en este nuevo proyecto de git:
+https://github.com/samanyawellness/samanya.celular.git
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-14 21:08:53
+================================================================================
+Ya acepte la invitacion en vqorlando68
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-14 21:12:39
+================================================================================
+Subir al repositorio cuando lo indique.
+En caso de necesitarse compilar un objeto de la base de datos lo hare de manera manual lo mismo que las pruebas y validaciones.
+Revisa el historico de conversaciones y actualiza al archivo prompt.txt
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-14 22:33:12
+================================================================================
+arrancar el servidor para ver la aplicacion
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-14 22:39:47
+================================================================================
+La palabra Consentimientos queda por fuera del recuadro, colocar una abreviatura
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-14 22:43:57
+================================================================================
+Subir al repositorio y hacer push
+

@@ -1,0 +1,1427 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guía Oficial: Configuración de Google Drive para SAMANYA OS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Source+Sans+3:ital,wght@0,300;0,400;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet">
+  <!-- Mermaid.js para diagramas de secuencia e infraestructura -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'base',
+      themeVariables: {
+        primaryColor: '#274a3f',
+        primaryTextColor: '#ffffff',
+        primaryBorderColor: '#142822',
+        lineColor: '#b3803f',
+        secondaryColor: '#f7f5f0',
+        tertiaryColor: '#ffffff',
+        fontFamily: 'Source Sans 3, sans-serif'
+      }
+    });
+  </script>
+  <style>
+    :root {
+      --bg-base: #f7f5f0;
+      --bg-surface: #ffffff;
+      --bg-surface-elevated: #f0ebe1;
+      --text-main: #1b211e;
+      --text-muted: #525d57;
+      --text-subtle: #79857f;
+      --forest-dark: #12241f;
+      --forest-main: #274a3f;
+      --forest-light: #3d685a;
+      --forest-badge: #e6f0ec;
+      --emerald-accent: #2c7a6b;
+      --gold-ochre: #b3803f;
+      --gold-soft: #fcf4e8;
+      --border-soft: #dfd8cc;
+      --border-accent: #b3803f;
+      --danger: #ba2d1d;
+      --danger-soft: #fdf0ee;
+      --success: #1e7a46;
+      --success-soft: #edf7f1;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+      --shadow-md: 0 6px 24px rgba(0, 0, 0, 0.07);
+      --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.11);
+    }
+
+    [data-theme="dark"] {
+      --bg-base: #0f1715;
+      --bg-surface: #172421;
+      --bg-surface-elevated: #1f302c;
+      --text-main: #edf2f0;
+      --text-muted: #abb8b2;
+      --text-subtle: #788a83;
+      --forest-dark: #080d0c;
+      --forest-main: #335e50;
+      --forest-light: #467e6c;
+      --forest-badge: #1f332c;
+      --emerald-accent: #3eb59f;
+      --gold-ochre: #d69f56;
+      --gold-soft: #2d261a;
+      --border-soft: #283b35;
+      --border-accent: #d69f56;
+      --danger: #ff6b5b;
+      --danger-soft: #301715;
+      --success: #4ade80;
+      --success-soft: #122d1f;
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+      --shadow-md: 0 6px 24px rgba(0, 0, 0, 0.45);
+      --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.6);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      font-family: 'Source Sans 3', sans-serif;
+      font-size: 16px;
+      line-height: 1.65;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    /* Tipografía */
+    h1,
+    h2,
+    h3,
+    h4 {
+      font-family: 'Fraunces', serif;
+      color: var(--forest-dark);
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+
+    [data-theme="dark"] h1,
+    [data-theme="dark"] h2,
+    [data-theme="dark"] h3,
+    [data-theme="dark"] h4 {
+      color: #f1f5f3;
+    }
+
+    .mono {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.88em;
+    }
+
+    /* Layout Principal */
+    .app-container {
+      display: grid;
+      grid-template-columns: 310px 1fr;
+      min-height: 100vh;
+    }
+
+    /* Sidebar Navegación */
+    aside.sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      background: var(--forest-dark);
+      color: #f7f5f0;
+      padding: 32px 20px;
+      border-right: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+      z-index: 100;
+    }
+
+    aside.sidebar::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    aside.sidebar::-webkit-scrollbar-thumb {
+      background: #375349;
+      border-radius: 3px;
+    }
+
+    .brand {
+      padding-bottom: 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .brand-title {
+      font-size: 1.45rem;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-title span.badge-pill {
+      font-size: 0.68rem;
+      background: var(--gold-ochre);
+      color: #12241f;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 12px;
+      font-family: 'Source Sans 3', sans-serif;
+      text-transform: uppercase;
+    }
+
+    .brand-sub {
+      font-size: 0.85rem;
+      color: #a8b8b0;
+      margin-top: 4px;
+    }
+
+    .nav-group-title {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #8da499;
+      font-weight: 700;
+      margin-bottom: 8px;
+      padding-left: 6px;
+    }
+
+    nav.toc {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    nav.toc a {
+      color: #d1ded8;
+      text-decoration: none;
+      font-size: 0.9rem;
+      padding: 8px 12px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.2s ease;
+    }
+
+    nav.toc a .step-num {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #f7f5f0;
+    }
+
+    nav.toc a:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: #ffffff;
+      transform: translateX(3px);
+    }
+
+    nav.toc a.active {
+      background: var(--forest-main);
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    nav.toc a.active .step-num {
+      background: var(--gold-ochre);
+      color: #12241f;
+    }
+
+    .sidebar-actions {
+      margin-top: auto;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .theme-toggle-btn,
+    .print-btn {
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #ffffff;
+      padding: 9px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+
+    .theme-toggle-btn:hover,
+    .print-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    /* Main Content */
+    main.content {
+      padding: 40px 60px 100px;
+      max-width: 1140px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* Hero Section */
+    .hero {
+      background: linear-gradient(135deg, var(--forest-dark) 0%, var(--forest-main) 100%);
+      color: #ffffff;
+      padding: 40px;
+      border-radius: var(--radius-lg);
+      margin-bottom: 40px;
+      box-shadow: var(--shadow-md);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      top: -40px;
+      right: -40px;
+      width: 220px;
+      height: 220px;
+      background: radial-gradient(circle, rgba(179, 128, 63, 0.3) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero h1 {
+      color: #ffffff;
+      font-size: 2.3rem;
+      margin-bottom: 12px;
+      line-height: 1.2;
+    }
+
+    .hero p.lead {
+      font-size: 1.15rem;
+      color: #d1ded8;
+      max-width: 820px;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+
+    .meta-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .meta-badge {
+      background: rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      color: #f7f5f0;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .meta-badge.highlight {
+      background: var(--gold-ochre);
+      color: #12241f;
+      border-color: var(--gold-ochre);
+      font-weight: 700;
+    }
+
+    /* Secciones de Contenido */
+    section.doc-step {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-lg);
+      padding: 36px 40px;
+      margin-bottom: 36px;
+      box-shadow: var(--shadow-sm);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    section.doc-step:hover {
+      border-color: rgba(179, 128, 63, 0.4);
+      box-shadow: var(--shadow-md);
+    }
+
+    .step-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 18px;
+      margin-bottom: 24px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--border-soft);
+    }
+
+    .step-badge-large {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: var(--forest-main);
+      color: #ffffff;
+      font-size: 1.3rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 4px 10px rgba(39, 74, 63, 0.3);
+    }
+
+    .step-info h2 {
+      font-size: 1.6rem;
+      margin-bottom: 4px;
+    }
+
+    .step-info p.step-subtitle {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    /* Avisos y Llamados */
+    .callout {
+      border-left: 4px solid var(--forest-main);
+      background: var(--bg-surface-elevated);
+      padding: 16px 20px;
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+      margin: 20px 0;
+    }
+
+    .callout.tip {
+      border-left-color: var(--emerald-accent);
+      background: var(--forest-badge);
+    }
+
+    .callout.warning {
+      border-left-color: var(--gold-ochre);
+      background: var(--gold-soft);
+      color: var(--text-main);
+    }
+
+    .callout.danger {
+      border-left-color: var(--danger);
+      background: var(--danger-soft);
+    }
+
+    .callout-title {
+      font-weight: 700;
+      font-size: 0.95rem;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Pantallazos y Capturas */
+    .screenshot-card {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      margin: 26px 0;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .screenshot-header {
+      background: rgba(0, 0, 0, 0.03);
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-soft);
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .window-dots {
+      display: flex;
+      gap: 6px;
+    }
+
+    .window-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .dot-red {
+      background: #ff5f56;
+    }
+
+    .dot-yellow {
+      background: #ffbd2e;
+    }
+
+    .dot-green {
+      background: #27c93f;
+    }
+
+    .screenshot-card img {
+      width: 100%;
+      height: auto;
+      display: block;
+      transition: transform 0.3s ease;
+      cursor: zoom-in;
+    }
+
+    .screenshot-card img:hover {
+      opacity: 0.96;
+    }
+
+    .screenshot-caption {
+      padding: 12px 18px;
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border-soft);
+      background: var(--bg-surface);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .screenshot-caption strong {
+      color: var(--forest-main);
+    }
+
+    /* Bloques de Código */
+    .code-container {
+      position: relative;
+      margin: 18px 0;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      border: 1px solid var(--border-soft);
+    }
+
+    .code-header {
+      background: #192522;
+      color: #a8b8b0;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .copy-btn {
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #f7f5f0;
+      padding: 4px 10px;
+      border-radius: var(--radius-sm);
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .copy-btn:hover {
+      background: var(--gold-ochre);
+      color: #12241f;
+      border-color: var(--gold-ochre);
+    }
+
+    pre.code-block {
+      background: #111a17;
+      color: #e5ede9;
+      padding: 16px 20px;
+      overflow-x: auto;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.88rem;
+      line-height: 1.55;
+    }
+
+    pre.code-block code {
+      background: transparent;
+      padding: 0;
+      border: none;
+      color: inherit;
+    }
+
+    /* Tabla Técnica */
+    .table-container {
+      overflow-x: auto;
+      margin: 22px 0;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-soft);
+    }
+
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+      background: var(--bg-surface);
+    }
+
+    table.data-table th {
+      background: var(--bg-surface-elevated);
+      color: var(--forest-dark);
+      text-align: left;
+      padding: 12px 16px;
+      font-weight: 600;
+      border-bottom: 2px solid var(--border-soft);
+    }
+
+    [data-theme="dark"] table.data-table th {
+      color: #f1f5f3;
+    }
+
+    table.data-table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-soft);
+      vertical-align: top;
+    }
+
+    table.data-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* Directorio Tree Simulation */
+    .folder-tree {
+      background: var(--forest-dark);
+      color: #e2ede8;
+      padding: 24px;
+      border-radius: var(--radius-md);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.88rem;
+      margin: 20px 0;
+      line-height: 1.7;
+    }
+
+    .folder-tree .folder {
+      color: #f5cf82;
+      font-weight: 600;
+    }
+
+    .folder-tree .file {
+      color: #a4dfc8;
+    }
+
+    .folder-tree .comment {
+      color: #6e8c80;
+      font-style: italic;
+    }
+
+    /* Acordeón de Troubleshooting */
+    .faq-item {
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-md);
+      margin-bottom: 12px;
+      background: var(--bg-surface);
+      overflow: hidden;
+    }
+
+    .faq-question {
+      padding: 16px 20px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg-surface);
+      transition: background-color 0.2s ease;
+    }
+
+    .faq-question:hover {
+      background: var(--bg-surface-elevated);
+    }
+
+    .faq-answer {
+      padding: 0 20px 18px;
+      display: none;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border-soft);
+      background: var(--bg-surface);
+    }
+
+    .faq-item.open .faq-answer {
+      display: block;
+      padding-top: 16px;
+    }
+
+    .faq-icon {
+      transition: transform 0.2s ease;
+      font-size: 0.8rem;
+    }
+
+    .faq-item.open .faq-icon {
+      transform: rotate(180deg);
+    }
+
+    /* Modal de Zoom de Imágenes */
+    .img-modal {
+      display: none;
+      position: fixed;
+      z-index: 9999;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(14, 24, 21, 0.92);
+      backdrop-filter: blur(6px);
+      align-items: center;
+      justify-content: center;
+      cursor: zoom-out;
+    }
+
+    .img-modal img {
+      max-width: 90vw;
+      max-height: 90vh;
+      border-radius: var(--radius-md);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Media Queries */
+    @media (max-width: 960px) {
+      .app-container {
+        grid-template-columns: 1fr;
+      }
+
+      aside.sidebar {
+        position: relative;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      main.content {
+        padding: 30px 20px;
+      }
+
+      .hero {
+        padding: 26px;
+      }
+
+      .hero h1 {
+        font-size: 1.8rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="app-container">
+    <!-- SIDEBAR DE NAVEGACIÓN -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-title">
+          SAMANYA OS
+          <span class="badge-pill">GDRIVE 1 TB</span>
+        </div>
+        <p class="brand-sub">Manual Técnico de Integración Cloud</p>
+      </div>
+
+      <div class="nav-group-title">Fases de Configuración</div>
+      <nav class="toc">
+        <a href="#arquitectura" class="active"><span class="step-num">0</span> Arquitectura y Flujo</a>
+        <a href="#paso1"><span class="step-num">1</span> Cuenta Google y Cuota</a>
+        <a href="#paso2"><span class="step-num">2</span> Proyecto en Cloud Console</a>
+        <a href="#paso3"><span class="step-num">3</span> Consentimiento OAuth 2.0</a>
+        <a href="#paso4"><span class="step-num">4</span> Credenciales Client Secret</a>
+        <a href="#paso5"><span class="step-num">5</span> Handshake y Refresh Token</a>
+        <a href="#paso6"><span class="step-num">6</span> Persistencia en Oracle</a>
+        <a href="#paso7"><span class="step-num">7</span> Jerarquía de Archivos</a>
+        <a href="#paso8"><span class="step-num">8</span> Resolución de Errores</a>
+      </nav>
+
+      <div class="sidebar-actions">
+        <button class="theme-toggle-btn" id="themeToggle">
+          <span>🌓</span> Alternar Modo Oscuro
+        </button>
+        <button class="print-btn" onclick="window.print()">
+          <span>🖨️</span> Imprimir / Guardar PDF
+        </button>
+      </div>
+    </aside>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="content">
+      <!-- HERO HEADER -->
+      <header class="hero">
+        <h1>Guía de Integración Google Drive (1 TB)</h1>
+        <p class="lead">
+          Procedimiento técnico paso a paso para configurar la autenticación OAuth 2.0, autorizar el almacenamiento en
+          la cuenta personal de Google Drive y sincronizar de forma bidireccional los archivos de residentes con Oracle
+          Autonomous Database (SMY_ARCHIVOS).
+        </p>
+        <div class="meta-badges">
+          <span class="meta-badge highlight">☁️ Almacenamiento: Google One 1 TB</span>
+          <span class="meta-badge">🔐 Protocolo: OAuth 2.0 Offline</span>
+          <span class="meta-badge">📦 API: Google Drive API v3</span>
+          <span class="meta-badge">🗄️ Base de Datos: SMY_PARAMETROS</span>
+          <span class="meta-badge">⚡ Backend: Express / Node.js</span>
+        </div>
+      </header>
+
+      <!-- SECCIÓN 0: ARQUITECTURA -->
+      <section id="arquitectura" class="doc-step">
+        <div class="step-header">
+          <div class="step-badge-large">0</div>
+          <div class="step-info">
+            <h2>Arquitectura del Sistema y Flujo de Transmisión</h2>
+            <p class="step-subtitle">Cómo interactúan el cliente, la API intermedia, la base de datos Oracle y la nube
+              de Google.</p>
+          </div>
+        </div>
+
+        <p>
+          El sistema SAMANYA implementa un esquema de almacenamiento seguro donde la aplicación cliente (Web/Móvil)
+          nunca expone credenciales maestras. El backend orquesta las llamadas hacia Google Drive API v3 validando
+          permisos en Oracle y aplicando el estándar arquitectónico de separación: <strong>PKGLN_ARCHIVOS</strong> para
+          la lógica transaccional y <strong>SMY_PARAMETROS</strong> para el resguardo cifrado de tokens.
+        </p>
+
+        <div class="callout tip">
+          <div class="callout-title">💡 Ventaja Clave del Modelo OAuth 2.0 (Cuenta Personal 1 TB)</div>
+          Al utilizar un flujo OAuth 2.0 con cuenta personal en lugar de una Service Account estándar, el sistema
+          aprovecha los <strong>1.000 GB (1 TB)</strong> adquiridos en la suscripción Google One del usuario sin
+          limitarse a la cuota restringida de almacenamiento que poseen las cuentas de servicio gratuitas de Google
+          Cloud.
+        </div>
+
+        <!-- Diagrama de Secuencia Mermaid -->
+        <div
+          style="background: var(--bg-surface-elevated); padding: 24px; border-radius: var(--radius-md); border: 1px solid var(--border-soft); margin: 20px 0;">
+          <div class="mermaid">
+            sequenceDiagram
+            autonumber
+            actor Usuario as Operador / Médico
+            participant Web as SAMANYA Frontend
+            participant API as Backend Node.js
+            participant DB as Oracle (PKGLN_ARCHIVOS)
+            participant GDrive as Google Drive API v3
+
+            Usuario->>Web: Selecciona archivo residente (.pdf, .jpg)
+            Web->>API: POST /api/archivos/upload (Multipart)
+            API->>DB: PKGLN_ARCHIVOS.pr_preparar_carga_archivo()
+            Note over DB: Reserva ID_ARCHIVO, Sede, Residente y genera SHA-256
+            DB-->>API: Retorna ID, Hash y ruta jerárquica
+            API->>DB: Consulta SMY_PARAMETROS (GDRIVE_REFRESH_TOKEN)
+            DB-->>API: Tokens de autorización activos
+            API->>GDrive: Verifica/Crea carpetas (Samanya / Sede / Residente / Documentos)
+            API->>GDrive: drive.files.create(HashName.ext, Stream)
+            GDrive-->>API: Retorna fileId y webViewLink
+            API->>DB: PKGLN_ARCHIVOS.pr_registrar_archivo(fileId, path, hash)
+            Note over DB: COMMIT controlado en BD (p_do_commit)
+            DB-->>API: Confirmación de registro exitoso
+            API-->>Web: 201 Created (Visualización inmediata)
+          </div>
+        </div>
+      </section>
+
+      <!-- PASO 1: CUENTA GOOGLE -->
+      <section id="paso1" class="doc-step">
+        <div class="step-header">
+          <div class="step-badge-large">1</div>
+          <div class="step-info">
+            <h2>Prerrequisitos: Cuenta Google y Almacenamiento</h2>
+            <p class="step-subtitle">Aseguramiento de la suscripción de 1 TB y sesión activa.</p>
+          </div>
+        </div>
+
+        <p>Antes de iniciar la consola para desarrolladores, valide lo siguiente:</p>
+        <ul style="margin-left: 20px; margin-top: 10px; display: flex; flex-direction: column; gap: 8px;">
+          <li><strong>Cuenta de Google Activa:</strong> Debe tener acceso a la cuenta que posee el plan de
+            almacenamiento contratado (ejemplo: <code>vqorlando@gmail.com</code>).</li>
+          <li><strong>Espacio en Google One:</strong> Ingrese a <a href="https://one.google.com/storage" target="_blank"
+              style="color: var(--forest-main); font-weight: 600;">one.google.com/storage</a> y verifique que el
+            almacenamiento muestre <strong>1 TB o superior</strong>.</li>
+          <li><strong>Navegador Web:</strong> Se recomienda realizar este proceso en una ventana normal de Chrome o Edge
+            con la sesión iniciada en dicha cuenta.</li>
+        </ul>
+      </section>
+
+      <!-- PASO 2: CLOUD CONSOLE -->
+      <section id="paso2" class="doc-step">
+        <div class="step-header">
+          <div class="step-badge-large">2</div>
+          <div class="step-info">
+            <h2>Creación del Proyecto en Google Cloud Console</h2>
+            <p class="step-subtitle">Configuración del espacio de trabajo y habilitación de la API de Drive.</p>
+          </div>
+        </div>
+
+        <ol style="margin-left: 20px; display: flex; flex-direction: column; gap: 14px;">
+          <li>
+            <strong>Acceder a la Consola:</strong>
+            Abra <a href="https://console.cloud.google.com/" target="_blank"
+              style="color: var(--forest-main); font-weight: 600;">console.cloud.google.com</a> y asegúrese de estar en
+            la cuenta propietaria en la esquina superior derecha.
+          </li>
+          <li>
+            <strong>Crear Nuevo Proyecto:</strong>
+            Haga clic en el selector de proyectos en la barra superior y seleccione <strong>"Nuevo Proyecto"</strong>.
+            <ul style="margin-top: 6px; margin-left: 20px; color: var(--text-muted);">
+              <li><strong>Nombre del Proyecto:</strong> <code>samanya-drive</code></li>
+              <li><strong>Organización:</strong> Sin organización (o la predeterminada para cuentas personales).</li>
+              <li>Presione <strong>Crear</strong> y espere unos segundos a que se notifique la creación.</li>
+            </ul>
+          </li>
+          <li>
+            <strong>Habilitar la Google Drive API:</strong>
+            En el menú de hamburguesa lateral (☰), navegue a <strong>APIs y servicios &gt; Biblioteca</strong>.
+            En el buscador escriba <code>Google Drive API</code>, haga clic sobre la tarjeta de Google Drive y presione
+            el botón azul <strong>HABILITAR</strong>.
+          </li>
+        </ol>
+
+        <div class="callout warning">
+          <div class="callout-title">⚠️ Importante al Habilitar APIs</div>
+          Si la <strong>Google Drive API</strong> no está habilitada en el proyecto, cualquier intento de autenticación
+          retornará un error
+          <code>403: Google Drive API has not been used in project ... before or it is disabled</code>.
+        </div>
+      </section>
+
+      <!-- PASO 3: PANTALLA DE CONSENTIMIENTO -->
+      <section id="paso3" class="doc-step">
+        <div class="step-header">
+          <div class="step-badge-large">3</div>
+          <div class="step-info">
+            <h2>Configuración de la Pantalla de Consentimiento OAuth</h2>
+            <p class="step-subtitle">Registro de tipo de usuario, scopes y usuarios de prueba obligatorios.</p>
+          </div>
+        </div>
+
+        <p>
+          Google ha renovado recientemente su consola introduciendo la sección <strong>"Google Auth Platform"</strong>.
+          En esta nueva interfaz, en lugar de un asistente paso a paso continuo, los elementos están organizados en el
+          menú lateral izquierdo que ves en tu pantalla:
+        </p>
+
+        <div class="callout tip">
+          <div class="callout-title">🧭 Mapa de Navegación en la Nueva Interfaz "Google Auth Platform"</div>
+          <ul style="margin-left: 20px; margin-top: 6px; display: flex; flex-direction: column; gap: 6px;">
+            <li><strong>Público (Audience):</strong> Aquí se define el Tipo de Usuario (<strong>Externo</strong>) y la
+              lista de <strong>Usuarios de prueba (Test users)</strong>.</li>
+            <li><strong>Información de la marca (Branding):</strong> Nombre de la aplicación (<code>SAMANYA OS</code>) y
+              correos de soporte/desarrollador.</li>
+            <li><strong>Acceso a los datos (Data Access):</strong> Permisos y Scopes de Google Drive
+              (<code>.../auth/drive</code>).</li>
+            <li><strong>Clientes (Clients):</strong> Creación del cliente OAuth 2.0 y descarga del archivo JSON
+              (<code>oauth_credentials.json</code>).</li>
+          </ul>
+        </div>
+
+        <!-- PANTALLAZO 1 -->
+        <div class="screenshot-card">
+          <div class="screenshot-header">
+            <div class="window-dots">
+              <span class="window-dot dot-red"></span>
+              <span class="window-dot dot-yellow"></span>
+              <span class="window-dot dot-green"></span>
+            </div>
+            <span>Google Auth Platform — Menú Público (User Type & Test users)</span>
+          </div>
+          <img src="docs_assets/gdrive/oauth_consent_usertype.jpg"
+            alt="Selección de Usuario Externo y Test Users en Google Cloud Console" onclick="openZoomModal(this)">
+          <div class="screenshot-caption">
+            <strong>Figura 1:</strong> Menú <em>Público</em> donde se establece el tipo de usuario como
+            <em>External</em> y los correos de prueba.
+          </div>
+        </div>
+
+        <h4 style="margin: 20px 0 10px;">Pasos a Realizar en tu Pantalla:</h4>
+        <ol style="margin-left: 20px; display: flex; flex-direction: column; gap: 14px;">
+          <li>
+            <strong>1. Menú "Público" (Audience):</strong>
+            <br>
+            En el menú de la izquierda, haz clic en <strong>Público</strong>.
+            <ul style="margin-left: 20px; margin-top: 6px; color: var(--text-muted);">
+              <li>En <strong>Tipo de usuario (User Type)</strong>, selecciona <strong>Externo (External)</strong>.</li>
+              <li>En la sección <strong>Usuarios de prueba (Test users)</strong>, haz clic en <strong>+ Agregar usuarios
+                  (+ ADD USERS)</strong>.</li>
+              <li>Escribe el correo de tu cuenta Google (ej. <code>vqorlando@gmail.com</code>).</li>
+              <li>Presiona <strong>Guardar</strong>.</li>
+            </ul>
+          </li>
+          <li>
+            <strong>2. Menú "Información de la marca" (Branding):</strong>
+            <br>
+            En el menú de la izquierda, haz clic en <strong>Información de la marca</strong>.
+            <ul style="margin-left: 20px; margin-top: 6px; color: var(--text-muted);">
+              <li><strong>Nombre de la aplicación:</strong> <code>SAMANYA OS</code></li>
+              <li><strong>Correo de asistencia al usuario:</strong> Selecciona tu correo.</li>
+              <li><strong>Correo del desarrollador:</strong> Escribe tu correo.</li>
+              <li>Presiona <strong>Guardar</strong> al final.</li>
+            </ul>
+          </li>
+          <li>
+            <strong>3. Menú "Acceso a los datos" (Scopes):</strong>
+            <br>
+            En el menú de la izquierda, haz clic en <strong>Acceso a los datos</strong>.
+            <ul style="margin-left: 20px; margin-top: 6px; color: var(--text-muted);">
+              <li>Haz clic en <strong>+ Agregar o quitar permisos</strong>.</li>
+              <li>En el filtro escribe <code>drive</code> y selecciona:
+                <br><code>https://www.googleapis.com/auth/drive</code>
+                <br><code>https://www.googleapis.com/auth/drive.file</code>
+              </li>
+              <li>Presiona <strong>Actualizar</strong> y luego <strong>Guardar</strong>.</li>
+            </ul>
+          </li>
+        </ol>
+      </section>
+
+      <!-- PASO 4: CREDENCIALES OAUTH -->
+      <section id="paso4" class="doc-step">
+        <div class="step-header">
+          <div class="step-badge-large">4</div>
+          <div class="step-info">
+            <h2>Creación y Descarga de Credenciales (Client Secret)</h2>
+            <p class="step-subtitle">Generación del archivo JSON necesario para el backend.</p>
+          </div>
+        </div>
+
+        <p>
+          Una vez configurada la pantalla de consentimiento, se crea el par de claves públicas y privadas de OAuth 2.0:
+        </p>
+
+        <!-- PANTALLAZO 2 -->
+        <div class="screenshot-card">
+          <div class="screenshot-header">
+            <div class="window-dots">
+              <span class="window-dot dot-red"></span>
+              <span class="window-dot dot-yellow"></span>
+              <span class="window-dot dot-green"></span>
+            </div>
+            <span>Google Cloud Console — Menú Credenciales (Descarga de JSON)</span>
+          </div>
+          <img src="docs_assets/gdrive/console_credentials.jpg"
+            alt="Lista de credenciales OAuth 2.0 y botón de descarga JSON en Google Cloud"
+            onclick="openZoomModal(this)">
+          <div class="screenshot-caption">
+            <strong>Figura 2:</strong> Panel de credenciales con el cliente OAuth creado y opción de descarga del
+            archivo JSON.
+          </div>
+        </div>
+
+        <ol style="margin-left: 20px; display: flex; flex-direction: column; gap: 12px;">
+          <li>
+            En la nueva interfaz, haz clic en el menú <strong>Clientes</strong> en la barra lateral izquierda (o ve a
+            <em>APIs y servicios &gt; Credenciales</em>).
+          </li>
+          <li>
+            Haga clic en <strong>+ Crear cliente</strong> (o <em>+ CREAR CREDENCIALES &gt; ID de cliente de OAuth</em>).
+          </li>
+          <li>
+            <strong>Tipo de aplicación:</strong>
+            Seleccione <strong>Aplicación de escritorio</strong> (Desktop Application) o <strong>Aplicación
+              web</strong>.
+            <ul style="margin-left: 20px; margin-top: 6px; color: var(--text-muted);">
+              <li><strong>Nombre:</strong> <code>SAMANYA Drive Sync</code></li>
+              <li>Si selecciona Aplicación web, en <em>URIs de redireccionamiento autorizados</em> agregue:
+                <code>http://localhost:5123</code> y <code>http://localhost</code>.</li>
+            </ul>
+          </li>
+          <li>
+            Presione <strong>CREAR</strong>.
+          </li>
+          <li>
+            En la ventana emergente o en la tabla de credenciales, haga clic en el icono <strong>Descargar JSON</strong>
+            (flecha hacia abajo).
+          </li>
+          <li>
+            <strong>Ubicación en el Proyecto:</strong>
+            Copie y guarde el archivo descargado en la carpeta <code>backend/</code> del repositorio con el nombre:
+            <br>
+            <code
+              style="background: var(--bg-surface-elevated); padding: 4px 10px; border-radius: 4px; font-weight: 600; display: inline-block; margin-top: 6px;">backend/oauth_credentials.json</code>
+          </li>
+        </ol>
+      </section>
+
+      <!-- PASO 5: HANDSHAKE Y GENERACIÓN DE TOKENS -->
+      <section id="paso5" class="doc-step">
+        <div class="step-header">
+          <div class="step-badge-large">5</div>
+          <div class="step-info">
+            <h2>Autorización y Generación del Refresh Token</h2>
+            <p class="step-subtitle">Ejecución del asistente local automatizado para el intercambio de tokens.</p>
+          </div>
+        </div>
+
+        <p>
+          El backend de SAMANYA incluye un script automatizado que levanta un servidor temporal, abre la URL de
+          autorización de Google con el parámetro <code>access_type=offline</code> (vital para obtener el
+          <strong>Refresh Token</strong> permanente) y valida la conexión:
+        </p>
+
+        <div class="code-container">
+          <div class="code-header">
+            <span>TERMINAL (POWERSHELL / CMD)</span>
+            <button class="copy-btn" onclick="copyCode('run-oauth-code')">Copiar</button>
+          </div>
+          <pre class="code-block" id="run-oauth-code"><code>cd c:\Repositorios\SAMANYA\backend
+npm run oauth:setup</code></pre>
+        </div>
+
+        <p style="margin-top: 14px;">
+          Al ejecutar el comando, se abrirá automáticamente una pestaña en su navegador predeterminado para autorizar la
+          aplicación:
+        </p>
+
+        <!-- PANTALLAZO 3 -->
+        <div class="screenshot-card">
+          <div class="screenshot-header">
+            <div class="window-dots">
+              <span class="window-dot dot-red"></span>
+              <span class="window-dot dot-yellow"></span>
+              <span class="window-dot dot-green"></span>
+            </div>
+            <span>Ventana de Autorización de Google OAuth (SAMANYA wants to access your Google Account)</span>
+          </div>
+          <img src="docs_assets/gdrive/oauth_authorization_prompt.jpg"
+            alt="Pantalla de inicio de sesión de Google pidiendo confirmación de permisos"
+            onclick="openZoomModal(this)">
+          <div class="screenshot-caption">
+            <strong>Figura 3:</strong> Cuadro de diálogo oficial de Google solicitando permiso para crear y administrar
+            archivos en Google Drive.
+          </div>
+        </div>
+
+        <div class="callout warning">
+          <div class="callout-title">⚠️ Pantalla: "Google no ha verificado esta aplicación"</div>
+          Al estar en modo de pruebas personal, Google mostrará una advertencia de seguridad inicial:
+          <br>
+          1. Haga clic en el enlace pequeño inferior que dice <strong>"Configuración avanzada"</strong> (Advanced).
+          <br>
+          2. Haga clic en <strong>"Ir a SAMANYA OS (no seguro)"</strong>.
+          <br>
+          3. Marque la casilla de verificación: <em>"Ver, editar, crear y borrar todos tus archivos de Google
+            Drive"</em>.
+          <br>
+          4. Haga clic en <strong>Continuar / Permitir (Allow)</strong>.
+        </div>
+
+        <p>
+          Al finalizar, el navegador mostrará el mensaje de éxito y en la consola del backend se generará el archivo:
+          <br>
+          <code
+            style="background: var(--bg-surface-elevated); padding: 4px 10px; border-radius: 4px; font-weight: 600; display: inline-block; margin-top: 6px;">backend/google_user_tokens.json</code>
+        </p>
+      </section>
+
+      <!-- PASO 6: PERSISTENCIA EN ORACLE -->
+      <section id="paso6" class="doc-step">
+        <div class="step-header">
+          <div class="step-badge-large">6</div>
+          <div class="step-info">
+            <h2>Persistencia Segura en Oracle: SMY_PARAMETROS</h2>
+            <p class="step-subtitle">Almacenamiento corporativo de credenciales para desacoplar el servidor del sistema
+              de archivos local.</p>
+          </div>
+        </div>
+
+        <p>
+          Para garantizar alta disponibilidad y evitar depender de archivos físicos en el servidor, los tokens obtenidos
+          se almacenan directamente en la tabla corporativa <strong>SMY_PARAMETROS</strong> en el esquema de Oracle
+          Database.
+        </p>
+
+        <p>
+          Abra el archivo <a href="file:///c:/Repositorios/SAMANYA/configuraciones.txt" target="_blank"
+            style="color: var(--forest-main); font-weight: 600;">configuraciones.txt</a> ubicado en la raíz del proyecto
+          y ejecute su contenido en <strong>Oracle APEX SQL Workshop</strong> o <strong>Oracle SQL Developer</strong>.
+        </p>
+
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Código de Parámetro</th>
+                <th>Tipo de Dato</th>
+                <th>Propósito</th>
+                <th>Ejemplo de Contenido</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>GDRIVE_OAUTH_CLIENT_JSON</code></td>
+                <td>CLOB</td>
+                <td>JSON completo de <code>oauth_credentials.json</code>.</td>
+                <td><code>{"installed":{"client_id":"...","client_secret":"..."}}</code></td>
+              </tr>
+              <tr>
+                <td><code>GDRIVE_USER_TOKENS_JSON</code></td>
+                <td>CLOB</td>
+                <td>Tokens de usuario autorizados con Refresh Token.</td>
+                <td><code>{"refresh_token":"1//01...","access_token":"ya29..."}</code></td>
+              </tr>
+              <tr>
+                <td><code>GDRIVE_CLIENT_ID</code></td>
+                <td>VARCHAR2</td>
+                <td>Client ID extraído para consultas directas.</td>
+                <td><code>257834017319-tc0cbvp...apps.googleusercontent.com</code></td>
+              </tr>
+              <tr>
+                <td><code>GDRIVE_CLIENT_SECRET</code></td>
+                <td>VARCHAR2</td>
+                <td>Secreto de cliente (Encriptado en BD).</td>
+                <td><code>GOCSPX-QIvdUC2L...</code></td>
+              </tr>
+              <tr>
+                <td><code>GDRIVE_REFRESH_TOKEN</code></td>
+                <td>VARCHAR2</td>
+                <td>Token perpetuo para regenerar Access Tokens automáticamente.</td>
+                <td><code>1//01EhSNs13u1-1CgY...</code></td>
+              </tr>
+              <tr>
+                <td><code>GDRIVE_ROOT_FOLDER_NAME</code></td>
+                <td>VARCHAR2</td>
+                <td>Nombre de la carpeta raíz en Google Drive.</td>
+                <td><code>Samanya</code></td>
+              </tr>
+              <tr>
+                <td><code>STORAGE_PROVIDER_TYPE</code></td>
+                <td>VARCHAR2</td>
+                <td>Proveedor activo de almacenamiento.</td>
+                <td><code>GOOGLE_DRIVE</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="code-container">
+          <div class="code-header">
+            <span>CONSULTA DE VERIFICACIÓN EN ORACLE</span>
+            <button class="copy-btn" onclick="copyCode('sql-verify-code')">Copiar</button>
+          </div>
+          <pre class="code-block" id="sql-verify-code"><code>SELECT 
+    ID, 
+    CODIGO_PARAMETRO, 
+    NOMBRE_PARAMETRO, 
+    VALOR_TEXTO, 
+    CASE WHEN VALOR_CLOB IS NOT NULL THEN 'CLOB Almacenado' ELSE 'Sin CLOB' END AS ESTADO_CLOB
+FROM SMY_PARAMETROS
+WHERE GRUPO_PARAMETRO = 'STORAGE'
+ORDER BY ID;</code></pre>
+        </div>
+      </section>
+
+      <!-- PASO 7: JERARQUÍA DE ARCHIVOS -->
+      <section id="paso7" class="doc-step">
+        <div class="step-header">
+          <div class="step-badge-large">7</div>
+          <div class="step-info">
+            <h2>Estructura Jerárquica y Ciclo de Vida del Archivo</h2>
+            <p class="step-subtitle">Reglas de negocio aplicadas automáticamente por PKGLN_ARCHIVOS.</p>
+          </div>
+        </div>
+
+        <p>
+          Para mantener el disco de Google Drive rigurosamente ordenado y conforme a la ley de privacidad médica, los
+          archivos nunca se guardan en la raíz. El sistema crea automáticamente la siguiente estructura jerárquica de
+          carpetas:
+        </p>
+
+        <div class="folder-tree">
+          📁 <span class="folder">Samanya</span> <span class="comment">(Carpeta Raíz en Google Drive 1 TB)</span>
+          └── 📁 <span class="folder">1_SEDE_CENTRAL_BOGOTA</span> <span
+            class="comment">({ID_SEDE}_{NOMBRE_SEDE})</span>
+          └── 📁 <span class="folder">1_19234567</span> <span
+            class="comment">({ID_RESIDENTE}_{NUMERO_IDENTIFICACION})</span>
+          └── 📁 <span class="folder">Documentos</span> <span class="comment">(Directorio clasificador de
+            expedientes)</span>
+          ├── 📄 <span class="file">e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.pdf</span>
+          └── 📄 <span class="file">a5892f231e678912389abcdef123456789012345678901234567890123456789.jpg</span>
+        </div>
+
+        <h4 style="margin: 20px 0 10px;">Reglas Clave de Persistencia:</h4>
+        <ul style="margin-left: 20px; display: flex; flex-direction: column; gap: 10px;">
+          <li>
+            <strong>Nombre Cifrado por Hash (SHA-256):</strong> El nombre físico del archivo en Google Drive se genera a
+            partir del identificador único de la tabla <code>SMY_ARCHIVOS</code> aplicando la función de hash SHA-256
+            más la extensión original del documento. El nombre comercial o legible se preserva en el campo
+            <code>NOMBRE_ORIGINAL</code> de la base de datos.
+          </li>
+          <li>
+            <strong>Borrado Lógico Obligatorio:</strong> Al eliminar un documento desde la interfaz web o móvil, el
+            registro en la tabla <code>SMY_ARCHIVOS</code> cambia su estado a:
+            <br>
+            <code
+              style="background: var(--bg-surface-elevated); padding: 2px 8px; border-radius: 4px; font-weight: 700; color: var(--forest-main);">ID_ESTADO_ARCHIVO = 2 (Inactivo / Borrado Lógico)</code>.
+            <br>
+            Esto oculta el archivo de la vista del usuario pero salvaguarda la trazabilidad legal y auditoría histórica
+            requerida en historias clínicas.
+          </li>
+          <li>
+            <strong>Streaming Directo:</strong> Los usuarios visualizan y descargan archivos mediante streaming cifrado
+            canalizado a través del backend sin exponer enlaces públicos de Google Drive.
+          </li>
+        </ul>
+      </section>
+
+      <!-- PASO 8: TROUBLESHOOTING -->
+      <section id="paso8" class="doc-step">
+        <div class="step-header">
+          <div class="step-badge-large">8</div>
+          <div class="step-info">
+            <h2>Solución de Problemas Frecuentes (Troubleshooting)</h2>
+            <p class="step-subtitle">Diagnóstico y corrección de las eventualidades más habituales.</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <span>❌ Error: "Access blocked: SAMANYA OS has not completed the Google verification process"</span>
+            <span class="faq-icon">▼</span>
+          </div>
+          <div class="faq-answer">
+            <strong>Causa:</strong> La cuenta con la que intenta autenticarse no fue registrada en la lista de
+            <em>Usuarios de prueba (Test users)</em> en Google Cloud Console.
+            <br><br>
+            <strong>Solución:</strong> Ingrese a Google Cloud Console &gt; <em>Pantalla de consentimiento de OAuth</em>
+            &gt; pestaña <em>Usuarios de prueba</em> &gt; Haga clic en <strong>+ ADD USERS</strong> e ingrese el correo
+            exacto de Google. Guarde y vuelva a ejecutar <code>npm run oauth:setup</code>.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <span>❌ Error: "redirect_uri_mismatch" (Código 400)</span>
+            <span class="faq-icon">▼</span>
+          </div>
+          <div class="faq-answer">
+            <strong>Causa:</strong> La URI local de redirección no coincide con la configurada en las credenciales de
+            Google.
+            <br><br>
+            <strong>Solución:</strong> En Google Cloud Console &gt; <em>Credenciales</em> &gt; Edite su ID de cliente
+            OAuth. En <em>URIs de redireccionamiento autorizados</em>, asegúrese de tener configurado
+            <code>http://localhost:5123</code> y <code>http://localhost</code>.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <span>❌ Error: "invalid_grant" (Token expirado o revocado)</span>
+            <span class="faq-icon">▼</span>
+          </div>
+          <div class="faq-answer">
+            <strong>Causa:</strong> El usuario cambió la contraseña de su cuenta de Google o revocó los permisos de la
+            aplicación en la configuración de seguridad de su cuenta Google.
+            <br><br>
+            <strong>Solución:</strong> Vuelva a ejecutar <code>npm run oauth:setup</code> en la carpeta
+            <code>backend/</code> para generar un nuevo Refresh Token y actualice el registro correspondiente en la
+            tabla <code>SMY_PARAMETROS</code>.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <span>❌ ¿Qué ocurre si la cuota de 1 TB se llena?</span>
+            <span class="faq-icon">▼</span>
+          </div>
+          <div class="faq-answer">
+            Google Drive retornará un código de error <code>403: Storage quota exceeded</code>. El backend de SAMANYA
+            captura esta excepción y la registra en la tabla <code>SMY_ERRORES</code> con el procedimiento
+            <code>uti_ge_excepciones_pkg.p_grabar_log</code>, impidiendo la corrupción de la base de datos. Para
+            solucionarlo, el suscriptor puede aumentar su cuota en Google One o realizar una depuración de archivos
+            inactivos.
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- MODAL PARA ZOOM DE CAPTURAS -->
+  <div id="imageModal" class="img-modal" onclick="closeZoomModal()">
+    <img id="modalImg" src="" alt="Captura ampliada">
+  </div>
+
+  <script>
+    // Control de Tema Claro / Oscuro
+    const themeToggle = document.getElementById('themeToggle');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const currentTheme = localStorage.getItem('samanya_theme') || (prefersDark ? 'dark' : 'light');
+
+    if (currentTheme === 'dark') {
+      document.documentElement.setAttribute('data-theme', 'dark');
+    }
+
+    themeToggle.addEventListener('click', () => {
+      const activeTheme = document.documentElement.getAttribute('data-theme');
+      const newTheme = activeTheme === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('samanya_theme', newTheme);
+    });
+
+    // Copiado al Portapapeles con Feedback Visual
+    function copyCode(elementId) {
+      const codeEl = document.getElementById(elementId);
+      if (!codeEl) return;
+      const text = codeEl.innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = event.target;
+        const originalText = btn.innerText;
+        btn.innerText = '¡Copiado! ✓';
+        btn.style.background = 'var(--gold-ochre)';
+        btn.style.color = '#12241f';
+        setTimeout(() => {
+          btn.innerText = originalText;
+          btn.style.background = '';
+          btn.style.color = '';
+        }, 2000);
+      });
+    }
+
+    // Acordeón FAQ
+    function toggleFaq(headerEl) {
+      const item = headerEl.parentElement;
+      item.classList.toggle('open');
+    }
+
+    // Zoom de Pantallazos
+    function openZoomModal(imgEl) {
+      const modal = document.getElementById('imageModal');
+      const modalImg = document.getElementById('modalImg');
+      modalImg.src = imgEl.src;
+      modal.style.display = 'flex';
+    }
+
+    function closeZoomModal() {
+      document.getElementById('imageModal').style.display = 'none';
+    }
+
+    // Indicador de Navegación Activa al hacer Scroll
+    const sections = document.querySelectorAll('section.doc-step');
+    const navLinks = document.querySelectorAll('nav.toc a');
+
+    window.addEventListener('scroll', () => {
+      let current = '';
+      sections.forEach(section => {
+        const sectionTop = section.offsetTop - 120;
+        if (window.pageYOffset >= sectionTop) {
+          current = section.getAttribute('id');
+        }
+      });
+
+      navLinks.forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('href') === `#${current}`) {
+          link.classList.add('active');
+        }
+      });
+    });
+  </script>
+</body>
+
+</html>

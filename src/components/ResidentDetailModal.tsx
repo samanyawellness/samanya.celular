@@ -255,13 +255,14 @@ export const ResidentDetailModal: React.FC = () => {
               id="btn-hub-consent"
               type="button"
               onClick={handleOpenConsent}
-              className="touch-target p-2.5 bg-white hover:bg-[#DFF3E7]/40 active:scale-98 rounded-2xl border border-[#DEDBD1] flex items-center gap-2 text-left shadow-2xs transition-all group"
+              className="touch-target p-2.5 bg-white hover:bg-[#DFF3E7]/40 active:scale-98 rounded-2xl border border-[#DEDBD1] flex items-center gap-2 text-left shadow-2xs transition-all group min-w-0"
+              title="Consentimientos"
             >
               <div className="w-8 h-8 rounded-xl bg-[#DFF3E7] text-[#1E7A4C] group-hover:bg-[#1E7A4C] group-hover:text-white flex items-center justify-center shrink-0 transition-colors">
                 <FileCheck2 className="w-4 h-4" />
               </div>
               <span className="font-bold text-xs text-[#1E7A4C] leading-tight">
-                Consentimientos
+                Consent.
               </span>
             </button>
           </div>
