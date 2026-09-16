@@ -1,3 +1,4 @@
+import fs from 'fs';
 import path from 'path';
 import oracledb from 'oracledb';
 import { env } from './env.js';
@@ -28,6 +29,21 @@ export async function initOraclePool(): Promise<void> {
       process.env.TNS_ADMIN = walletPath;
       poolConfig.configDir = walletPath;
       poolConfig.walletLocation = walletPath;
+
+      // Asegurar que sqlnet.ora apunte a la ruta absoluta correcta
+      try {
+        const sqlnetFile = path.join(walletPath, 'sqlnet.ora');
+        if (fs.existsSync(sqlnetFile)) {
+          const normalizedPath = walletPath.replace(/\\/g, '/');
+          const sqlnetContent = fs.readFileSync(sqlnetFile, 'utf8');
+          if (sqlnetContent.includes('?/network/admin') || !sqlnetContent.includes(normalizedPath)) {
+            const updatedContent = `WALLET_LOCATION = (SOURCE = (METHOD = file) (METHOD_DATA = (DIRECTORY="${normalizedPath}")))\nSSL_SERVER_DN_MATCH=yes\n`;
+            fs.writeFileSync(sqlnetFile, updatedContent, 'utf8');
+          }
+        }
+      } catch (err) {
+        console.warn('⚠️ No se pudo ajustar sqlnet.ora dinámicamente:', err);
+      }
 
       if (env.DB_WALLET_PASSWORD) {
         poolConfig.walletPassword = env.DB_WALLET_PASSWORD;
