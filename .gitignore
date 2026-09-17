@@ -22,3 +22,5 @@ sqlnet.ora
 ojdbc.properties
 ewallet.pem
 configuraciones.txt
+smy_parametros.sql
+*smy_parametros*.sql

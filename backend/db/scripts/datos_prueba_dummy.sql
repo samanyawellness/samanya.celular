@@ -51,11 +51,44 @@
 
 SET DEFINE OFF;
 SET SERVEROUTPUT ON SIZE UNLIMITED;
+ALTER SESSION DISABLE PARALLEL DML;
 
 PROMPT ============================================================================
 PROMPT   INICIANDO CARGA DE DATOS DUMMY - SAMANYA OS
 PROMPT   HORA OFICIAL (Bogotá, Colombia - UTC-5): CAST(SYSTIMESTAMP AT TIME ZONE '-05:00' AS DATE)
 PROMPT ============================================================================
+
+-- =============================================================================
+-- 0. ORGANIZACIONES Y CENTROS GERIÁTRICOS (ESTRUCTURA MULTI-TENANT)
+-- =============================================================================
+PROMPT 0. Garantizando Organizaciones y Centros Multi-Tenant...
+
+MERGE INTO SMY_ORGANIZACIONES dest
+USING (
+    SELECT 1 AS ID, 'ORG-SAMANYA' AS CODIGO_ORGANIZACION, 'Samanya Wellness Care S.A.S.' AS RAZON_SOCIAL,
+           'Samanya Senior Living' AS NOMBRE_COMERCIAL, '901.452.883-1' AS NUMERO_IDENTIFICACION_TRIB,
+           1 AS ID_TIPO_IDENTIFICACION, 'contacto@samanya.com' AS EMAIL_CORPORATIVO, '+57 310 445 5667' AS TELEFONO_CONTACTO, 1 AS ID_ESTADO_ORGANIZACION FROM DUAL
+    UNION ALL
+    SELECT 2, 'ORG-VITALIA', 'Vitalia Senior Care S.A.S.', 'Vitalia Hogares', '900.871.220-4', 1, 'info@vitalia.com', '+57 320 889 1234', 1 FROM DUAL
+) src ON (dest.ID = src.ID)
+WHEN NOT MATCHED THEN
+INSERT (ID, CODIGO_ORGANIZACION, RAZON_SOCIAL, NOMBRE_COMERCIAL, NUMERO_IDENTIFICACION_TRIB, ID_TIPO_IDENTIFICACION, EMAIL_CORPORATIVO, TELEFONO_CONTACTO, ID_ESTADO_ORGANIZACION)
+VALUES (src.ID, src.CODIGO_ORGANIZACION, src.RAZON_SOCIAL, src.NOMBRE_COMERCIAL, src.NUMERO_IDENTIFICACION_TRIB, src.ID_TIPO_IDENTIFICACION, src.EMAIL_CORPORATIVO, src.TELEFONO_CONTACTO, src.ID_ESTADO_ORGANIZACION);
+
+MERGE INTO SMY_CENTROS dest
+USING (
+    SELECT 1 AS ID, 1 AS ID_ORGANIZACION, 'SEDE-CENTRAL' AS CODIGO_CENTRO, 'Sede Central Bogotá' AS NOMBRE_CENTRO,
+           'sede_central_bogota' AS SLUG_DIRECTORIO, 'Bogotá D.C.' AS CIUDAD, 'Calle 127 # 19-45, Usaquén' AS DIRECCION, 60 AS CAPACIDAD_RESIDENTES FROM DUAL
+    UNION ALL
+    SELECT 2, 1, 'SEDE-NORTE', 'Sede Campestre La Calera', 'sede_campestre_calera', 'La Calera', 'Km 4 Vía La Calera', 45 FROM DUAL
+    UNION ALL
+    SELECT 3, 2, 'SEDE-VITALIA-MEDELLIN', 'Sede Poblado Medellín', 'sede_poblado_medellin', 'Medellín', 'Carrera 43A # 1-50, El Poblado', 50 FROM DUAL
+) src ON (dest.ID = src.ID)
+WHEN NOT MATCHED THEN
+INSERT (ID, ID_ORGANIZACION, CODIGO_CENTRO, NOMBRE_CENTRO, SLUG_DIRECTORIO, CIUDAD, DIRECCION, CAPACIDAD_RESIDENTES)
+VALUES (src.ID, src.ID_ORGANIZACION, src.CODIGO_CENTRO, src.NOMBRE_CENTRO, src.SLUG_DIRECTORIO, src.CIUDAD, src.DIRECCION, src.CAPACIDAD_RESIDENTES);
+
+COMMIT;
 
 -- =============================================================================
 -- 1. USUARIOS DEL SISTEMA (SMY_USUARIOS)
@@ -221,47 +254,109 @@ INSERT INTO SMY_USUARIOS (
 COMMIT;
 
 -- =============================================================================
+-- 1.1 GOBERNANZA: DUEÑOS DE ORGANIZACIÓN (SMY_ORGANIZACION_DUENOS)
+-- =============================================================================
+PROMPT 1.1 Insertando Dueños de Organización (SMY_ORGANIZACION_DUENOS)...
+
+-- Admin es dueño al 100% y representante legal de ORG-SAMANYA (Org 1)
+INSERT INTO SMY_ORGANIZACION_DUENOS (
+    ID, ID_ORGANIZACION, ID_USUARIO, PORCENTAJE_PARTICIPACION, ES_REPRESENTANTE_LEGAL, ESTADO_ACTIVO
+) VALUES (
+    1, 1, 1, 100.00, 'S', 'S'
+);
+
+-- Admin también es socio inversionista (40%) en ORG-VITALIA (Org 2)
+INSERT INTO SMY_ORGANIZACION_DUENOS (
+    ID, ID_ORGANIZACION, ID_USUARIO, PORCENTAJE_PARTICIPACION, ES_REPRESENTANTE_LEGAL, ESTADO_ACTIVO
+) VALUES (
+    2, 2, 1, 40.00, 'N', 'S'
+);
+
+-- Jorge Castro (Usuario 13) es socio mayoritario (60%) y representante legal de ORG-VITALIA (Org 2)
+INSERT INTO SMY_ORGANIZACION_DUENOS (
+    ID, ID_ORGANIZACION, ID_USUARIO, PORCENTAJE_PARTICIPACION, ES_REPRESENTANTE_LEGAL, ESTADO_ACTIVO
+) VALUES (
+    3, 2, 13, 60.00, 'S', 'S'
+);
+
+-- =============================================================================
+-- 1.2 MATRIZ MULTI-SEDE: ASIGNACIÓN DE USUARIOS A CENTROS (SMY_CENTRO_USUARIOS)
+-- =============================================================================
+PROMPT 1.2 Insertando Asignación de Usuarios a Sedes (SMY_CENTRO_USUARIOS)...
+
+-- Administrador General con autorización en múltiples sedes geriátricas
+INSERT INTO SMY_CENTRO_USUARIOS (ID, ID_CENTRO, ID_USUARIO, ID_ROL, ES_SEDE_PRINCIPAL, ESTADO_ACTIVO)
+VALUES (1, 1, 1, 1, 'S', 'S');
+
+INSERT INTO SMY_CENTRO_USUARIOS (ID, ID_CENTRO, ID_USUARIO, ID_ROL, ES_SEDE_PRINCIPAL, ESTADO_ACTIVO)
+VALUES (2, 2, 1, 1, 'N', 'S');
+
+INSERT INTO SMY_CENTRO_USUARIOS (ID, ID_CENTRO, ID_USUARIO, ID_ROL, ES_SEDE_PRINCIPAL, ESTADO_ACTIVO)
+VALUES (3, 3, 1, 1, 'N', 'S');
+
+-- Martha Rodríguez (Enfermera Jefe) en Sede Central (principal) y apoyo en Sede Campestre
+INSERT INTO SMY_CENTRO_USUARIOS (ID, ID_CENTRO, ID_USUARIO, ID_ROL, ES_SEDE_PRINCIPAL, ESTADO_ACTIVO)
+VALUES (4, 1, 2, 2, 'S', 'S');
+
+INSERT INTO SMY_CENTRO_USUARIOS (ID, ID_CENTRO, ID_USUARIO, ID_ROL, ES_SEDE_PRINCIPAL, ESTADO_ACTIVO)
+VALUES (5, 2, 2, 2, 'N', 'S');
+
+-- Carlos Ramírez adscrito a Sede Central
+INSERT INTO SMY_CENTRO_USUARIOS (ID, ID_CENTRO, ID_USUARIO, ID_ROL, ES_SEDE_PRINCIPAL, ESTADO_ACTIVO)
+VALUES (6, 1, 3, 2, 'S', 'S');
+
+-- Laura Martínez adscrita a Sede Campestre La Calera
+INSERT INTO SMY_CENTRO_USUARIOS (ID, ID_CENTRO, ID_USUARIO, ID_ROL, ES_SEDE_PRINCIPAL, ESTADO_ACTIVO)
+VALUES (7, 2, 4, 2, 'S', 'S');
+
+-- Andrés Gómez adscrito a Sede Central
+INSERT INTO SMY_CENTRO_USUARIOS (ID, ID_CENTRO, ID_USUARIO, ID_ROL, ES_SEDE_PRINCIPAL, ESTADO_ACTIVO)
+VALUES (8, 1, 5, 2, 'S', 'S');
+
+COMMIT;
+
+-- =============================================================================
 -- 2. EMPLEADOS DEL CENTRO GERIÁTRICO (SMY_EMPLEADOS)
 -- Total: 4 Empleados asistenciales
 -- =============================================================================
 PROMPT 2. Insertando Empleados (SMY_EMPLEADOS)...
 
 INSERT INTO SMY_EMPLEADOS (
-    ID, ID_USUARIO, ID_TIPO_IDENTIFICACION, IDENTIFICACION, NOMBRES, APELLIDOS,
+    ID, ID_CENTRO, ID_USUARIO, ID_TIPO_IDENTIFICACION, IDENTIFICACION, NOMBRES, APELLIDOS,
     ID_CARGO_EMPLEADO, ID_AREA_EMPLEADO, UNIDAD_ASIGNADA, TELEFONO, EMAIL_CORP,
     FECHA_CONTRATACION, ID_ESTADO_EMPLEADO
 ) VALUES (
-    1, 2, 1, '52345678', 'Martha Cecilia', 'Rodríguez Peña',
+    1, 1, 2, 1, '52345678', 'Martha Cecilia', 'Rodríguez Peña',
     1, 1, 'Enfermería General Piso 1', '+57 311 234 5678', 'mrodriguez@samanya.com.co',
     TO_DATE('2023-01-15', 'YYYY-MM-DD'), 1
 );
 
 INSERT INTO SMY_EMPLEADOS (
-    ID, ID_USUARIO, ID_TIPO_IDENTIFICACION, IDENTIFICACION, NOMBRES, APELLIDOS,
+    ID, ID_CENTRO, ID_USUARIO, ID_TIPO_IDENTIFICACION, IDENTIFICACION, NOMBRES, APELLIDOS,
     ID_CARGO_EMPLEADO, ID_AREA_EMPLEADO, UNIDAD_ASIGNADA, TELEFONO, EMAIL_CORP,
     FECHA_CONTRATACION, ID_ESTADO_EMPLEADO
 ) VALUES (
-    2, 3, 1, '80123456', 'Carlos Eduardo', 'Ramírez Soto',
+    2, 1, 3, 1, '80123456', 'Carlos Eduardo', 'Ramírez Soto',
     3, 2, 'Ala Norte - Habitaciones 101-105', '+57 312 345 6789', 'cramirez@samanya.com.co',
     TO_DATE('2023-03-01', 'YYYY-MM-DD'), 1
 );
 
 INSERT INTO SMY_EMPLEADOS (
-    ID, ID_USUARIO, ID_TIPO_IDENTIFICACION, IDENTIFICACION, NOMBRES, APELLIDOS,
+    ID, ID_CENTRO, ID_USUARIO, ID_TIPO_IDENTIFICACION, IDENTIFICACION, NOMBRES, APELLIDOS,
     ID_CARGO_EMPLEADO, ID_AREA_EMPLEADO, UNIDAD_ASIGNADA, TELEFONO, EMAIL_CORP,
     FECHA_CONTRATACION, ID_ESTADO_EMPLEADO
 ) VALUES (
-    3, 4, 1, '1018234567', 'Laura Marcela', 'Martínez Ruiz',
+    3, 2, 4, 1, '1018234567', 'Laura Marcela', 'Martínez Ruiz',
     3, 2, 'Ala Sur - Habitaciones 106-110', '+57 313 456 7890', 'lmartinez@samanya.com.co',
     TO_DATE('2023-06-10', 'YYYY-MM-DD'), 1
 );
 
 INSERT INTO SMY_EMPLEADOS (
-    ID, ID_USUARIO, ID_TIPO_IDENTIFICACION, IDENTIFICACION, NOMBRES, APELLIDOS,
+    ID, ID_CENTRO, ID_USUARIO, ID_TIPO_IDENTIFICACION, IDENTIFICACION, NOMBRES, APELLIDOS,
     ID_CARGO_EMPLEADO, ID_AREA_EMPLEADO, UNIDAD_ASIGNADA, TELEFONO, EMAIL_CORP,
     FECHA_CONTRATACION, ID_ESTADO_EMPLEADO
 ) VALUES (
-    4, 5, 1, '1020456789', 'Andrés Felipe', 'Gómez Duarte',
+    4, 1, 5, 1, '1020456789', 'Andrés Felipe', 'Gómez Duarte',
     2, 1, 'Atención Nocturna y Cuidados Críticos', '+57 314 567 8901', 'agomez@samanya.com.co',
     TO_DATE('2023-09-01', 'YYYY-MM-DD'), 1
 );
@@ -275,12 +370,12 @@ COMMIT;
 PROMPT 3. Insertando Residentes (SMY_RESIDENTES)...
 
 INSERT INTO SMY_RESIDENTES (
-    ID, CODIGO_EXPEDIENTE, ID_TIPO_IDENTIFICACION, IDENTIFICACION, NOMBRES, APELLIDOS,
+    ID, ID_CENTRO, CODIGO_EXPEDIENTE, ID_TIPO_IDENTIFICACION, IDENTIFICACION, NOMBRES, APELLIDOS,
     FECHA_NACIMIENTO, ID_GENERO, FOTO_URL, HABITACION, CAMA, EPS, PLAN_COMPLEMENTARIO,
     TIPO_SANGRE, ID_NIVEL_MOVILIDAD, ID_TIPO_DIETA, ALERTAS_CLINICAS, ID_ESTADO_RESIDENTE,
     CODIGO_QR_TOKEN, FECHA_INGRESO
 ) VALUES (
-    1, 'EXP-2024-001', 1, '19234567', 'Álvaro', 'Delgado Mora',
+    1, 1, 'EXP-2024-001', 1, '19234567', 'Álvaro', 'Delgado Mora',
     TO_DATE('1942-05-14', 'YYYY-MM-DD'), 2, 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150',
     '101', 'A', 'Sanitas EPS', 'Colsanitas Integral', 'O+',
     2, 4, 'Hipertensión arterial severa. Alergia a Penicilina. Riesgo de caídas.', 1,
@@ -288,12 +383,12 @@ INSERT INTO SMY_RESIDENTES (
 );
 
 INSERT INTO SMY_RESIDENTES (
-    ID, CODIGO_EXPEDIENTE, ID_TIPO_IDENTIFICACION, IDENTIFICACION, NOMBRES, APELLIDOS,
+    ID, ID_CENTRO, CODIGO_EXPEDIENTE, ID_TIPO_IDENTIFICACION, IDENTIFICACION, NOMBRES, APELLIDOS,
     FECHA_NACIMIENTO, ID_GENERO, FOTO_URL, HABITACION, CAMA, EPS, PLAN_COMPLEMENTARIO,
     TIPO_SANGRE, ID_NIVEL_MOVILIDAD, ID_TIPO_DIETA, ALERTAS_CLINICAS, ID_ESTADO_RESIDENTE,
     CODIGO_QR_TOKEN, FECHA_INGRESO
 ) VALUES (
-    2, 'EXP-2024-002', 1, '24567890', 'Elena', 'Pérez de Gómez',
+    2, 1, 'EXP-2024-002', 1, '24567890', 'Elena', 'Pérez de Gómez',
     TO_DATE('1939-11-20', 'YYYY-MM-DD'), 1, 'https://images.unsplash.com/photo-1581579438747-1dc8d17bbce4?w=150',
     '101', 'B', 'Sura EPS', 'Sura Salud Global', 'A+',
     1, 3, 'Diabetes Mellitus Tipo 2. Control estricto de glucosa capilar matutina.', 1,
@@ -301,12 +396,12 @@ INSERT INTO SMY_RESIDENTES (
 );
 
 INSERT INTO SMY_RESIDENTES (
-    ID, CODIGO_EXPEDIENTE, ID_TIPO_IDENTIFICACION, IDENTIFICACION, NOMBRES, APELLIDOS,
+    ID, ID_CENTRO, CODIGO_EXPEDIENTE, ID_TIPO_IDENTIFICACION, IDENTIFICACION, NOMBRES, APELLIDOS,
     FECHA_NACIMIENTO, ID_GENERO, FOTO_URL, HABITACION, CAMA, EPS, PLAN_COMPLEMENTARIO,
     TIPO_SANGRE, ID_NIVEL_MOVILIDAD, ID_TIPO_DIETA, ALERTAS_CLINICAS, ID_ESTADO_RESIDENTE,
     CODIGO_QR_TOKEN, FECHA_INGRESO
 ) VALUES (
-    3, 'EXP-2024-003', 1, '17890123', 'Fernando', 'López Castro',
+    3, 1, 'EXP-2024-003', 1, '17890123', 'Fernando', 'López Castro',
     TO_DATE('1946-08-03', 'YYYY-MM-DD'), 2, 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=150',
     '102', 'A', 'Compensar EPS', 'Compensar Preferencial', 'B+',
     3, 1, 'Secuelas de ACV isquémico izquierdo. Hemiparesia facio-braquial. En silla de ruedas.', 1,
@@ -314,12 +409,12 @@ INSERT INTO SMY_RESIDENTES (
 );
 
 INSERT INTO SMY_RESIDENTES (
-    ID, CODIGO_EXPEDIENTE, ID_TIPO_IDENTIFICACION, IDENTIFICACION, NOMBRES, APELLIDOS,
+    ID, ID_CENTRO, CODIGO_EXPEDIENTE, ID_TIPO_IDENTIFICACION, IDENTIFICACION, NOMBRES, APELLIDOS,
     FECHA_NACIMIENTO, ID_GENERO, FOTO_URL, HABITACION, CAMA, EPS, PLAN_COMPLEMENTARIO,
     TIPO_SANGRE, ID_NIVEL_MOVILIDAD, ID_TIPO_DIETA, ALERTAS_CLINICAS, ID_ESTADO_RESIDENTE,
     CODIGO_QR_TOKEN, FECHA_INGRESO
 ) VALUES (
-    4, 'EXP-2024-004', 1, '32456781', 'Mercedes', 'Hernández de Silva',
+    4, 1, 'EXP-2024-004', 1, '32456781', 'Mercedes', 'Hernández de Silva',
     TO_DATE('1944-01-25', 'YYYY-MM-DD'), 1, 'https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?w=150',
     '102', 'B', 'Famisanar EPS', 'Colmédica Zafiro', 'O-',
     2, 2, 'Disfagia leve a sólidos. Requiere supervisión en ingesta de alimentos.', 1,
@@ -327,12 +422,12 @@ INSERT INTO SMY_RESIDENTES (
 );
 
 INSERT INTO SMY_RESIDENTES (
-    ID, CODIGO_EXPEDIENTE, ID_TIPO_IDENTIFICACION, IDENTIFICACION, NOMBRES, APELLIDOS,
+    ID, ID_CENTRO, CODIGO_EXPEDIENTE, ID_TIPO_IDENTIFICACION, IDENTIFICACION, NOMBRES, APELLIDOS,
     FECHA_NACIMIENTO, ID_GENERO, FOTO_URL, HABITACION, CAMA, EPS, PLAN_COMPLEMENTARIO,
     TIPO_SANGRE, ID_NIVEL_MOVILIDAD, ID_TIPO_DIETA, ALERTAS_CLINICAS, ID_ESTADO_RESIDENTE,
     CODIGO_QR_TOKEN, FECHA_INGRESO
 ) VALUES (
-    5, 'EXP-2024-005', 1, '14321987', 'Gustavo', 'Torres Valderrama',
+    5, 1, 'EXP-2024-005', 1, '14321987', 'Gustavo', 'Torres Valderrama',
     TO_DATE('1938-09-18', 'YYYY-MM-DD'), 2, 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150',
     '103', 'A', 'Nueva EPS', 'Particular', 'AB+',
     1, 1, 'Deterioro cognitivo leve (GDS 3). Marcapasos bicameral implantado en 2021.', 1,
@@ -340,12 +435,12 @@ INSERT INTO SMY_RESIDENTES (
 );
 
 INSERT INTO SMY_RESIDENTES (
-    ID, CODIGO_EXPEDIENTE, ID_TIPO_IDENTIFICACION, IDENTIFICACION, NOMBRES, APELLIDOS,
+    ID, ID_CENTRO, CODIGO_EXPEDIENTE, ID_TIPO_IDENTIFICACION, IDENTIFICACION, NOMBRES, APELLIDOS,
     FECHA_NACIMIENTO, ID_GENERO, FOTO_URL, HABITACION, CAMA, EPS, PLAN_COMPLEMENTARIO,
     TIPO_SANGRE, ID_NIVEL_MOVILIDAD, ID_TIPO_DIETA, ALERTAS_CLINICAS, ID_ESTADO_RESIDENTE,
     CODIGO_QR_TOKEN, FECHA_INGRESO
 ) VALUES (
-    6, 'EXP-2024-006', 1, '28765432', 'Carmen Rosa', 'Castro Pardo',
+    6, 1, 'EXP-2024-006', 1, '28765432', 'Carmen Rosa', 'Castro Pardo',
     TO_DATE('1947-12-05', 'YYYY-MM-DD'), 1, 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150',
     '103', 'B', 'Sanitas EPS', 'Medisanitas', 'A-',
     4, 5, 'Enfermedad de Parkinson avanzada (Hoehn & Yahr 4). Encamada. Alergia a Sulfas.', 1,
@@ -353,12 +448,12 @@ INSERT INTO SMY_RESIDENTES (
 );
 
 INSERT INTO SMY_RESIDENTES (
-    ID, CODIGO_EXPEDIENTE, ID_TIPO_IDENTIFICACION, IDENTIFICACION, NOMBRES, APELLIDOS,
+    ID, ID_CENTRO, CODIGO_EXPEDIENTE, ID_TIPO_IDENTIFICACION, IDENTIFICACION, NOMBRES, APELLIDOS,
     FECHA_NACIMIENTO, ID_GENERO, FOTO_URL, HABITACION, CAMA, EPS, PLAN_COMPLEMENTARIO,
     TIPO_SANGRE, ID_NIVEL_MOVILIDAD, ID_TIPO_DIETA, ALERTAS_CLINICAS, ID_ESTADO_RESIDENTE,
     CODIGO_QR_TOKEN, FECHA_INGRESO
 ) VALUES (
-    7, 'EXP-2024-007', 1, '19876543', 'Roberto', 'Morales Duque',
+    7, 2, 'EXP-2024-007', 1, '19876543', 'Roberto', 'Morales Duque',
     TO_DATE('1943-07-11', 'YYYY-MM-DD'), 2, 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150',
     '104', 'A', 'Sura EPS', 'Sura Clásico', 'O+',
     2, 4, 'Insuficiencia cardíaca congestiva controlada NYHA II. Control estricto de líquidos.', 1,
@@ -366,12 +461,12 @@ INSERT INTO SMY_RESIDENTES (
 );
 
 INSERT INTO SMY_RESIDENTES (
-    ID, CODIGO_EXPEDIENTE, ID_TIPO_IDENTIFICACION, IDENTIFICACION, NOMBRES, APELLIDOS,
+    ID, ID_CENTRO, CODIGO_EXPEDIENTE, ID_TIPO_IDENTIFICACION, IDENTIFICACION, NOMBRES, APELLIDOS,
     FECHA_NACIMIENTO, ID_GENERO, FOTO_URL, HABITACION, CAMA, EPS, PLAN_COMPLEMENTARIO,
     TIPO_SANGRE, ID_NIVEL_MOVILIDAD, ID_TIPO_DIETA, ALERTAS_CLINICAS, ID_ESTADO_RESIDENTE,
     CODIGO_QR_TOKEN, FECHA_INGRESO
 ) VALUES (
-    8, 'EXP-2024-008', 1, '23456123', 'Teresa de Jesús', 'Sánchez',
+    8, 2, 'EXP-2024-008', 1, '23456123', 'Teresa de Jesús', 'Sánchez',
     TO_DATE('1940-04-30', 'YYYY-MM-DD'), 1, 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150',
     '104', 'B', 'Compensar EPS', 'Compensar Básico', 'B-',
     1, 1, 'Osteoporosis severa con antecedente de fractura de Colles derecha en 2022.', 1,
@@ -379,12 +474,12 @@ INSERT INTO SMY_RESIDENTES (
 );
 
 INSERT INTO SMY_RESIDENTES (
-    ID, CODIGO_EXPEDIENTE, ID_TIPO_IDENTIFICACION, IDENTIFICACION, NOMBRES, APELLIDOS,
+    ID, ID_CENTRO, CODIGO_EXPEDIENTE, ID_TIPO_IDENTIFICACION, IDENTIFICACION, NOMBRES, APELLIDOS,
     FECHA_NACIMIENTO, ID_GENERO, FOTO_URL, HABITACION, CAMA, EPS, PLAN_COMPLEMENTARIO,
     TIPO_SANGRE, ID_NIVEL_MOVILIDAD, ID_TIPO_DIETA, ALERTAS_CLINICAS, ID_ESTADO_RESIDENTE,
     CODIGO_QR_TOKEN, FECHA_INGRESO
 ) VALUES (
-    9, 'EXP-2024-009', 1, '16543210', 'Guillermo', 'Navarro Soler',
+    9, 2, 'EXP-2024-009', 1, '16543210', 'Guillermo', 'Navarro Soler',
     TO_DATE('1945-10-15', 'YYYY-MM-DD'), 2, 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150',
     '105', 'A', 'Salud Total EPS', 'Salud Total Élite', 'O+',
     2, 3, 'Diabetes con neuropatía periférica. Curación diaria pie derecho grado Wagner 1.', 1,
@@ -392,12 +487,12 @@ INSERT INTO SMY_RESIDENTES (
 );
 
 INSERT INTO SMY_RESIDENTES (
-    ID, CODIGO_EXPEDIENTE, ID_TIPO_IDENTIFICACION, IDENTIFICACION, NOMBRES, APELLIDOS,
+    ID, ID_CENTRO, CODIGO_EXPEDIENTE, ID_TIPO_IDENTIFICACION, IDENTIFICACION, NOMBRES, APELLIDOS,
     FECHA_NACIMIENTO, ID_GENERO, FOTO_URL, HABITACION, CAMA, EPS, PLAN_COMPLEMENTARIO,
     TIPO_SANGRE, ID_NIVEL_MOVILIDAD, ID_TIPO_DIETA, ALERTAS_CLINICAS, ID_ESTADO_RESIDENTE,
     CODIGO_QR_TOKEN, FECHA_INGRESO
 ) VALUES (
-    10, 'EXP-2024-010', 1, '31234567', 'Blanca Nieves', 'Castillo',
+    10, 2, 'EXP-2024-010', 1, '31234567', 'Blanca Nieves', 'Castillo',
     TO_DATE('1948-02-28', 'YYYY-MM-DD'), 1, 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150',
     '105', 'B', 'Sanitas EPS', 'Colsanitas Médico', 'A+',
     3, 2, 'Artritis reumatoide seropositiva en deformidad en ráfaga cubital. Hipoacusia bilateral.', 1,
@@ -1389,12 +1484,92 @@ INSERT INTO SMY_NOTIFICACIONES_SISTEMA (
 COMMIT;
 
 -- =============================================================================
--- 18. SINCRONIZACIÓN DE SECUENCIAS ORACLE (AUTO-INCREMENT)
+-- 17.1 SOLICITUDES DE ADMISIÓN (SMY_SOLICITUDES_ADMISION y CONTACTOS)
+-- =============================================================================
+PROMPT 17.1 Insertando Solicitudes de Admisión (SMY_SOLICITUDES_ADMISION)...
+
+INSERT INTO SMY_SOLICITUDES_ADMISION (
+    ID, ID_CENTRO, NOMBRE_COMPLETO, FECHA_NACIMIENTO,
+    ID_GENERO, ID_NIVEL_MOVILIDAD, ALERTAS_CLINICAS, FECHA_DESEADA,
+    ID_ESTADO_SOLICITUD_ADM, NOTAS_ADICIONALES, ID_USUARIO_REVISO, FECHA_REVISION
+) VALUES (
+    1, 1, 'Héctor Manuel Gómez Rivas', TO_DATE('1941-03-12', 'YYYY-MM-DD'),
+    2, 2, 'Hipertensión controlada, principio de demencia senil.', TO_DATE('2026-04-01', 'YYYY-MM-DD'),
+    1, 'Familiares laboran todo el día y requieren cuidado especializado permanente. Pendiente de entrevista.', NULL, NULL
+);
+
+INSERT INTO SMY_SOLICITUD_ADM_CONTACTOS (
+    ID, ID_SOLICITUD_ADMISION, NOMBRE, ID_PARENTESCO, TELEFONO, EMAIL
+) VALUES (
+    1, 1, 'Carlos Gómez (Hijo)', 2, '+57 315 889 4433', 'carlos.gomez@gmail.com'
+);
+
+INSERT INTO SMY_SOLICITUDES_ADMISION (
+    ID, ID_CENTRO, NOMBRE_COMPLETO, FECHA_NACIMIENTO,
+    ID_GENERO, ID_NIVEL_MOVILIDAD, ALERTAS_CLINICAS, FECHA_DESEADA,
+    ID_ESTADO_SOLICITUD_ADM, NOTAS_ADICIONALES, ID_USUARIO_REVISO, FECHA_REVISION
+) VALUES (
+    2, 2, 'Leonor Vargas de Serrano', TO_DATE('1937-09-24', 'YYYY-MM-DD'),
+    1, 3, 'Artrosis de cadera, requiere andador, lucidez mental completa.', TO_DATE('2026-03-15', 'YYYY-MM-DD'),
+    2, 'Documentos clínicos completos. Aprobada para visita médica domiciliaria.', 1, TO_DATE('2024-04-10', 'YYYY-MM-DD')
+);
+
+INSERT INTO SMY_SOLICITUD_ADM_CONTACTOS (
+    ID, ID_SOLICITUD_ADMISION, NOMBRE, ID_PARENTESCO, TELEFONO, EMAIL
+) VALUES (
+    2, 2, 'Mariana Serrano (Hija)', 2, '+57 318 776 5522', 'mariana.serrano@gmail.com'
+);
+
+COMMIT;
+
+-- =============================================================================
+-- 18. PARÁMETROS DEL SISTEMA Y CONFIGURACIÓN GOOGLE DRIVE (SMY_PARAMETROS)
+-- Configuración integral para File Server en Google Drive (1 TB), WhatsApp y JWT.
+-- Incluye credenciales OAuth 2.0 y Service Account procedentes de smy_parametros.sql.
+-- =============================================================================
+PROMPT 18. Insertando Parámetros del Sistema y Google Drive (SMY_PARAMETROS)...
+
+-- Limpieza preventiva para garantizar idempotencia sin violar PK ni UQ
+DELETE FROM SMY_PARAMETROS
+WHERE ID IN (1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 19)
+   OR CODIGO_PARAMETRO IN (
+       'STORAGE_PROVIDER_TYPE', 'STORAGE_ROOT_PATH', 'STORAGE_MAX_UPLOAD_SIZE_MB',
+       'API_WHATSAPP_ENDPOINT', 'API_WHATSAPP_BEARER_TOKEN', 'AUTH_JWT_EXPIRATION_MINUTES',
+       'GDRIVE_OAUTH_CLIENT_JSON', 'GDRIVE_USER_TOKENS_JSON', 'GDRIVE_SERVICE_ACCOUNT_JSON',
+       'GDRIVE_CLIENT_ID', 'GDRIVE_CLIENT_SECRET', 'GDRIVE_REFRESH_TOKEN',
+       'GDRIVE_ACCESS_TOKEN', 'GDRIVE_PROJECT_ID', 'GDRIVE_ROOT_FOLDER_NAME',
+       'GDRIVE_AUTH_TYPE', 'GDRIVE_SERVICE_ACCOUNT_EMAIL'
+   );
+
+COMMIT;
+
+INSERT INTO SMY_PARAMETROS (ID,CODIGO_PARAMETRO,NOMBRE_PARAMETRO,DESCRIPCION,GRUPO_PARAMETRO,VALOR_TEXTO,VALOR_CLOB,VALOR_NUMERICO,VALOR_FECHA,ES_ENCRIPTADO,ES_SISTEMA,ID_ESTADO_PARAMETRO,FECHA_CREACION,FECHA_ULTIMA_MODIFICACION,ID_USUARIO_ULTIMA_MODIFICACION) values ('1','STORAGE_PROVIDER_TYPE','Proveedor del File Server','Tipo de almacenamiento externo: LOCAL_DISK, GOOGLE_DRIVE, S3, MINIO','STORAGE','GOOGLE_DRIVE', EMPTY_CLOB(),null,null,'N','S','1',to_date('12/09/26','DD/MM/RR'),to_date('14/09/26','DD/MM/RR'),null);
+INSERT INTO SMY_PARAMETROS (ID,CODIGO_PARAMETRO,NOMBRE_PARAMETRO,DESCRIPCION,GRUPO_PARAMETRO,VALOR_TEXTO,VALOR_CLOB,VALOR_NUMERICO,VALOR_FECHA,ES_ENCRIPTADO,ES_SISTEMA,ID_ESTADO_PARAMETRO,FECHA_CREACION,FECHA_ULTIMA_MODIFICACION,ID_USUARIO_ULTIMA_MODIFICACION) values ('2','STORAGE_ROOT_PATH','Ruta Base del Servidor de Archivos','Ruta raíz en el disco o punto de montaje donde se estructura el almacenamiento.','STORAGE','/var/samanya/storage', EMPTY_CLOB(),null,null,'N','S','1',to_date('12/09/26','DD/MM/RR'),to_date('12/09/26','DD/MM/RR'),null);
+INSERT INTO SMY_PARAMETROS (ID,CODIGO_PARAMETRO,NOMBRE_PARAMETRO,DESCRIPCION,GRUPO_PARAMETRO,VALOR_TEXTO,VALOR_CLOB,VALOR_NUMERICO,VALOR_FECHA,ES_ENCRIPTADO,ES_SISTEMA,ID_ESTADO_PARAMETRO,FECHA_CREACION,FECHA_ULTIMA_MODIFICACION,ID_USUARIO_ULTIMA_MODIFICACION) values ('3','STORAGE_MAX_UPLOAD_SIZE_MB','Límite Máximo Global de Carga (MB)','Tamaño máximo permitido para la subida de cualquier archivo.','STORAGE',null, EMPTY_CLOB(),'50',null,'N','N','1',to_date('12/09/26','DD/MM/RR'),to_date('12/09/26','DD/MM/RR'),null);
+INSERT INTO SMY_PARAMETROS (ID,CODIGO_PARAMETRO,NOMBRE_PARAMETRO,DESCRIPCION,GRUPO_PARAMETRO,VALOR_TEXTO,VALOR_CLOB,VALOR_NUMERICO,VALOR_FECHA,ES_ENCRIPTADO,ES_SISTEMA,ID_ESTADO_PARAMETRO,FECHA_CREACION,FECHA_ULTIMA_MODIFICACION,ID_USUARIO_ULTIMA_MODIFICACION) values ('4','API_WHATSAPP_ENDPOINT','Endpoint API Notificaciones WhatsApp','URL del servicio de mensajería para alertas a acudientes y familiares.','INTEGRACION','https://api.whatsapp.com/v1/messages', EMPTY_CLOB(),null,null,'N','N','1',to_date('12/09/26','DD/MM/RR'),to_date('12/09/26','DD/MM/RR'),null);
+INSERT INTO SMY_PARAMETROS (ID,CODIGO_PARAMETRO,NOMBRE_PARAMETRO,DESCRIPCION,GRUPO_PARAMETRO,VALOR_TEXTO,VALOR_CLOB,VALOR_NUMERICO,VALOR_FECHA,ES_ENCRIPTADO,ES_SISTEMA,ID_ESTADO_PARAMETRO,FECHA_CREACION,FECHA_ULTIMA_MODIFICACION,ID_USUARIO_ULTIMA_MODIFICACION) values ('5','API_WHATSAPP_BEARER_TOKEN','Bearer Token API WhatsApp','Token de autenticación de larga duración para el gateway de WhatsApp.','INTEGRACION',null,'EAA...TOKEN_DEMOSTRACION_BEARER_WHATSAPP...XYZ',null,null,'S','N','1',to_date('12/09/26','DD/MM/RR'),to_date('12/09/26','DD/MM/RR'),null);
+INSERT INTO SMY_PARAMETROS (ID,CODIGO_PARAMETRO,NOMBRE_PARAMETRO,DESCRIPCION,GRUPO_PARAMETRO,VALOR_TEXTO,VALOR_CLOB,VALOR_NUMERICO,VALOR_FECHA,ES_ENCRIPTADO,ES_SISTEMA,ID_ESTADO_PARAMETRO,FECHA_CREACION,FECHA_ULTIMA_MODIFICACION,ID_USUARIO_ULTIMA_MODIFICACION) values ('6','AUTH_JWT_EXPIRATION_MINUTES','Tiempo de Expiración Token JWT (Minutos)','Minutos de validez de la sesión antes de requerir refresh token.','SEGURIDAD',null, EMPTY_CLOB(),'15',null,'N','S','1',to_date('12/09/26','DD/MM/RR'),to_date('12/09/26','DD/MM/RR'),null);
+INSERT INTO SMY_PARAMETROS (ID,CODIGO_PARAMETRO,NOMBRE_PARAMETRO,DESCRIPCION,GRUPO_PARAMETRO,VALOR_TEXTO,VALOR_CLOB,VALOR_NUMERICO,VALOR_FECHA,ES_ENCRIPTADO,ES_SISTEMA,ID_ESTADO_PARAMETRO,FECHA_CREACION,FECHA_ULTIMA_MODIFICACION,ID_USUARIO_ULTIMA_MODIFICACION) values ('8','GDRIVE_OAUTH_CLIENT_JSON','Google Drive - Cliente OAuth 2.0 (Credenciales JSON)','Configuración completa del cliente OAuth 2.0 para Google Drive 1 TB.','STORAGE','000000000000-dummyclientidforgdriveoauthsample.apps.googleusercontent.com','{"installed":{"client_id":"000000000000-dummyclientidforgdriveoauthsample.apps.googleusercontent.com","project_id":"samanya-drive-demo","auth_uri":"https://accounts.google.com/o/oauth2/auth","token_uri":"https://oauth2.googleapis.com/token","auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs","client_secret":"GOCSPX-DUMMY_OAUTH_CLIENT_SECRET_KEY","redirect_uris":["http://localhost"]}}',null,null,'S','S','1',to_date('12/09/26','DD/MM/RR'),to_date('14/09/26','DD/MM/RR'),null);
+INSERT INTO SMY_PARAMETROS (ID,CODIGO_PARAMETRO,NOMBRE_PARAMETRO,DESCRIPCION,GRUPO_PARAMETRO,VALOR_TEXTO,VALOR_CLOB,VALOR_NUMERICO,VALOR_FECHA,ES_ENCRIPTADO,ES_SISTEMA,ID_ESTADO_PARAMETRO,FECHA_CREACION,FECHA_ULTIMA_MODIFICACION,ID_USUARIO_ULTIMA_MODIFICACION) values ('9','GDRIVE_USER_TOKENS_JSON','Google Drive - Tokens OAuth 2.0 de Usuario (JSON)','Tokens autorizados de usuario para carga y gestión de archivos en Drive.','STORAGE','1//DUMMY_REFRESH_TOKEN_FOR_LOCAL_DEV_ENVIRONMENT_XYZ',TO_CLOB(q'[{"access_token":"ya29.DUMMY_BEARER_TOKEN_FOR_LOCAL_DEV_ENVIRONMENT_XYZ","refresh_token":"1//DUMMY_REFRESH_TOKEN_FOR_LOCAL_DEV_ENVIRONMENT_XYZ","scope":"https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/drive.file","token_type":"Bearer","refresh_token_expires_in":604799,"expiry_date":1789446040986}]'),null,to_date('14/09/26','DD/MM/RR'),'S','S','1',to_date('12/09/26','DD/MM/RR'),to_date('14/09/26','DD/MM/RR'),null);
+INSERT INTO SMY_PARAMETROS (ID,CODIGO_PARAMETRO,NOMBRE_PARAMETRO,DESCRIPCION,GRUPO_PARAMETRO,VALOR_TEXTO,VALOR_CLOB,VALOR_NUMERICO,VALOR_FECHA,ES_ENCRIPTADO,ES_SISTEMA,ID_ESTADO_PARAMETRO,FECHA_CREACION,FECHA_ULTIMA_MODIFICACION,ID_USUARIO_ULTIMA_MODIFICACION) values ('10','GDRIVE_SERVICE_ACCOUNT_JSON','Google Drive - Cuenta de Servicio (Service Account JSON)','Credenciales de la Service Account y llave RSA privada de Google Cloud.','STORAGE','samanya-backend@samanya-drive.iam.gserviceaccount.com',TO_CLOB(q'[{"type":"service_account","project_id":"samanya-drive-demo","private_key_id":"dummy_private_key_id_00000000","private_key":"-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQDO8_DUMMY_PRIVATE_KEY_FOR_LOCAL_DEVELOPMENT_ENVIRONMENT_SAMANYA_OS==\n-----END PRIVATE KEY-----\n","client_email":"samanya-backend@samanya-drive-demo.iam.gserviceaccount.com","client_id":"100000000000000000000","auth_uri":"https://accounts.google.com/o/oauth2/auth","token_uri":"https://oauth2.googleapis.com/token","auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs","client_x509_cert_url":"https://www.googleapis.com/robot/v1/metadata/x509/samanya-backend%40samanya-drive-demo.iam.gserviceaccount.com","universe_domain":"googleapis.com"}]'),null,null,'S','S','1',to_date('12/09/26','DD/MM/RR'),to_date('12/09/26','DD/MM/RR'),null);
+INSERT INTO SMY_PARAMETROS (ID,CODIGO_PARAMETRO,NOMBRE_PARAMETRO,DESCRIPCION,GRUPO_PARAMETRO,VALOR_TEXTO,VALOR_CLOB,VALOR_NUMERICO,VALOR_FECHA,ES_ENCRIPTADO,ES_SISTEMA,ID_ESTADO_PARAMETRO,FECHA_CREACION,FECHA_ULTIMA_MODIFICACION,ID_USUARIO_ULTIMA_MODIFICACION) values ('11','GDRIVE_CLIENT_ID','Google Drive - Client ID','Client ID de OAuth 2.0 registrado en Google Cloud Console','STORAGE','000000000000-dummyclientidforgdriveoauthsample.apps.googleusercontent.com', EMPTY_CLOB(),null,null,'N','S','1',to_date('12/09/26','DD/MM/RR'),to_date('14/09/26','DD/MM/RR'),null);
+INSERT INTO SMY_PARAMETROS (ID,CODIGO_PARAMETRO,NOMBRE_PARAMETRO,DESCRIPCION,GRUPO_PARAMETRO,VALOR_TEXTO,VALOR_CLOB,VALOR_NUMERICO,VALOR_FECHA,ES_ENCRIPTADO,ES_SISTEMA,ID_ESTADO_PARAMETRO,FECHA_CREACION,FECHA_ULTIMA_MODIFICACION,ID_USUARIO_ULTIMA_MODIFICACION) values ('12','GDRIVE_CLIENT_SECRET','Google Drive - Client Secret','Clave secreta de la aplicación OAuth 2.0','STORAGE','GOCSPX-DUMMY_OAUTH_CLIENT_SECRET_KEY', EMPTY_CLOB(),null,null,'S','S','1',to_date('12/09/26','DD/MM/RR'),to_date('14/09/26','DD/MM/RR'),null);
+INSERT INTO SMY_PARAMETROS (ID,CODIGO_PARAMETRO,NOMBRE_PARAMETRO,DESCRIPCION,GRUPO_PARAMETRO,VALOR_TEXTO,VALOR_CLOB,VALOR_NUMERICO,VALOR_FECHA,ES_ENCRIPTADO,ES_SISTEMA,ID_ESTADO_PARAMETRO,FECHA_CREACION,FECHA_ULTIMA_MODIFICACION,ID_USUARIO_ULTIMA_MODIFICACION) values ('13','GDRIVE_REFRESH_TOKEN','Google Drive - Refresh Token','Token permanente de refresco OAuth 2.0 para renovar accesos a Drive','STORAGE','1//DUMMY_REFRESH_TOKEN_FOR_LOCAL_DEV_ENVIRONMENT_XYZ', EMPTY_CLOB(),null,null,'S','S','1',to_date('12/09/26','DD/MM/RR'),to_date('14/09/26','DD/MM/RR'),null);
+INSERT INTO SMY_PARAMETROS (ID,CODIGO_PARAMETRO,NOMBRE_PARAMETRO,DESCRIPCION,GRUPO_PARAMETRO,VALOR_TEXTO,VALOR_CLOB,VALOR_NUMERICO,VALOR_FECHA,ES_ENCRIPTADO,ES_SISTEMA,ID_ESTADO_PARAMETRO,FECHA_CREACION,FECHA_ULTIMA_MODIFICACION,ID_USUARIO_ULTIMA_MODIFICACION) values ('14','GDRIVE_ACCESS_TOKEN','Google Drive - Access Token Vigente','Token de acceso al portador (Bearer) para peticiones a la API de Drive','STORAGE','ya29.DUMMY_BEARER_TOKEN_FOR_LOCAL_DEV_ENVIRONMENT_XYZ', EMPTY_CLOB(),null,null,'S','S','1',to_date('12/09/26','DD/MM/RR'),to_date('14/09/26','DD/MM/RR'),null);
+INSERT INTO SMY_PARAMETROS (ID,CODIGO_PARAMETRO,NOMBRE_PARAMETRO,DESCRIPCION,GRUPO_PARAMETRO,VALOR_TEXTO,VALOR_CLOB,VALOR_NUMERICO,VALOR_FECHA,ES_ENCRIPTADO,ES_SISTEMA,ID_ESTADO_PARAMETRO,FECHA_CREACION,FECHA_ULTIMA_MODIFICACION,ID_USUARIO_ULTIMA_MODIFICACION) values ('15','GDRIVE_PROJECT_ID','Google Drive - Project ID','Identificador del proyecto en Google Cloud (samanya-drive)','STORAGE','samanya-drive-508702', EMPTY_CLOB(),null,null,'N','S','1',to_date('12/09/26','DD/MM/RR'),to_date('14/09/26','DD/MM/RR'),null);
+INSERT INTO SMY_PARAMETROS (ID,CODIGO_PARAMETRO,NOMBRE_PARAMETRO,DESCRIPCION,GRUPO_PARAMETRO,VALOR_TEXTO,VALOR_CLOB,VALOR_NUMERICO,VALOR_FECHA,ES_ENCRIPTADO,ES_SISTEMA,ID_ESTADO_PARAMETRO,FECHA_CREACION,FECHA_ULTIMA_MODIFICACION,ID_USUARIO_ULTIMA_MODIFICACION) values ('16','GDRIVE_ROOT_FOLDER_NAME','Google Drive - Carpeta Raíz','Nombre del directorio raíz en Google Drive para los archivos','STORAGE','Samanya', EMPTY_CLOB(),null,null,'N','S','1',to_date('12/09/26','DD/MM/RR'),to_date('14/09/26','DD/MM/RR'),null);
+INSERT INTO SMY_PARAMETROS (ID,CODIGO_PARAMETRO,NOMBRE_PARAMETRO,DESCRIPCION,GRUPO_PARAMETRO,VALOR_TEXTO,VALOR_CLOB,VALOR_NUMERICO,VALOR_FECHA,ES_ENCRIPTADO,ES_SISTEMA,ID_ESTADO_PARAMETRO,FECHA_CREACION,FECHA_ULTIMA_MODIFICACION,ID_USUARIO_ULTIMA_MODIFICACION) values ('17','GDRIVE_AUTH_TYPE','Google Drive - Modo de Autenticación','Estrategia de conexión activa: OAUTH_USER (1 TB Personal) o SERVICE_ACCOUNT','STORAGE','OAUTH_USER', EMPTY_CLOB(),null,null,'N','S','1',to_date('12/09/26','DD/MM/RR'),to_date('14/09/26','DD/MM/RR'),null);
+INSERT INTO SMY_PARAMETROS (ID,CODIGO_PARAMETRO,NOMBRE_PARAMETRO,DESCRIPCION,GRUPO_PARAMETRO,VALOR_TEXTO,VALOR_CLOB,VALOR_NUMERICO,VALOR_FECHA,ES_ENCRIPTADO,ES_SISTEMA,ID_ESTADO_PARAMETRO,FECHA_CREACION,FECHA_ULTIMA_MODIFICACION,ID_USUARIO_ULTIMA_MODIFICACION) values ('19','GDRIVE_SERVICE_ACCOUNT_EMAIL','Google Drive - Email Cuenta Servicio','Correo de la Service Account de Google Cloud','STORAGE','samanya-backend@samanya-drive.iam.gserviceaccount.com', EMPTY_CLOB(),null,null,'N','S','1',to_date('12/09/26','DD/MM/RR'),to_date('12/09/26','DD/MM/RR'),null);
+
+COMMIT;
+
+-- =============================================================================
+-- 19. SINCRONIZACIÓN DE SECUENCIAS ORACLE (AUTO-INCREMENT)
 -- Garantiza que las secuencias queden posicionadas por encima del ID máximo
 -- insertado manualmente para que nuevos INSERTs automáticos desde la app no fallen.
 -- Compatible con Oracle 11g / 12c / 19c / 21c / 23c.
 -- =============================================================================
-PROMPT 18. Sincronizando Secuencias Oracle...
+PROMPT 19. Sincronizando Secuencias Oracle...
 
 DECLARE
     TYPE t_seq_map IS RECORD (
@@ -1408,28 +1583,35 @@ DECLARE
     v_curr   NUMBER;
     v_sql    VARCHAR2(200);
 BEGIN
-    v_arr(1).v_table := 'SMY_USUARIOS';                     v_arr(1).v_seq := 'SEQ_SMY_USUARIOS';
-    v_arr(2).v_table := 'SMY_EMPLEADOS';                    v_arr(2).v_seq := 'SEQ_SMY_EMPLEADOS';
-    v_arr(3).v_table := 'SMY_RESIDENTES';                   v_arr(3).v_seq := 'SEQ_SMY_RESIDENTES';
-    v_arr(4).v_table := 'SMY_HISTORIAS_CLINICAS';           v_arr(4).v_seq := 'SEQ_SMY_HISTORIAS_CLINICAS';
-    v_arr(5).v_table := 'SMY_ACUDIENTES';                   v_arr(5).v_seq := 'SEQ_SMY_ACUDIENTES';
-    v_arr(6).v_table := 'SMY_RESIDENTE_ACUDIENTE';          v_arr(6).v_seq := 'SEQ_SMY_RESIDENTE_ACUDIENTE';
-    v_arr(7).v_table := 'SMY_TURNOS_ASIGNADOS';             v_arr(7).v_seq := 'SEQ_SMY_TURNOS_ASIGNADOS';
-    v_arr(8).v_table := 'SMY_MEDICAMENTOS_PRESCRITOS';      v_arr(8).v_seq := 'SEQ_SMY_MEDICAMENTOS_PRESCRITOS';
-    v_arr(9).v_table := 'SMY_REGISTROS_ADMIN_MED';          v_arr(9).v_seq := 'SEQ_SMY_REGISTROS_ADMIN_MED';
-    v_arr(10).v_table := 'SMY_SIGNOS_VITALES';              v_arr(10).v_seq := 'SEQ_SMY_SIGNOS_VITALES';
-    v_arr(11).v_table := 'SMY_BITACORA_RESIDENTE';          v_arr(11).v_seq := 'SEQ_SMY_BITACORA_RESIDENTE';
-    v_arr(12).v_table := 'SMY_CONSENTIMIENTOS';             v_arr(12).v_seq := 'SEQ_SMY_CONSENTIMIENTOS';
-    v_arr(13).v_table := 'SMY_CONSENTIMIENTO_DESTINATARIOS';v_arr(13).v_seq := 'SEQ_SMY_CONSENTIMIENTO_DESTINATARIOS';
-    v_arr(14).v_table := 'SMY_TAREAS_OPERATIVAS';           v_arr(14).v_seq := 'SEQ_SMY_TAREAS_OPERATIVAS';
-    v_arr(15).v_table := 'SMY_TAREA_RESIDENTES';            v_arr(15).v_seq := 'SEQ_SMY_TAREA_RESIDENTES';
-    v_arr(16).v_table := 'SMY_INCIDENTES';                  v_arr(16).v_seq := 'SEQ_SMY_INCIDENTES';
-    v_arr(17).v_table := 'SMY_INCIDENTE_RESIDENTES';        v_arr(17).v_seq := 'SEQ_SMY_INCIDENTE_RESIDENTES';
-    v_arr(18).v_table := 'SMY_EVENTOS_CALENDARIO';          v_arr(18).v_seq := 'SEQ_SMY_EVENTOS_CALENDARIO';
-    v_arr(19).v_table := 'SMY_CONVERSACIONES_CHAT';         v_arr(19).v_seq := 'SEQ_SMY_CONVERSACIONES_CHAT';
-    v_arr(20).v_table := 'SMY_CHAT_PARTICIPANTES';          v_arr(20).v_seq := 'SEQ_SMY_CHAT_PARTICIPANTES';
-    v_arr(21).v_table := 'SMY_MENSAJES_CHAT';               v_arr(21).v_seq := 'SEQ_SMY_MENSAJES_CHAT';
-    v_arr(22).v_table := 'SMY_NOTIFICACIONES_SISTEMA';      v_arr(22).v_seq := 'SEQ_SMY_NOTIFICACIONES_SISTEMA';
+    v_arr(1).v_table := 'SMY_ORGANIZACIONES';               v_arr(1).v_seq := 'SEQ_SMY_ORGANIZACIONES';
+    v_arr(2).v_table := 'SMY_CENTROS';                      v_arr(2).v_seq := 'SEQ_SMY_CENTROS';
+    v_arr(3).v_table := 'SMY_ORGANIZACION_DUENOS';          v_arr(3).v_seq := 'SEQ_SMY_ORGANIZACION_DUENOS';
+    v_arr(4).v_table := 'SMY_CENTRO_USUARIOS';              v_arr(4).v_seq := 'SEQ_SMY_CENTRO_USUARIOS';
+    v_arr(5).v_table := 'SMY_USUARIOS';                     v_arr(5).v_seq := 'SEQ_SMY_USUARIOS';
+    v_arr(6).v_table := 'SMY_EMPLEADOS';                    v_arr(6).v_seq := 'SEQ_SMY_EMPLEADOS';
+    v_arr(7).v_table := 'SMY_RESIDENTES';                   v_arr(7).v_seq := 'SEQ_SMY_RESIDENTES';
+    v_arr(8).v_table := 'SMY_HISTORIAS_CLINICAS';           v_arr(8).v_seq := 'SEQ_SMY_HISTORIAS_CLINICAS';
+    v_arr(9).v_table := 'SMY_ACUDIENTES';                   v_arr(9).v_seq := 'SEQ_SMY_ACUDIENTES';
+    v_arr(10).v_table := 'SMY_RESIDENTE_ACUDIENTE';         v_arr(10).v_seq := 'SEQ_SMY_RESIDENTE_ACUDIENTE';
+    v_arr(11).v_table := 'SMY_TURNOS_ASIGNADOS';            v_arr(11).v_seq := 'SEQ_SMY_TURNOS_ASIGNADOS';
+    v_arr(12).v_table := 'SMY_MEDICAMENTOS_PRESCRITOS';     v_arr(12).v_seq := 'SEQ_SMY_MEDICAMENTOS_PRESCRITOS';
+    v_arr(13).v_table := 'SMY_REGISTROS_ADMIN_MED';         v_arr(13).v_seq := 'SEQ_SMY_REGISTROS_ADMIN_MED';
+    v_arr(14).v_table := 'SMY_SIGNOS_VITALES';              v_arr(14).v_seq := 'SEQ_SMY_SIGNOS_VITALES';
+    v_arr(15).v_table := 'SMY_BITACORA_RESIDENTE';         v_arr(15).v_seq := 'SEQ_SMY_BITACORA_RESIDENTE';
+    v_arr(16).v_table := 'SMY_CONSENTIMIENTOS';            v_arr(16).v_seq := 'SEQ_SMY_CONSENTIMIENTOS';
+    v_arr(17).v_table := 'SMY_CONSENTIMIENTO_DESTINATARIOS';v_arr(17).v_seq := 'SEQ_SMY_CONSENTIMIENTO_DESTINATARIOS';
+    v_arr(18).v_table := 'SMY_TAREAS_OPERATIVAS';          v_arr(18).v_seq := 'SEQ_SMY_TAREAS_OPERATIVAS';
+    v_arr(19).v_table := 'SMY_TAREA_RESIDENTES';           v_arr(19).v_seq := 'SEQ_SMY_TAREA_RESIDENTES';
+    v_arr(20).v_table := 'SMY_INCIDENTES';                 v_arr(20).v_seq := 'SEQ_SMY_INCIDENTES';
+    v_arr(21).v_table := 'SMY_INCIDENTE_RESIDENTES';       v_arr(21).v_seq := 'SEQ_SMY_INCIDENTE_RESIDENTES';
+    v_arr(22).v_table := 'SMY_EVENTOS_CALENDARIO';         v_arr(22).v_seq := 'SEQ_SMY_EVENTOS_CALENDARIO';
+    v_arr(23).v_table := 'SMY_CONVERSACIONES_CHAT';        v_arr(23).v_seq := 'SEQ_SMY_CONVERSACIONES_CHAT';
+    v_arr(24).v_table := 'SMY_CHAT_PARTICIPANTES';         v_arr(24).v_seq := 'SEQ_SMY_CHAT_PARTICIPANTES';
+    v_arr(25).v_table := 'SMY_MENSAJES_CHAT';              v_arr(25).v_seq := 'SEQ_SMY_MENSAJES_CHAT';
+    v_arr(26).v_table := 'SMY_NOTIFICACIONES_SISTEMA';     v_arr(26).v_seq := 'SEQ_SMY_NOTIFICACIONES_SISTEMA';
+    v_arr(27).v_table := 'SMY_SOLICITUDES_ADMISION';       v_arr(27).v_seq := 'SEQ_SMY_SOLICITUDES_ADMISION';
+    v_arr(28).v_table := 'SMY_SOLICITUD_ADM_CONTACTOS';    v_arr(28).v_seq := 'SEQ_SMY_SOL_ADM_CONTACTOS';
+    v_arr(29).v_table := 'SMY_PARAMETROS';                 v_arr(29).v_seq := 'SEQ_SMY_PARAMETROS';
 
     FOR i IN 1..v_arr.COUNT LOOP
         BEGIN
@@ -1454,10 +1636,15 @@ COMMIT;
 PROMPT ============================================================================
 PROMPT   POBLACIÓN DE DATOS DUMMY COMPLETADA CON ÉXITO
 PROMPT   RESUMEN:
-PROMPT     - 10 Residentes registrados con Historia Clínica
-PROMPT     - 4 Empleados / Cuidadores asignados
+PROMPT     - 2 Organizaciones y 3 Centros Geriátricos Multi-Tenant
+PROMPT     - 3 Registros de Dueños / Socios y 8 Asignaciones Multi-Sede
+PROMPT     - 10 Residentes registrados con Historia Clínica (6 en Central, 4 en Campestre)
+PROMPT     - 4 Empleados / Cuidadores asignados por sede
+PROMPT     - 2 Solicitudes previas de admisión con contactos
 PROMPT     - 14 Familiares / Acudientes creados con usuarios
 PROMPT     - 2 Residentes con 3 familiares cada uno vinculados
 PROMPT     - Turnos, Signos, Medicamentos, Bitácoras y Consentimientos activos
+PROMPT     - 29 Secuencias Oracle sincronizadas
+PROMPT     - 17 Parámetros del sistema y credenciales Google Drive configurados
 PROMPT     - Contraseña universal para todos los usuarios: Samanya2026*
 PROMPT ============================================================================

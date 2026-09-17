@@ -2,13 +2,13 @@
 -- PROYECTO: SAMANYA OS
 -- ARCHIVO: build_all.sql
 -- DESCRIPCIÓN: Script maestro orquestador de compilación PL/SQL.
---              Invoca secuencialmente cada uno de los 101 artefactos PL/SQL
+--              Invoca secuencialmente cada uno de los 105 artefactos PL/SQL
 --              en su estricto orden lógico de dependencias utilizando directivas relativas "@@".
 --              Compatible con SQL*Plus, SQLcl, Oracle SQL Developer y scripts de migración.
 --
---              Estructura Arquitectónica de Artefactos (100 objetos):
+--              Estructura Arquitectónica de Artefactos (104 objetos):
 --              - 1 Función base de fecha (f_fecha_actual.sql)
---              - 87 Paquetes DAO de acceso a datos por PK/ROWID (pkgsmy_*_dao.sql)
+--              - 91 Paquetes DAO de acceso a datos por PK/ROWID (pkgsmy_*_dao.sql)
 --              - 1 Paquete de utilidades de excepciones y logging (uti_ge_excepciones_pkg.sql)
 --              - 5 Paquetes de consultas y filtros (pkgca_residentes, pkgca_smy_usuarios, pkgca_smy_dispositivos_push, pkgca_smy_consentimientos, pkgca_smy_archivos)
 --              - 3 Paquetes DML de proceso multi-tabla (pkgcn_auth, pkgcn_consentimientos, pkgcn_archivos)
@@ -33,7 +33,7 @@ BEGIN
       FROM DUAL;
     DBMS_OUTPUT.PUT_LINE('============================================================================');
     DBMS_OUTPUT.PUT_LINE('  INICIANDO COMPILACIÓN COMPLETA DE ARTEFACTOS PL/SQL - SAMANYA OS');
-    DBMS_OUTPUT.PUT_LINE('  TOTAL OBJETOS A COMPILAR: 101');
+    DBMS_OUTPUT.PUT_LINE('  TOTAL OBJETOS A COMPILAR: 105');
     DBMS_OUTPUT.PUT_LINE('  HORA OFICIAL (Bogotá, Colombia - UTC-5): ' || v_fecha_bogota);
     DBMS_OUTPUT.PUT_LINE('============================================================================');
 END;
@@ -72,9 +72,11 @@ PROMPT >> [11/101] Compilando pkgsmy_categorias_bitacora_dao.sql...
 @@pkgsmy_categorias_bitacora_dao.sql
 PROMPT >> [12/101] Compilando pkgsmy_categorias_doc_clinicos_dao.sql...
 @@pkgsmy_categorias_doc_clinicos_dao.sql
-PROMPT >> [13/101] Compilando pkgsmy_centros_dao.sql...
+PROMPT >> Compilando pkgsmy_centros_dao.sql...
 @@pkgsmy_centros_dao.sql
-PROMPT >> [14/101] Compilando pkgsmy_chat_participantes_dao.sql...
+PROMPT >> Compilando pkgsmy_centro_usuarios_dao.sql...
+@@pkgsmy_centro_usuarios_dao.sql
+PROMPT >> Compilando pkgsmy_chat_participantes_dao.sql...
 @@pkgsmy_chat_participantes_dao.sql
 PROMPT >> [15/101] Compilando pkgsmy_clases_archivos_dao.sql...
 @@pkgsmy_clases_archivos_dao.sql
@@ -106,9 +108,11 @@ PROMPT >> [28/101] Compilando pkgsmy_estados_consentimientos_dao.sql...
 @@pkgsmy_estados_consentimientos_dao.sql
 PROMPT >> [29/101] Compilando pkgsmy_estados_doc_clinicos_dao.sql...
 @@pkgsmy_estados_doc_clinicos_dao.sql
-PROMPT >> [30/101] Compilando pkgsmy_estados_empleados_dao.sql...
+PROMPT >> Compilando pkgsmy_estados_empleados_dao.sql...
 @@pkgsmy_estados_empleados_dao.sql
-PROMPT >> [31/101] Compilando pkgsmy_estados_firmas_cons_dao.sql...
+PROMPT >> Compilando pkgsmy_estados_organizaciones_dao.sql...
+@@pkgsmy_estados_organizaciones_dao.sql
+PROMPT >> Compilando pkgsmy_estados_firmas_cons_dao.sql...
 @@pkgsmy_estados_firmas_cons_dao.sql
 PROMPT >> [32/101] Compilando pkgsmy_estados_incidentes_dao.sql...
 @@pkgsmy_estados_incidentes_dao.sql
@@ -150,9 +154,13 @@ PROMPT >> [50/101] Compilando pkgsmy_mensajes_chat_dao.sql...
 @@pkgsmy_mensajes_chat_dao.sql
 PROMPT >> [51/101] Compilando pkgsmy_niveles_movilidad_dao.sql...
 @@pkgsmy_niveles_movilidad_dao.sql
-PROMPT >> [52/101] Compilando pkgsmy_notificaciones_sistema_dao.sql...
+PROMPT >> Compilando pkgsmy_notificaciones_sistema_dao.sql...
 @@pkgsmy_notificaciones_sistema_dao.sql
-PROMPT >> [53/101] Compilando pkgsmy_parametros_dao.sql...
+PROMPT >> Compilando pkgsmy_organizaciones_dao.sql...
+@@pkgsmy_organizaciones_dao.sql
+PROMPT >> Compilando pkgsmy_organizacion_duenos_dao.sql...
+@@pkgsmy_organizacion_duenos_dao.sql
+PROMPT >> Compilando pkgsmy_parametros_dao.sql...
 @@pkgsmy_parametros_dao.sql
 PROMPT >> [54/101] Compilando pkgsmy_parentescos_dao.sql...
 @@pkgsmy_parentescos_dao.sql
@@ -297,7 +305,7 @@ BEGIN
 
     IF vn_invalidos = 0 THEN
         DBMS_OUTPUT.PUT_LINE('============================================================================');
-        DBMS_OUTPUT.PUT_LINE('  OK: Todos los 101 objetos PL/SQL se encuentran en estado VALID.');
+        DBMS_OUTPUT.PUT_LINE('  OK: Todos los 105 objetos PL/SQL se encuentran en estado VALID.');
         DBMS_OUTPUT.PUT_LINE('============================================================================');
     ELSE
         DBMS_OUTPUT.PUT_LINE('============================================================================');
@@ -318,8 +326,8 @@ BEGIN
       FROM DUAL;
     DBMS_OUTPUT.PUT_LINE('============================================================================');
     DBMS_OUTPUT.PUT_LINE('  COMPILACIÓN COMPLETADA - HORA BOGOTÁ (UTC-5): ' || v_fecha_fin);
-    DBMS_OUTPUT.PUT_LINE('  Total objetos orquestados: 101');
-    DBMS_OUTPUT.PUT_LINE('  (2 Utilidades Base + 87 DAOs + 1 Utilidad Logging + 5 Consultas PKGCA + 3 DML Multi-Tabla PKGCN + 3 Lógica de Negocio PKGLN)');
+    DBMS_OUTPUT.PUT_LINE('  Total objetos orquestados: 105');
+    DBMS_OUTPUT.PUT_LINE('  (2 Utilidades Base + 91 DAOs + 1 Utilidad Logging + 5 Consultas PKGCA + 3 DML Multi-Tabla PKGCN + 3 Lógica de Negocio PKGLN)');
     DBMS_OUTPUT.PUT_LINE('============================================================================');
 END;
 /

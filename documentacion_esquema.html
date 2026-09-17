@@ -18,10 +18,29 @@
       primaryColor: '#274a3f',
       primaryTextColor: '#ffffff',
       primaryBorderColor: '#182f28',
-      lineColor: '#b3803f',
+      lineColor: '#274a3f',
       secondaryColor: '#f1ede3',
       tertiaryColor: '#ffffff',
-      fontFamily: 'Source Sans 3, sans-serif'
+      fontFamily: 'Source Sans 3, sans-serif',
+      
+      /* Secuencias y Mensajes de Flujo */
+      textColor: '#142822',
+      signalColor: '#274a3f',
+      signalTextColor: '#142822',
+      actorTextColor: '#ffffff',
+      actorLineColor: '#274a3f',
+      actorBkg: '#274a3f',
+      actorBorder: '#142822',
+      labelBoxBkgColor: '#f1ede3',
+      labelBoxBorderColor: '#274a3f',
+      labelTextColor: '#142822',
+      loopTextColor: '#142822',
+      noteBorderColor: '#b3803f',
+      noteBkgColor: '#faeedb',
+      noteTextColor: '#142822',
+      activationBorderColor: '#274a3f',
+      activationBkgColor: '#e8f0ed',
+      sequenceNumberColor: '#ffffff'
     }
   });
 </script>
@@ -593,6 +612,48 @@ footer {
   aside.sidebar { height: auto; position: relative; }
   main.content { padding: 25px 18px; }
   .grid-2, .grid-3 { grid-template-columns: 1fr; }
+/* Corrección de legibilidad y contraste de diagramas Mermaid (Sequence & ERD) */
+.mermaid text.messageText,
+.mermaid text[class*="messageText"],
+.mermaid .messageText,
+.mermaid text:not(.actor-text):not(.sequenceNumber):not(.actor text) {
+  fill: #142822 !important;
+  color: #142822 !important;
+  stroke: none !important;
+  font-family: 'Source Sans 3', sans-serif !important;
+  font-weight: 600 !important;
+}
+
+.mermaid .actor-text,
+.mermaid text.actor > tspan,
+.mermaid text.actor {
+  fill: #ffffff !important;
+  stroke: none !important;
+  font-weight: 600 !important;
+}
+
+.mermaid text.sequenceNumber,
+.mermaid .sequenceNumber {
+  fill: #ffffff !important;
+  font-weight: 700 !important;
+}
+
+.mermaid circle.sequenceNumber {
+  fill: #b3803f !important;
+  stroke: #7d5420 !important;
+}
+
+.mermaid .messageLine0,
+.mermaid .messageLine1 {
+  stroke: #274a3f !important;
+  stroke-width: 1.8px !important;
+}
+
+.mermaid #arrowhead,
+.mermaid #crosshead,
+.mermaid marker path {
+  fill: #274a3f !important;
+  stroke: #274a3f !important;
 }
 </style>
 </head>
@@ -618,7 +679,8 @@ footer {
       <li>
         <a href="#diccionario"><span class="num">04</span>Diccionario de Datos</a>
         <ul class="nav-submenu">
-          <li><a href="#mod-lookups">0. Catálogos Maestros (48)</a></li>
+          <li><a href="#mod-lookups">0. Catálogos Maestros (50)</a></li>
+          <li><a href="#mod-organizaciones" style="color: #6ee7b7; font-weight: 600;">↳ Multi-Tenancy y Sedes (NUEVO)</a></li>
           <li><a href="#mod-seguridad">1. Seguridad y Acceso</a></li>
           <li><a href="#mod-talento">2. Talento y Turnos</a></li>
           <li><a href="#mod-residentes">3. Residentes y Admisión</a></li>
@@ -652,9 +714,9 @@ footer {
       </p>
 
       <div class="meta-stats">
-        <div class="stat-pill"><span class="num">78</span><span class="label">Total de Tablas SMY_</span></div>
-        <div class="stat-pill"><span class="num">48</span><span class="label">Catálogos Maestros (Lookups)</span></div>
-        <div class="stat-pill"><span class="num">30</span><span class="label">Tablas Transaccionales</span></div>
+        <div class="stat-pill"><span class="num">91</span><span class="label">Total de Tablas SMY_</span></div>
+        <div class="stat-pill"><span class="num">50</span><span class="label">Catálogos y Maestras</span></div>
+        <div class="stat-pill"><span class="num">41</span><span class="label">Tablas Transaccionales</span></div>
         <div class="stat-pill"><span class="num">2</span><span class="label">Vistas del Sistema</span></div>
         <div class="stat-pill"><span class="num">100%</span><span class="label">Auditoría Completa</span></div>
         <div class="stat-pill"><span class="num">UTC-5</span><span class="label">Hora Bogotá Colombia</span></div>
@@ -783,6 +845,20 @@ footer {
         <div style="margin-top:20px; overflow-x:auto;">
           <pre class="mermaid">
 erDiagram
+    SMY_ESTADOS_ORGANIZACIONES ||--o{ SMY_ORGANIZACIONES : "ID_ESTADO_ORGANIZACION"
+    SMY_ORGANIZACIONES ||--o{ SMY_ORGANIZACION_DUENOS : "ID_ORGANIZACION"
+    SMY_USUARIOS ||--o{ SMY_ORGANIZACION_DUENOS : "ID_USUARIO"
+    
+    SMY_ORGANIZACIONES ||--o{ SMY_CENTROS : "ID_ORGANIZACION"
+    SMY_CENTROS ||--o{ SMY_CENTRO_USUARIOS : "ID_CENTRO"
+    SMY_USUARIOS ||--o{ SMY_CENTRO_USUARIOS : "ID_USUARIO"
+    SMY_ROLES ||--o{ SMY_CENTRO_USUARIOS : "ID_ROL"
+    
+    SMY_CENTROS ||--o{ SMY_EMPLEADOS : "ID_CENTRO"
+    SMY_CENTROS ||--o{ SMY_RESIDENTES : "ID_CENTRO"
+    SMY_CENTROS ||--o{ SMY_SOLICITUDES_ADMISION : "ID_CENTRO"
+    SMY_ORGANIZACIONES ||--o{ SMY_PARAMETROS : "ID_ORGANIZACION"
+
     SMY_ROLES ||--o{ SMY_USUARIOS : "ID_ROL"
     SMY_TIPOS_USUARIOS ||--o{ SMY_USUARIOS : "ID_TIPO_USUARIO"
     SMY_ESTADOS_USUARIOS ||--o{ SMY_USUARIOS : "ID_ESTADO_USUARIO"
@@ -948,9 +1024,127 @@ erDiagram
             <tr><td class="col-name">SMY_ESTADOS_PARAMETROS</td><td>ID</td><td>NOMBRE_ESTADO_PARAMETRO</td><td>SMY_PARAMETROS</td><td>ID_ESTADO_PARAMETRO</td></tr>
             <tr><td class="col-name">SMY_ESTADOS_ARCHIVOS</td><td>ID</td><td>NOMBRE_ESTADO_ARCHIVO</td><td>SMY_ARCHIVOS</td><td>ID_ESTADO_ARCHIVO</td></tr>
             <tr><td class="col-name">SMY_CLASES_ARCHIVOS</td><td>ID</td><td>NOMBRE_CLASE / CODIGO_CLASE</td><td>SMY_ARCHIVOS</td><td>ID_CLASE_ARCHIVO</td></tr>
-            <tr><td class="col-name">SMY_CENTROS</td><td>ID</td><td>NOMBRE_CENTRO / CODIGO_CENTRO</td><td>SMY_ARCHIVOS</td><td>ID_CENTRO</td></tr>
+            <tr><td class="col-name">SMY_ESTADOS_ORGANIZACIONES</td><td>ID</td><td>NOMBRE_ESTADO</td><td>SMY_ORGANIZACIONES</td><td>ID_ESTADO_ORGANIZACION</td></tr>
+            <tr><td class="col-name">SMY_ORGANIZACIONES</td><td>ID</td><td>RAZON_SOCIAL / CODIGO_ORGANIZACION</td><td>SMY_CENTROS / SMY_ORG_DUENOS</td><td>ID_ORGANIZACION</td></tr>
+            <tr><td class="col-name">SMY_CENTROS</td><td>ID</td><td>NOMBRE_CENTRO / CODIGO_CENTRO</td><td>SMY_RESIDENTES / SMY_EMPLEADOS / SMY_ARCHIVOS</td><td>ID_CENTRO</td></tr>
           </tbody>
         </table>
+      </div>
+
+      <!-- 4.0 MULTI-TENANCY, ORGANIZACIONES Y SEDES -->
+      <h3 id="mod-organizaciones">4.0 Módulo Multi-Tenancy: Organizaciones, Sedes y Gobernanza (Aislamiento de Negocios)</h3>
+      <p style="margin-bottom: 20px; color: var(--ink-soft); font-size: 0.95rem;">
+        Permite soportar en una misma base de datos múltiples organizaciones/empresas operadoras de centros geriátricos independientes, garantizando que una persona física puede ser <strong>dueña de múltiples organizaciones</strong> con diferentes porcentajes de participación, y a la vez <strong>administradora o colaboradora en múltiples sedes geriátricas</strong> de forma simultánea.
+      </p>
+
+      <div class="card table-block" data-table="SMY_ESTADOS_ORGANIZACIONES">
+        <h4>Tabla: SMY_ESTADOS_ORGANIZACIONES</h4>
+        <p>Catálogo maestro de estados del ciclo de vida operativo de una organización tenedora.</p>
+        <div class="table-container">
+          <table class="data-dict">
+            <thead><tr><th>Columna</th><th>Tipo Oracle</th><th>Nulo</th><th>Defecto (Bogotá UTC-5)</th><th>Descripción y Foráneas</th></tr></thead>
+            <tbody>
+              <tr><td class="col-name">ID</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-pk">PK</span></td><td>SEQ_SMY_ESTADOS_ORG</td><td>Identificador único del estado de organización.</td></tr>
+              <tr><td class="col-name">NOMBRE_ESTADO</td><td class="col-type">VARCHAR2(50)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Nombre del estado (ej. 'ACTIVA', 'SUSPENDIDA', 'EN_PRUEBA', 'CANCELADA').</td></tr>
+              <tr><td class="col-name">DESCRIPCION</td><td class="col-type">VARCHAR2(200)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Alcance y restricciones operativas del estado.</td></tr>
+              <tr><td class="col-name">FECHA_CREACION</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>Hora Bogotá (UTC-5)</td><td>Auditoría de creación.</td></tr>
+              <tr><td class="col-name">ID_USUARIO_ULTIMA_MODIFICACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Usuario que realizó la última modificación.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card table-block" data-table="SMY_ORGANIZACIONES">
+        <h4>Tabla: SMY_ORGANIZACIONES</h4>
+        <p>Entidad raíz para el multi-tenancy corporativo. Representa la persona jurídica o empresa que agrupa uno o varios centros geriátricos.</p>
+        <div class="table-container">
+          <table class="data-dict">
+            <thead><tr><th>Columna</th><th>Tipo Oracle</th><th>Nulo</th><th>Defecto (Bogotá UTC-5)</th><th>Descripción y Foráneas</th></tr></thead>
+            <tbody>
+              <tr><td class="col-name">ID</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-pk">PK</span></td><td>SEQ_SMY_ORGANIZACIONES</td><td>Identificador único de la organización (Tenant ID).</td></tr>
+              <tr><td class="col-name">CODIGO_ORGANIZACION</td><td class="col-type">VARCHAR2(30)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Código alfanumérico único para URL y enrutamiento (ej. 'ORG-BIENESTAR').</td></tr>
+              <tr><td class="col-name">RAZON_SOCIAL</td><td class="col-type">VARCHAR2(150)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Nombre legal registrado ante cámara de comercio.</td></tr>
+              <tr><td class="col-name">NOMBRE_COMERCIAL</td><td class="col-type">VARCHAR2(120)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Nombre comercial para marca y portal de cara al usuario.</td></tr>
+              <tr><td class="col-name">NUMERO_IDENTIFICACION_TRIB</td><td class="col-type">VARCHAR2(30)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Número de identificación tributaria (NIT/RUT único).</td></tr>
+              <tr><td class="col-name">ID_TIPO_IDENTIFICACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_TIPOS_IDENTIFICACION(ID).</td></tr>
+              <tr><td class="col-name">EMAIL_CORPORATIVO</td><td class="col-type">VARCHAR2(120)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Correo institucional para notificaciones y facturación.</td></tr>
+              <tr><td class="col-name">TELEFONO_CONTACTO</td><td class="col-type">VARCHAR2(30)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Línea PBX o WhatsApp corporativo.</td></tr>
+              <tr><td class="col-name">SITIO_WEB</td><td class="col-type">VARCHAR2(200)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>URL del portal oficial corporativo.</td></tr>
+              <tr><td class="col-name">LOGO_URL</td><td class="col-type">VARCHAR2(500)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>URL del isotipo/logo corporativo para reportes y membretes.</td></tr>
+              <tr><td class="col-name">ID_ESTADO_ORGANIZACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>1</td><td>FK hacia SMY_ESTADOS_ORGANIZACIONES(ID).</td></tr>
+              <tr><td class="col-name">FECHA_CREACION</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>Hora Bogotá (UTC-5)</td><td>Auditoría de registro inicial.</td></tr>
+              <tr><td class="col-name">ID_USUARIO_ULTIMA_MODIFICACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Usuario que realizó la última modificación.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card table-block" data-table="SMY_CENTROS">
+        <h4>Tabla: SMY_CENTROS</h4>
+        <p>Sedes físicas de atención asistencial asociadas a una organización tenedora.</p>
+        <div class="table-container">
+          <table class="data-dict">
+            <thead><tr><th>Columna</th><th>Tipo Oracle</th><th>Nulo</th><th>Defecto (Bogotá UTC-5)</th><th>Descripción y Foráneas</th></tr></thead>
+            <tbody>
+              <tr><td class="col-name">ID</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-pk">PK</span></td><td>SEQ_SMY_CENTROS</td><td>ID único de la sede geriátrica.</td></tr>
+              <tr><td class="col-name">ID_ORGANIZACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK obligatoria hacia SMY_ORGANIZACIONES(ID). Multi-tenancy.</td></tr>
+              <tr><td class="col-name">CODIGO_CENTRO</td><td class="col-type">VARCHAR2(30)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Código institucional único (ej. 'SEDE-CENTRO', 'SEDE-NORTE').</td></tr>
+              <tr><td class="col-name">NOMBRE_CENTRO</td><td class="col-type">VARCHAR2(120)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Nombre descriptivo de la sede.</td></tr>
+              <tr><td class="col-name">SLUG_DIRECTORIO</td><td class="col-type">VARCHAR2(60)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Nombre saneado para subcarpetas en Google Drive y filesystem.</td></tr>
+              <tr><td class="col-name">CIUDAD</td><td class="col-type">VARCHAR2(80)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Ciudad de radicación de la sede.</td></tr>
+              <tr><td class="col-name">DIRECCION</td><td class="col-type">VARCHAR2(200)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Dirección postal de la sede.</td></tr>
+              <tr><td class="col-name">TELEFONO</td><td class="col-type">VARCHAR2(30)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Teléfono directo de la recepción.</td></tr>
+              <tr><td class="col-name">EMAIL_CONTACTO</td><td class="col-type">VARCHAR2(100)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Correo para admisiones de la sede.</td></tr>
+              <tr><td class="col-name">CAPACIDAD_RESIDENTES</td><td class="col-type">NUMBER(5)</td><td><span class="badge badge-req">No</span></td><td>0</td><td>Cupo máximo de residentes autorizados.</td></tr>
+              <tr><td class="col-name">ID_ESTADO_CENTRO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-req">No</span></td><td>1</td><td>Estado operativo de la sede.</td></tr>
+              <tr><td class="col-name">FECHA_CREACION</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>Hora Bogotá (UTC-5)</td><td>Auditoría de creación.</td></tr>
+              <tr><td class="col-name">ID_USUARIO_ULTIMA_MODIFICACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Usuario que realizó la modificación.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card table-block" data-table="SMY_ORGANIZACION_DUENOS">
+        <h4>Tabla: SMY_ORGANIZACION_DUENOS</h4>
+        <p>Gobernanza y estructura patrimonial: Relaciona a los dueños, accionistas o representantes legales con una o múltiples organizaciones.</p>
+        <div class="table-container">
+          <table class="data-dict">
+            <thead><tr><th>Columna</th><th>Tipo Oracle</th><th>Nulo</th><th>Defecto (Bogotá UTC-5)</th><th>Descripción y Foráneas</th></tr></thead>
+            <tbody>
+              <tr><td class="col-name">ID</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-pk">PK</span></td><td>SEQ_SMY_ORGANIZACION_DUENOS</td><td>Identificador único del registro de propiedad.</td></tr>
+              <tr><td class="col-name">ID_ORGANIZACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_ORGANIZACIONES(ID).</td></tr>
+              <tr><td class="col-name">ID_USUARIO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_USUARIOS(ID) correspondiente a la persona dueña.</td></tr>
+              <tr><td class="col-name">PORCENTAJE_PARTICIPACION</td><td class="col-type">NUMBER(5,2)</td><td><span class="badge badge-opt">Sí</span></td><td>100.00</td><td>Porcentaje accionario o cuota societaria (0.00% a 100.00%).</td></tr>
+              <tr><td class="col-name">ES_REPRESENTANTE_LEGAL</td><td class="col-type">CHAR(1)</td><td><span class="badge badge-req">No</span></td><td>'S'</td><td>Indicador de representación legal ('S', 'N').</td></tr>
+              <tr><td class="col-name">FECHA_VINCULACION</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>Hora Bogotá (UTC-5)</td><td>Fecha de ingreso a la sociedad.</td></tr>
+              <tr><td class="col-name">FECHA_RETIRO</td><td class="col-type">DATE</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Fecha de disolución o cesión de derechos (si aplica).</td></tr>
+              <tr><td class="col-name">ESTADO_ACTIVO</td><td class="col-type">CHAR(1)</td><td><span class="badge badge-req">No</span></td><td>'S'</td><td>Estado vigente de la participación ('S', 'N').</td></tr>
+              <tr><td class="col-name">FECHA_CREACION</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>Hora Bogotá (UTC-5)</td><td>Auditoría de creación.</td></tr>
+              <tr><td class="col-name">ID_USUARIO_ULTIMA_MODIFICACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Usuario que realizó la última modificación.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card table-block" data-table="SMY_CENTRO_USUARIOS">
+        <h4>Tabla: SMY_CENTRO_USUARIOS</h4>
+        <p>Matriz multi-sede: Permite que un usuario (administrador, médico o cuidador) tenga asignaciones y roles en múltiples centros geriátricos independientes.</p>
+        <div class="table-container">
+          <table class="data-dict">
+            <thead><tr><th>Columna</th><th>Tipo Oracle</th><th>Nulo</th><th>Defecto (Bogotá UTC-5)</th><th>Descripción y Foráneas</th></tr></thead>
+            <tbody>
+              <tr><td class="col-name">ID</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-pk">PK</span></td><td>SEQ_SMY_CENTRO_USUARIOS</td><td>Identificador único de la asignación centro-usuario.</td></tr>
+              <tr><td class="col-name">ID_CENTRO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_CENTROS(ID).</td></tr>
+              <tr><td class="col-name">ID_USUARIO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_USUARIOS(ID).</td></tr>
+              <tr><td class="col-name">ID_ROL</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_ROLES(ID) asignado específicamente en dicha sede.</td></tr>
+              <tr><td class="col-name">ES_SEDE_PRINCIPAL</td><td class="col-type">CHAR(1)</td><td><span class="badge badge-req">No</span></td><td>'N'</td><td>Define la sede predeterminada de inicio de sesión ('S', 'N').</td></tr>
+              <tr><td class="col-name">ESTADO_ACTIVO</td><td class="col-type">CHAR(1)</td><td><span class="badge badge-req">No</span></td><td>'S'</td><td>Estado vigente de la autorización en la sede ('S', 'N').</td></tr>
+              <tr><td class="col-name">FECHA_ASIGNACION</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>Hora Bogotá (UTC-5)</td><td>Fecha en que se otorgó el acceso.</td></tr>
+              <tr><td class="col-name">FECHA_CREACION</td><td class="col-type">DATE</td><td><span class="badge badge-req">No</span></td><td>Hora Bogotá (UTC-5)</td><td>Auditoría de creación.</td></tr>
+              <tr><td class="col-name">ID_USUARIO_ULTIMA_MODIFICACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Usuario que realizó la última modificación.</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <!-- 4.1 SEGURIDAD -->
@@ -1050,6 +1244,8 @@ erDiagram
             <thead><tr><th>Columna</th><th>Tipo Oracle</th><th>Nulo</th><th>Defecto (Bogotá UTC-5)</th><th>Descripción y Foráneas</th></tr></thead>
             <tbody>
               <tr><td class="col-name">ID</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-pk">PK</span></td><td>SEQ_SMY_PARAMETROS</td><td>ID único de parámetro.</td></tr>
+              <tr><td class="col-name">ID_ORGANIZACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK opcional hacia SMY_ORGANIZACIONES(ID) para parámetros a nivel tenant.</td></tr>
+              <tr><td class="col-name">ID_CENTRO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK opcional hacia SMY_CENTROS(ID) para parámetros a nivel de sede.</td></tr>
               <tr><td class="col-name">CODIGO_PARAMETRO</td><td class="col-type">VARCHAR2(100)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Código único del parámetro (ej. STORAGE_ROOT_PATH).</td></tr>
               <tr><td class="col-name">NOMBRE_PARAMETRO</td><td class="col-type">VARCHAR2(150)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Nombre descriptivo técnico.</td></tr>
               <tr><td class="col-name">DESCRIPCION</td><td class="col-type">VARCHAR2(500)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Detalle funcional de uso del parámetro.</td></tr>
@@ -1080,6 +1276,7 @@ erDiagram
             <thead><tr><th>Columna</th><th>Tipo Oracle</th><th>Nulo</th><th>Defecto (Bogotá UTC-5)</th><th>Descripción y Foráneas</th></tr></thead>
             <tbody>
               <tr><td class="col-name">ID</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-pk">PK</span></td><td>SEQ_SMY_EMPLEADOS</td><td>ID del colaborador.</td></tr>
+              <tr><td class="col-name">ID_CENTRO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_CENTROS(ID) para multi-tenancy y sede principal de contratación.</td></tr>
               <tr><td class="col-name">ID_USUARIO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK opcional hacia SMY_USUARIOS(ID).</td></tr>
               <tr><td class="col-name">ID_TIPO_IDENTIFICACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_TIPOS_IDENTIFICACION(ID).</td></tr>
               <tr><td class="col-name">IDENTIFICACION</td><td class="col-type">VARCHAR2(30)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Número de identificación o documento de identidad oficial.</td></tr>
@@ -1197,6 +1394,7 @@ erDiagram
             <thead><tr><th>Columna</th><th>Tipo Oracle</th><th>Nulo</th><th>Defecto (Bogotá UTC-5)</th><th>Descripción y Foráneas</th></tr></thead>
             <tbody>
               <tr><td class="col-name">ID</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-pk">PK</span></td><td>SEQ_SMY_RESIDENTES</td><td>ID del residente.</td></tr>
+              <tr><td class="col-name">ID_CENTRO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_CENTROS(ID) para multi-tenancy e institucionalización por sede.</td></tr>
               <tr><td class="col-name">ID_TIPO_IDENTIFICACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_TIPOS_IDENTIFICACION(ID).</td></tr>
               <tr><td class="col-name">IDENTIFICACION</td><td class="col-type">VARCHAR2(30)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Número de identificación o documento de identidad oficial.</td></tr>
               <tr><td class="col-name">NOMBRES</td><td class="col-type">VARCHAR2(80)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Nombres del residente.</td></tr>
@@ -1278,6 +1476,7 @@ erDiagram
             <thead><tr><th>Columna</th><th>Tipo Oracle</th><th>Nulo</th><th>Defecto (Bogotá UTC-5)</th><th>Descripción y Foráneas</th></tr></thead>
             <tbody>
               <tr><td class="col-name">ID</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-pk">PK</span></td><td>SEQ_SMY_SOLICITUDES_ADMISION</td><td>ID de la postulación.</td></tr>
+              <tr><td class="col-name">ID_CENTRO</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_CENTROS(ID) para la sede geriátrica de postulación.</td></tr>
               <tr><td class="col-name">NOMBRES_POSTULANTE</td><td class="col-type">VARCHAR2(80)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Nombres del aspirante.</td></tr>
               <tr><td class="col-name">APELLIDOS_POSTULANTE</td><td class="col-type">VARCHAR2(80)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Apellidos del aspirante.</td></tr>
               <tr><td class="col-name">FECHA_NACIMIENTO</td><td class="col-type">DATE</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Fecha de nacimiento estimada.</td></tr>
@@ -1454,7 +1653,8 @@ erDiagram
 
         <!-- DIAGRAMA MERMAID DE FLUJO DE CARGA Y PERSISTENCIA -->
         <h5 style="margin: 20px 0 10px; color: var(--forest-deep); font-family: 'Fraunces', serif; font-size: 1.1rem;">Diagrama de Flujo: Carga, Hasheo y Persistencia Transaccional</h5>
-        <div class="mermaid" style="background: #faf8f5; border: 1px solid var(--line); border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+        <div class="mermaid" style="background: #ffffff; border: 1px solid var(--line); border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow-x: auto;">
+%%{init: {'theme': 'base', 'themeVariables': {'primaryTextColor': '#ffffff', 'textColor': '#142822', 'signalTextColor': '#142822', 'signalColor': '#274a3f', 'actorTextColor': '#ffffff', 'actorBkg': '#274a3f', 'actorBorder': '#142822', 'actorLineColor': '#274a3f', 'labelBoxBkgColor': '#f1ede3', 'labelTextColor': '#142822', 'activationBkgColor': '#e8f0ed', 'sequenceNumberColor': '#ffffff'}}}%%
 sequenceDiagram
     autonumber
     actor Usuario as Usuario / Frontend
@@ -2193,7 +2393,18 @@ END;
         Se estructuraron índices compuestos sobre las claves foráneas de estado y fechas para optimizar las consultas operativas más frecuentes:
       </p>
 
-      <div class="grid-2">
+      <div class="grid-3">
+        <div class="card ochre">
+          <h4>Índices para Multi-Tenancy y Sedes</h4>
+          <ul style="padding-left: 18px; font-size: 0.88rem; color: var(--ink-soft); margin-top: 8px;">
+            <li><span class="mono">IDX_SMY_CEN_ORG</span>: Búsqueda y partición de centros por organización tenedora.</li>
+            <li><span class="mono">IDX_SMY_ORG_DUE_ORG</span>: Estructura societaria y dueños por organización.</li>
+            <li><span class="mono">IDX_SMY_CEN_USR_CEN</span>: Matriz de usuarios y roles autorizados por centro.</li>
+            <li><span class="mono">IDX_SMY_EMP_CENTRO</span>: Nómina y talento asistencial adscrito por sede.</li>
+            <li><span class="mono">IDX_SMY_RES_CENTRO</span>: Censo de residentes y expediente clínico por sede.</li>
+          </ul>
+        </div>
+
         <div class="card">
           <h4>Índices para Rondas Clínicas y Medicación</h4>
           <ul style="padding-left: 18px; font-size: 0.88rem; color: var(--ink-soft); margin-top: 8px;">
@@ -2250,8 +2461,8 @@ function filterTables() {
 }
 
 // Variables y Datos para Vis.js Network con Almacenamiento Aislado
-const STORAGE_KEY_CUSTOM_POSITIONS = 'smy_erd_custom_positions_v3';
-const STORAGE_KEY_CONFIG = 'smy_erd_config_v3';
+const STORAGE_KEY_CUSTOM_POSITIONS = 'smy_erd_custom_positions_v4';
+const STORAGE_KEY_CONFIG = 'smy_erd_config_v4';
 
 let network = null;
 let networkNodes = null;
@@ -2301,11 +2512,28 @@ const initialNodesData = [
   { id: 33, label: "V_SMY_TIMELINE_RESIDENTE", group: "clinico", shape: "ellipse", color: { background: "#142822", border: "#b3803f" }, font: { color: "#fff", face: "IBM Plex Mono", size: 13 } },
   { id: 34, label: "SMY_PARAMETROS", group: "seguridad", shape: "box", color: { background: "#7a4f9e", border: "#583475" }, font: { color: "#fff", face: "IBM Plex Mono", size: 13 } },
   { id: 35, label: "SMY_ARCHIVOS", group: "clinico", shape: "box", color: { background: "#274a3f", border: "#142822" }, font: { color: "#fff", face: "IBM Plex Mono", size: 14, bold: true } },
-  { id: 36, label: "SMY_CENTROS", group: "operaciones", shape: "box", color: { background: "#d97706", border: "#b45309" }, font: { color: "#fff", face: "IBM Plex Mono", size: 13 } },
-  { id: 37, label: "VW_SMY_ARCHIVOS_ACTIVOS", group: "clinico", shape: "ellipse", color: { background: "#142822", border: "#b3803f" }, font: { color: "#fff", face: "IBM Plex Mono", size: 13 } }
+  { id: 36, label: "SMY_CENTROS", group: "operaciones", shape: "box", color: { background: "#d97706", border: "#b45309" }, font: { color: "#fff", face: "IBM Plex Mono", size: 14, bold: true } },
+  { id: 37, label: "VW_SMY_ARCHIVOS_ACTIVOS", group: "clinico", shape: "ellipse", color: { background: "#142822", border: "#b3803f" }, font: { color: "#fff", face: "IBM Plex Mono", size: 13 } },
+  { id: 38, label: "SMY_ESTADOS_ORGANIZACIONES", group: "seguridad", shape: "box", color: { background: "#7a4f9e", border: "#583475" }, font: { color: "#fff", face: "IBM Plex Mono", size: 12 } },
+  { id: 39, label: "SMY_ORGANIZACIONES", group: "seguridad", shape: "box", color: { background: "#142822", border: "#6ee7b7" }, font: { color: "#fff", face: "IBM Plex Mono", size: 16, bold: true } },
+  { id: 40, label: "SMY_ORGANIZACION_DUENOS", group: "seguridad", shape: "box", color: { background: "#2c7a6b", border: "#1c5349" }, font: { color: "#fff", face: "IBM Plex Mono", size: 13 } },
+  { id: 41, label: "SMY_CENTRO_USUARIOS", group: "seguridad", shape: "box", color: { background: "#2c7a6b", border: "#1c5349" }, font: { color: "#fff", face: "IBM Plex Mono", size: 13 } },
+  { id: 42, label: "SMY_SOLICITUDES_ADMISION", group: "familiar", shape: "box", color: { background: "#d99b4e", border: "#b3803f" }, font: { color: "#fff", face: "IBM Plex Mono", size: 13 } }
 ];
 
 const initialEdgesData = [
+  { from: 38, to: 39, label: "ID_ESTADO_ORG", arrows: "to", color: { color: "#7a4f9e" } },
+  { from: 39, to: 40, label: "ID_ORGANIZACION", arrows: "to", color: { color: "#2c7a6b" } },
+  { from: 2, to: 40, label: "ID_USUARIO", arrows: "to", color: { color: "#2c7a6b" } },
+  { from: 39, to: 36, label: "ID_ORGANIZACION", arrows: "to", color: { color: "#6ee7b7" } },
+  { from: 36, to: 41, label: "ID_CENTRO", arrows: "to", color: { color: "#2c7a6b" } },
+  { from: 2, to: 41, label: "ID_USUARIO", arrows: "to", color: { color: "#2c7a6b" } },
+  { from: 1, to: 41, label: "ID_ROL", arrows: "to", color: { color: "#7a4f9e" } },
+  { from: 36, to: 3, label: "ID_CENTRO", arrows: "to", color: { color: "#d97706" } },
+  { from: 36, to: 7, label: "ID_CENTRO", arrows: "to", color: { color: "#d97706" } },
+  { from: 36, to: 42, label: "ID_CENTRO", arrows: "to", color: { color: "#d97706" } },
+  { from: 39, to: 34, label: "ID_ORGANIZACION", arrows: "to", dashes: true, color: { color: "#7a4f9e" } },
+
   { from: 1, to: 2, label: "ID_ROL", arrows: "to", color: { color: "#7a4f9e" } },
   { from: 2, to: 3, label: "ID_USUARIO", arrows: "to", color: { color: "#2c7a6b" } },
   { from: 2, to: 8, label: "ID_USUARIO", arrows: "to", color: { color: "#b3803f" } },

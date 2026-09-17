@@ -1,35 +1,35 @@
 -- =============================================================================
--- ESPECIFICACIÓN Y CUERPO DAO: PKGSMY_PARAMETROS_DAO
--- TABLA: SMY_PARAMETROS
+-- ESPECIFICACIÓN Y CUERPO DAO: PKGSMY_ESTADOS_ORGANIZACIONES_DAO
+-- TABLA: SMY_ESTADOS_ORGANIZACIONES
 -- ESTÁNDAR ARQUITECTÓNICO: oracle-plsql-architecture (Plantilla oficial 18 métodos)
 -- =============================================================================
 
-CREATE OR REPLACE PACKAGE PKGSMY_PARAMETROS_DAO
+CREATE OR REPLACE PACKAGE PKGSMY_ESTADOS_ORGANIZACIONES_DAO
 AS
     /*
     || =========================================================================
-    || Paquete: PKGSMY_PARAMETROS_DAO
-    || Propósito: Capa de acceso a datos exclusiva para la tabla SMY_PARAMETROS
+    || Paquete: PKGSMY_ESTADOS_ORGANIZACIONES_DAO
+    || Propósito: Capa de acceso a datos exclusiva para la tabla SMY_ESTADOS_ORGANIZACIONES
     || Estándar: Plantilla oficial DAO PL/SQL Oracle
     || =========================================================================
     */
 
     -- Tipo de colección estándar para registros de la tabla
-    TYPE ta_smy_parametros IS TABLE OF smy_parametros%ROWTYPE INDEX BY BINARY_INTEGER;
+    TYPE ta_smy_estados_organizaciones IS TABLE OF smy_estados_organizaciones%ROWTYPE INDEX BY BINARY_INTEGER;
 
     -- 1. Insertar registro
     PROCEDURE p_insertar (
-        pro_smy_parametros IN smy_parametros%ROWTYPE
+        pro_smy_est_org IN smy_estados_organizaciones%ROWTYPE
     );
 
     -- 2. Traer registro por PK
     FUNCTION f_traer (
-        pty_id IN smy_parametros.id%TYPE
-    ) RETURN smy_parametros%ROWTYPE;
+        pty_id IN smy_estados_organizaciones.id%TYPE
+    ) RETURN smy_estados_organizaciones%ROWTYPE;
 
     -- 3. Consultar todos los registros
     PROCEDURE p_consultar_registros (
-        pta_smy_parametros OUT PKGSMY_PARAMETROS_DAO.ta_smy_parametros
+        pta_smy_est_org OUT PKGSMY_ESTADOS_ORGANIZACIONES_DAO.ta_smy_estados_organizaciones
     );
 
     -- 4. Eliminar por ROWID
@@ -39,7 +39,7 @@ AS
 
     -- 5. Eliminar por PK
     PROCEDURE p_eliminar (
-        pty_id IN smy_parametros.id%TYPE
+        pty_id IN smy_estados_organizaciones.id%TYPE
     );
 
     -- 6. Eliminar todos los registros
@@ -47,20 +47,20 @@ AS
 
     -- 7. Verificar existencia por PK
     FUNCTION f_existe (
-        pty_id IN smy_parametros.id%TYPE
+        pty_id IN smy_estados_organizaciones.id%TYPE
     ) RETURN BOOLEAN;
 
     -- 8. Verificar existencia y retornar registro
     FUNCTION f_existe (
-        pty_id       IN  smy_parametros.id%TYPE,
-        pro_smy_parametros  OUT smy_parametros%ROWTYPE
+        pty_id          IN  smy_estados_organizaciones.id%TYPE,
+        pro_smy_est_org OUT smy_estados_organizaciones%ROWTYPE
     ) RETURN BOOLEAN;
 
     -- 9. Verificar existencia, retornar registro y ROWID
     FUNCTION f_existe (
-        pty_id       IN  smy_parametros.id%TYPE,
-        pro_smy_parametros  OUT smy_parametros%ROWTYPE,
-        p_rowid      OUT VARCHAR2
+        pty_id          IN  smy_estados_organizaciones.id%TYPE,
+        pro_smy_est_org OUT smy_estados_organizaciones%ROWTYPE,
+        p_rowid         OUT VARCHAR2
     ) RETURN BOOLEAN;
 
     -- 10. Verificar existencia por ROWID
@@ -70,80 +70,80 @@ AS
 
     -- 11. Verificar existencia por ROWID y retornar registro
     FUNCTION f_existe_rowid (
-        p_rowid      IN  VARCHAR2,
-        pro_smy_parametros  OUT smy_parametros%ROWTYPE
+        p_rowid         IN  VARCHAR2,
+        pro_smy_est_org OUT smy_estados_organizaciones%ROWTYPE
     ) RETURN BOOLEAN;
 
     -- 12. Actualizar por registro
     PROCEDURE p_actualizar (
-        pro_smy_parametros IN smy_parametros%ROWTYPE
+        pro_smy_est_org IN smy_estados_organizaciones%ROWTYPE
     );
 
     -- 13. Actualizar indicando PK
     PROCEDURE p_actualizar (
-        pro_smy_parametros IN smy_parametros%ROWTYPE,
-        pty_id      IN smy_parametros.id%TYPE
+        pro_smy_est_org IN smy_estados_organizaciones%ROWTYPE,
+        pty_id         IN smy_estados_organizaciones.id%TYPE
     );
 
     -- 14. Actualizar por ROWID
     PROCEDURE p_actualizar_rowid (
-        pro_smy_parametros IN smy_parametros%ROWTYPE,
-        p_rowid     IN VARCHAR2
+        pro_smy_est_org IN smy_estados_organizaciones%ROWTYPE,
+        p_rowid        IN VARCHAR2
     );
 
     -- 15. Actualizar todos los registros
     PROCEDURE p_actualizar_registros (
-        pro_smy_parametros IN smy_parametros%ROWTYPE
+        pro_smy_est_org IN smy_estados_organizaciones%ROWTYPE
     );
 
     -- 16. Obtener valores por defecto
     PROCEDURE p_valores_defecto (
-        pro_smy_parametros IN OUT smy_parametros%ROWTYPE
+        pro_smy_est_org IN OUT smy_estados_organizaciones%ROWTYPE
     );
 
     -- 17. Verificar existencia y retornar JSON
     FUNCTION f_existe_json (
-        p_id            IN  smy_parametros.id%TYPE,
-        p_json_smy_parametros  OUT CLOB
+        p_id               IN  smy_estados_organizaciones.id%TYPE,
+        p_json_smy_est_org OUT CLOB
     ) RETURN NUMBER;
 
     -- 18. Obtener JSON por PK (Retorna CLOB nativo)
     FUNCTION f_json (
-        p_id IN smy_parametros.id%TYPE
+        p_id IN smy_estados_organizaciones.id%TYPE
     ) RETURN CLOB;
 
-END PKGSMY_PARAMETROS_DAO;
+END PKGSMY_ESTADOS_ORGANIZACIONES_DAO;
 /
 
-CREATE OR REPLACE PACKAGE BODY PKGSMY_PARAMETROS_DAO
+CREATE OR REPLACE PACKAGE BODY PKGSMY_ESTADOS_ORGANIZACIONES_DAO
 AS
     /*
     || =========================================================================
-    || Paquete: PKGSMY_PARAMETROS_DAO (Body)
-    || Propósito: Implementación de operaciones CRUD para SMY_PARAMETROS
+    || Paquete: PKGSMY_ESTADOS_ORGANIZACIONES_DAO (Body)
+    || Propósito: Implementación de operaciones CRUD para SMY_ESTADOS_ORGANIZACIONES
     || Reglas: Sin COMMIT/ROLLBACK, sin lógica de negocio, manejo nativo de JSON
     || =========================================================================
     */
 
     -- 1. Insertar
     PROCEDURE p_insertar (
-        pro_smy_parametros IN smy_parametros%ROWTYPE
+        pro_smy_est_org IN smy_estados_organizaciones%ROWTYPE
     )
     IS
     BEGIN
-        INSERT INTO smy_parametros VALUES pro_smy_parametros;
+        INSERT INTO smy_estados_organizaciones VALUES pro_smy_est_org;
     END p_insertar;
 
     -- 2. Traer por PK
     FUNCTION f_traer (
-        pty_id IN smy_parametros.id%TYPE
-    ) RETURN smy_parametros%ROWTYPE
+        pty_id IN smy_estados_organizaciones.id%TYPE
+    ) RETURN smy_estados_organizaciones%ROWTYPE
     IS
-        v_registro smy_parametros%ROWTYPE;
+        v_registro smy_estados_organizaciones%ROWTYPE;
     BEGIN
         SELECT *
           INTO v_registro
-          FROM smy_parametros
+          FROM smy_estados_organizaciones
          WHERE id = pty_id;
 
         RETURN v_registro;
@@ -154,13 +154,14 @@ AS
 
     -- 3. Consultar todos los registros
     PROCEDURE p_consultar_registros (
-        pta_smy_parametros OUT PKGSMY_PARAMETROS_DAO.ta_smy_parametros
+        pta_smy_est_org OUT PKGSMY_ESTADOS_ORGANIZACIONES_DAO.ta_smy_estados_organizaciones
     )
     IS
     BEGIN
         SELECT *
-          BULK COLLECT INTO pta_smy_parametros
-          FROM smy_parametros;
+          BULK COLLECT INTO pta_smy_est_org
+          FROM smy_estados_organizaciones
+         ORDER BY id;
     END p_consultar_registros;
 
     -- 4. Eliminar por ROWID
@@ -169,17 +170,17 @@ AS
     )
     IS
     BEGIN
-        DELETE FROM smy_parametros
+        DELETE FROM smy_estados_organizaciones
          WHERE ROWID = CHARTOROWID(p_rowid);
     END p_eliminar_rowid;
 
     -- 5. Eliminar por PK
     PROCEDURE p_eliminar (
-        pty_id IN smy_parametros.id%TYPE
+        pty_id IN smy_estados_organizaciones.id%TYPE
     )
     IS
     BEGIN
-        DELETE FROM smy_parametros
+        DELETE FROM smy_estados_organizaciones
          WHERE id = pty_id;
     END p_eliminar;
 
@@ -187,19 +188,19 @@ AS
     PROCEDURE p_eliminar_registros
     IS
     BEGIN
-        DELETE FROM smy_parametros;
+        DELETE FROM smy_estados_organizaciones;
     END p_eliminar_registros;
 
     -- 7. Verificar existencia por PK
     FUNCTION f_existe (
-        pty_id IN smy_parametros.id%TYPE
+        pty_id IN smy_estados_organizaciones.id%TYPE
     ) RETURN BOOLEAN
     IS
-        v_dummy NUMBER;
+        v_dummy NUMBER(1);
     BEGIN
         SELECT 1
           INTO v_dummy
-          FROM smy_parametros
+          FROM smy_estados_organizaciones
          WHERE id = pty_id;
 
         RETURN TRUE;
@@ -210,14 +211,14 @@ AS
 
     -- 8. Verificar existencia y retornar registro
     FUNCTION f_existe (
-        pty_id       IN  smy_parametros.id%TYPE,
-        pro_smy_parametros  OUT smy_parametros%ROWTYPE
+        pty_id          IN  smy_estados_organizaciones.id%TYPE,
+        pro_smy_est_org OUT smy_estados_organizaciones%ROWTYPE
     ) RETURN BOOLEAN
     IS
     BEGIN
         SELECT *
-          INTO pro_smy_parametros
-          FROM smy_parametros
+          INTO pro_smy_est_org
+          FROM smy_estados_organizaciones
          WHERE id = pty_id;
 
         RETURN TRUE;
@@ -228,25 +229,26 @@ AS
 
     -- 9. Verificar existencia, retornar registro y ROWID
     FUNCTION f_existe (
-        pty_id       IN  smy_parametros.id%TYPE,
-        pro_smy_parametros  OUT smy_parametros%ROWTYPE,
-        p_rowid      OUT VARCHAR2
+        pty_id          IN  smy_estados_organizaciones.id%TYPE,
+        pro_smy_est_org OUT smy_estados_organizaciones%ROWTYPE,
+        p_rowid         OUT VARCHAR2
     ) RETURN BOOLEAN
     IS
     BEGIN
         SELECT ROWIDTOCHAR(ROWID)
           INTO p_rowid
-          FROM smy_parametros
+          FROM smy_estados_organizaciones
          WHERE id = pty_id;
 
         SELECT *
-          INTO pro_smy_parametros
-          FROM smy_parametros
+          INTO pro_smy_est_org
+          FROM smy_estados_organizaciones
          WHERE ROWID = CHARTOROWID(p_rowid);
 
         RETURN TRUE;
     EXCEPTION
         WHEN NO_DATA_FOUND THEN
+            p_rowid := NULL;
             RETURN FALSE;
     END f_existe;
 
@@ -255,11 +257,11 @@ AS
         p_rowid IN VARCHAR2
     ) RETURN BOOLEAN
     IS
-        v_dummy NUMBER;
+        v_dummy NUMBER(1);
     BEGIN
         SELECT 1
           INTO v_dummy
-          FROM smy_parametros
+          FROM smy_estados_organizaciones
          WHERE ROWID = CHARTOROWID(p_rowid);
 
         RETURN TRUE;
@@ -270,14 +272,14 @@ AS
 
     -- 11. Verificar existencia por ROWID y retornar registro
     FUNCTION f_existe_rowid (
-        p_rowid      IN  VARCHAR2,
-        pro_smy_parametros  OUT smy_parametros%ROWTYPE
+        p_rowid         IN  VARCHAR2,
+        pro_smy_est_org OUT smy_estados_organizaciones%ROWTYPE
     ) RETURN BOOLEAN
     IS
     BEGIN
         SELECT *
-          INTO pro_smy_parametros
-          FROM smy_parametros
+          INTO pro_smy_est_org
+          FROM smy_estados_organizaciones
          WHERE ROWID = CHARTOROWID(p_rowid);
 
         RETURN TRUE;
@@ -288,129 +290,110 @@ AS
 
     -- 12. Actualizar por registro
     PROCEDURE p_actualizar (
-        pro_smy_parametros IN smy_parametros%ROWTYPE
+        pro_smy_est_org IN smy_estados_organizaciones%ROWTYPE
     )
     IS
     BEGIN
-        UPDATE smy_parametros
-           SET ROW = pro_smy_parametros
-         WHERE id = pro_smy_parametros.id;
+        UPDATE smy_estados_organizaciones
+           SET nombre_estado                  = pro_smy_est_org.nombre_estado,
+               descripcion                    = pro_smy_est_org.descripcion,
+               id_usuario_ultima_modificacion = pro_smy_est_org.id_usuario_ultima_modificacion
+         WHERE id = pro_smy_est_org.id;
     END p_actualizar;
 
     -- 13. Actualizar indicando PK
     PROCEDURE p_actualizar (
-        pro_smy_parametros IN smy_parametros%ROWTYPE,
-        pty_id      IN smy_parametros.id%TYPE
+        pro_smy_est_org IN smy_estados_organizaciones%ROWTYPE,
+        pty_id         IN smy_estados_organizaciones.id%TYPE
     )
     IS
     BEGIN
-        UPDATE smy_parametros
-           SET ROW = pro_smy_parametros
+        UPDATE smy_estados_organizaciones
+           SET nombre_estado                  = pro_smy_est_org.nombre_estado,
+               descripcion                    = pro_smy_est_org.descripcion,
+               id_usuario_ultima_modificacion = pro_smy_est_org.id_usuario_ultima_modificacion
          WHERE id = pty_id;
     END p_actualizar;
 
     -- 14. Actualizar por ROWID
     PROCEDURE p_actualizar_rowid (
-        pro_smy_parametros IN smy_parametros%ROWTYPE,
-        p_rowid     IN VARCHAR2
+        pro_smy_est_org IN smy_estados_organizaciones%ROWTYPE,
+        p_rowid        IN VARCHAR2
     )
     IS
     BEGIN
-        UPDATE smy_parametros
-           SET ROW = pro_smy_parametros
+        UPDATE smy_estados_organizaciones
+           SET nombre_estado                  = pro_smy_est_org.nombre_estado,
+               descripcion                    = pro_smy_est_org.descripcion,
+               id_usuario_ultima_modificacion = pro_smy_est_org.id_usuario_ultima_modificacion
          WHERE ROWID = CHARTOROWID(p_rowid);
     END p_actualizar_rowid;
 
     -- 15. Actualizar todos los registros
     PROCEDURE p_actualizar_registros (
-        pro_smy_parametros IN smy_parametros%ROWTYPE
+        pro_smy_est_org IN smy_estados_organizaciones%ROWTYPE
     )
     IS
     BEGIN
-        UPDATE smy_parametros
-           SET ROW = pro_smy_parametros;
+        UPDATE smy_estados_organizaciones
+           SET nombre_estado                  = pro_smy_est_org.nombre_estado,
+               descripcion                    = pro_smy_est_org.descripcion,
+               id_usuario_ultima_modificacion = pro_smy_est_org.id_usuario_ultima_modificacion;
     END p_actualizar_registros;
 
-    -- 16. Obtener valores por defecto
+    -- 16. Valores por defecto
     PROCEDURE p_valores_defecto (
-        pro_smy_parametros IN OUT smy_parametros%ROWTYPE
+        pro_smy_est_org IN OUT smy_estados_organizaciones%ROWTYPE
     )
     IS
     BEGIN
-        pro_smy_parametros.grupo_parametro := NVL(pro_smy_parametros.grupo_parametro, 'GENERAL');
-        pro_smy_parametros.es_encriptado := NVL(pro_smy_parametros.es_encriptado, 'N');
-        pro_smy_parametros.es_sistema := NVL(pro_smy_parametros.es_sistema, 'N');
-        pro_smy_parametros.id_estado_parametro := NVL(pro_smy_parametros.id_estado_parametro, 1);
-        pro_smy_parametros.fecha_creacion := NVL(pro_smy_parametros.fecha_creacion, CAST(SYSTIMESTAMP AT TIME ZONE '-05:00' AS DATE));
+        pro_smy_est_org.id             := NULL;
+        pro_smy_est_org.fecha_creacion := CAST(SYSTIMESTAMP AT TIME ZONE '-05:00' AS DATE);
     END p_valores_defecto;
 
     -- 17. Verificar existencia y retornar JSON
     FUNCTION f_existe_json (
-        p_id                   IN  smy_parametros.id%TYPE,
-        p_json_smy_parametros  OUT CLOB
+        p_id               IN  smy_estados_organizaciones.id%TYPE,
+        p_json_smy_est_org OUT CLOB
     ) RETURN NUMBER
     IS
     BEGIN
         SELECT JSON_OBJECT(
                    'id' VALUE t.id,
-                   'id_organizacion' VALUE t.id_organizacion,
-                   'id_centro' VALUE t.id_centro,
-                   'codigo_parametro' VALUE t.codigo_parametro,
-                   'nombre_parametro' VALUE t.nombre_parametro,
+                   'nombre_estado' VALUE t.nombre_estado,
                    'descripcion' VALUE t.descripcion,
-                   'grupo_parametro' VALUE t.grupo_parametro,
-                   'valor_texto' VALUE t.valor_texto,
-                   'valor_clob' VALUE t.valor_clob,
-                   'valor_numerico' VALUE t.valor_numerico,
-                   'valor_fecha' VALUE TO_CHAR(t.valor_fecha, 'YYYY-MM-DD"T"HH24:MI:SS'),
-                   'es_encriptado' VALUE t.es_encriptado,
-                   'es_sistema' VALUE t.es_sistema,
-                   'id_estado_parametro' VALUE t.id_estado_parametro,
                    'fecha_creacion' VALUE TO_CHAR(t.fecha_creacion, 'YYYY-MM-DD"T"HH24:MI:SS'),
-                   'fecha_ultima_modificacion' VALUE TO_CHAR(t.fecha_ultima_modificacion, 'YYYY-MM-DD"T"HH24:MI:SS'),
                    'id_usuario_ultima_modificacion' VALUE t.id_usuario_ultima_modificacion
                    RETURNING CLOB
                )
-          INTO p_json_smy_parametros
-          FROM smy_parametros t
+          INTO p_json_smy_est_org
+          FROM smy_estados_organizaciones t
          WHERE t.id = p_id;
 
         RETURN 1;
     EXCEPTION
         WHEN NO_DATA_FOUND THEN
-            p_json_smy_parametros := NULL;
+            p_json_smy_est_org := NULL;
             RETURN 0;
     END f_existe_json;
 
     -- 18. Obtener JSON por PK (Retorna CLOB nativo)
     FUNCTION f_json (
-        p_id IN smy_parametros.id%TYPE
+        p_id IN smy_estados_organizaciones.id%TYPE
     ) RETURN CLOB
     IS
         v_json CLOB;
     BEGIN
         SELECT JSON_OBJECT(
                    'id' VALUE t.id,
-                   'id_organizacion' VALUE t.id_organizacion,
-                   'id_centro' VALUE t.id_centro,
-                   'codigo_parametro' VALUE t.codigo_parametro,
-                   'nombre_parametro' VALUE t.nombre_parametro,
+                   'nombre_estado' VALUE t.nombre_estado,
                    'descripcion' VALUE t.descripcion,
-                   'grupo_parametro' VALUE t.grupo_parametro,
-                   'valor_texto' VALUE t.valor_texto,
-                   'valor_clob' VALUE t.valor_clob,
-                   'valor_numerico' VALUE t.valor_numerico,
-                   'valor_fecha' VALUE TO_CHAR(t.valor_fecha, 'YYYY-MM-DD"T"HH24:MI:SS'),
-                   'es_encriptado' VALUE t.es_encriptado,
-                   'es_sistema' VALUE t.es_sistema,
-                   'id_estado_parametro' VALUE t.id_estado_parametro,
                    'fecha_creacion' VALUE TO_CHAR(t.fecha_creacion, 'YYYY-MM-DD"T"HH24:MI:SS'),
-                   'fecha_ultima_modificacion' VALUE TO_CHAR(t.fecha_ultima_modificacion, 'YYYY-MM-DD"T"HH24:MI:SS'),
                    'id_usuario_ultima_modificacion' VALUE t.id_usuario_ultima_modificacion
                    RETURNING CLOB
                )
           INTO v_json
-          FROM smy_parametros t
+          FROM smy_estados_organizaciones t
          WHERE t.id = p_id;
 
         RETURN v_json;
@@ -419,5 +402,5 @@ AS
             RETURN NULL;
     END f_json;
 
-END PKGSMY_PARAMETROS_DAO;
+END PKGSMY_ESTADOS_ORGANIZACIONES_DAO;
 /

@@ -350,6 +350,7 @@ AS
     BEGIN
         SELECT JSON_OBJECT(
                    'id' VALUE t.id,
+                   'id_centro' VALUE t.id_centro,
                    'nombre_completo' VALUE t.nombre_completo,
                    'fecha_nacimiento' VALUE TO_CHAR(t.fecha_nacimiento, 'YYYY-MM-DD"T"HH24:MI:SS'),
                    'id_genero' VALUE t.id_genero,
@@ -388,6 +389,7 @@ AS
     BEGIN
         SELECT JSON_OBJECT(
                    'id' VALUE t.id,
+                   'id_centro' VALUE t.id_centro,
                    'nombre_completo' VALUE t.nombre_completo,
                    'fecha_nacimiento' VALUE TO_CHAR(t.fecha_nacimiento, 'YYYY-MM-DD"T"HH24:MI:SS'),
                    'id_genero' VALUE t.id_genero,
