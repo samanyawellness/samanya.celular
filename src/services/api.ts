@@ -17,8 +17,8 @@ export function getApiBaseUrl(): string {
     const customUrl = localStorage.getItem('samanya_custom_api_url');
     if (customUrl) return customUrl.replace(/\/+$/, '');
   }
-  if (import.meta.env.VITE_API_BASE_URL) {
-    return (import.meta.env.VITE_API_BASE_URL as string).replace(/\/+$/, '');
+  if ((import.meta as any).env?.VITE_API_BASE_URL) {
+    return ((import.meta as any).env.VITE_API_BASE_URL as string).replace(/\/+$/, '');
   }
   // Detección robusta de entorno nativo (Capacitor Android / iOS)
   const isCapacitorNative =
@@ -65,12 +65,36 @@ export function setAuthToken(token: string) {
   localStorage.setItem('samanya_token', token);
 }
 
+export function setActiveCentroContext(centroId?: number | string | null, orgId?: number | string | null) {
+  if (centroId !== undefined && centroId !== null) {
+    localStorage.setItem('samanya_active_centro_id', String(centroId));
+  } else {
+    localStorage.removeItem('samanya_active_centro_id');
+  }
+  if (orgId !== undefined && orgId !== null) {
+    localStorage.setItem('samanya_active_org_id', String(orgId));
+  } else {
+    localStorage.removeItem('samanya_active_org_id');
+  }
+}
+
+export function getActiveCentroContext() {
+  return {
+    centroId: localStorage.getItem('samanya_active_centro_id'),
+    organizacionId: localStorage.getItem('samanya_active_org_id'),
+  };
+}
+
 export function removeAuthToken() {
   localStorage.removeItem('samanya_token');
+  localStorage.removeItem('samanya_active_centro_id');
+  localStorage.removeItem('samanya_active_org_id');
 }
 
 async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const token = getAuthToken();
+  const { centroId, organizacionId } = getActiveCentroContext();
+
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     ...(options.headers as Record<string, string>),
@@ -78,6 +102,12 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
 
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
+  }
+  if (centroId) {
+    headers['x-centro-id'] = centroId;
+  }
+  if (organizacionId) {
+    headers['x-organizacion-id'] = organizacionId;
   }
 
   const baseUrl = getApiBaseUrl();
@@ -118,6 +148,21 @@ export const api = {
           telefono?: string;
           avatarUrl?: string;
         };
+        centros?: Array<{
+          idCentro: number | string;
+          codigoCentro: string;
+          nombreCentro: string;
+          ciudad: string;
+          direccion?: string;
+          idOrganizacion: number | string;
+          codigoOrganizacion: string;
+          nombreOrganizacion: string;
+          idRol?: number;
+          codigoRol?: string;
+          nombreRol?: string;
+          esSedePrincipal?: boolean;
+        }>;
+        activeCentro?: any;
       };
     }>('/auth/login', {
       method: 'POST',
@@ -130,13 +175,29 @@ export const api = {
     return res.data;
   },
 
+  // Tablas Maestras por Organización
+  async getMasterTable(tableName: string, organizacionId?: number | string) {
+    const org = organizacionId || localStorage.getItem('samanya_active_org_id') || '1';
+    const res = await request<{ success: boolean; data: any[]; meta: any }>(
+      `/maestras/${encodeURIComponent(tableName)}?idOrganizacion=${encodeURIComponent(org)}`
+    );
+    return res.data;
+  },
+
+  async getMasterCatalog() {
+    const res = await request<{ success: boolean; data: string[] }>('/maestras/catalogo');
+    return res.data;
+  },
+
   async getMe() {
     return request<{ success: boolean; data: any }>('/auth/me');
   },
 
   // Residentes
-  async getResidents() {
-    const res = await request<{ success: boolean; data: any[] }>('/residentes');
+  async getResidents(idCentro?: number | string) {
+    const cid = idCentro ?? getActiveCentroContext().centroId;
+    const url = cid ? `/residentes?idCentro=${encodeURIComponent(String(cid))}` : '/residentes';
+    const res = await request<{ success: boolean; data: any[] }>(url);
     return res.data;
   },
 

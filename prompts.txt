@@ -1028,3 +1028,54 @@ FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-14 22:43:57
 ================================================================================
 Subir al repositorio y hacer push
 
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-17 21:37:48
+================================================================================
+Al crear la tabla de organizaciones para ser un sistema Multi-Tenancy las tablas maestras deberian pertenecer a cada organizacion, realizar los ajustes en todas las tablas y los scripts relacionados como en la documentacion
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-17 21:49:24
+================================================================================
+La validacion la hago manualmente como las compilaciones de los objetos de la base de datos, tambien actualizar los archivos de build_all.sql, datos_prueba_dummy.sql y inicializar_bd.sql
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-17 22:10:16
+================================================================================
+Al ejecutar creacion_modelo_relacional.sql me arrojo los errores que estan en el archivo erroresCreacionModelo.sql
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-17 22:34:37
+================================================================================
+No encuentro en que parte esta la relacion de un usuario a que organizacion(es) pertenece, yo quisiera poder saber si un usuario que es cuidador en que centro trabaja como lo puedo saber en este modelo
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-17 22:40:31
+================================================================================
+Deseo que hagas el ajuste de la aplicacion para que cuando un usuario ingrese identifique el centro, en caso de que trabaje en mas de uno saque una ventana para escoger con cual esta laborando, si solo tiene 1 centro entra directo a la aplicacion.
+Tambien debe tener en cuenta la organizacion para consultar las tablas maestras.
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-17 22:46:30
+================================================================================
+Deseo que primero cree los registros en datos_prueba_dummy.sql y despues continues con los demas puntos.
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-17 22:57:57
+================================================================================
+arrancar el servidor para ver la aplicacion
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-17 23:03:01
+================================================================================
+Un administrador cuando trabaja en un centro si yo voy al menu de Residentes debe mostrar los residentes de ese centro
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-17 23:14:52
+================================================================================
+Entro como admin y escojo un centro y me sigue mostrando en residente los mismos para todos los centros, cambio algun objetos de base de datos para compilar para que de acuerdo al centro escogido me muestre los residentes de ese centro ?
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-17 23:20:19
+================================================================================
+Subir al repositorio y hacer push
+

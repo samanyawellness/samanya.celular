@@ -9,6 +9,7 @@ import { consentimientosRoutes } from './modules/consentimientos/consentimientos
 import { tareasRoutes } from './modules/tareas/tareas.routes.js';
 import { notificacionesRoutes } from './modules/notificaciones/notificaciones.routes.js';
 import { archivosRoutes } from './modules/archivos/archivos.routes.js';
+import { maestrasRoutes } from './modules/maestras/maestras.routes.js';
 import { errorHandler } from './middlewares/error.middleware.js';
 
 export function createApp() {
@@ -58,6 +59,7 @@ export function createApp() {
   app.use('/api/v1/tareas', tareasRoutes);
   app.use('/api/v1/notificaciones', notificacionesRoutes);
   app.use('/api/v1/archivos', archivosRoutes);
+  app.use('/api/v1/maestras', maestrasRoutes);
 
   // Manejador centralizado de errores
   app.use(errorHandler);

@@ -1,0 +1,179 @@
+================================================================================
+GUÍA DE ESTILOS Y PALETA DE COLORES - SAMANYA WELLNESS
+================================================================================
+Archivo de referencia de tokens de diseño, colores, contrastes y tipografía
+para el desarrollo de la página web e interfaces digitales.
+================================================================================
+
+1. IDENTIDAD VISUAL Y TIPOGRAFÍA
+--------------------------------------------------------------------------------
+- Concepto: Salud, bienestar asistencial, calidez humana, confianza y accesibilidad.
+- Tipografía de Títulos (Headings): 'Plus Jakarta Sans', sans-serif (pesos 600, 700, 800)
+- Tipografía de Texto (Body):       'Work Sans', sans-serif (pesos 400, 500, 600)
+- Google Fonts URL:
+  https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Work+Sans:wght@400;500;600;700&display=swap
+
+
+2. PALETA PRINCIPAL (MODO CLARO / LIGHT MODE)
+--------------------------------------------------------------------------------
+Elemento                     HEX        RGB                  Uso principal
+--------------------------------------------------------------------------------
+Color Primario (Teal)        #068591    rgb(6, 133, 145)     Botones principales, enlaces, iconos destacados, brand
+Color Acento (Ocre/Ámbar)    #C68A3D    rgb(198, 138, 61)    Llamados a la acción secundarios, destacados cálidos
+Fondo de Página (Page Bg)    #F7F7F8    rgb(247, 247, 248)   Background general de la aplicación / web
+Superficie / Card (Card Bg)  #FFFFFF    rgb(255, 255, 255)   Tarjetas de contenido, modales, contenedores
+Superficie Neutra Alterna    #EFECE6    rgb(239, 236, 230)   Fondos secundarios, bloques de contenido suave
+Fondo de Inputs / Campos     #F7F7F8    rgb(247, 247, 248)   Cajas de texto, selects, textareas
+Texto Principal (Dark)       #292A24    rgb(41, 42, 36)      Títulos, encabezados y textos de alta legibilidad
+Texto Secundario (Muted)     #5C6058    rgb(92, 96, 88)      Subtítulos, labels, metadatos, textos auxiliares
+Borde / Divisor              #DEDBD1    rgb(222, 219, 209)   Líneas divisorias, bordes de tarjetas e inputs
+
+
+3. PALETA DE ESTADOS Y COMPONENTES FEEDBACK (MODO CLARO)
+--------------------------------------------------------------------------------
+Estado            Fondo (Badge/Card)    Texto / Icono        Uso
+--------------------------------------------------------------------------------
+Éxito (Success)   #DFF3E7               #1E7A4C              Completado, signos vitales estables, confirmación
+Pendiente (Warn)  #FBE9D2               #9A5B12              En progreso, pendiente de revisión, advertencias
+Alerta (Alert)    #FBEAEA               #8C2E2E              Signos anormales, cancelaciones, errores críticos
+Especial / Info   #D9F0F1               #075158              Resumen del día, notas informativas, novedades
+Tarjeta Ámbar     #FEF3EB (Borde: #FAD7BC) - Texto: #7A3600  Avisos de autorización familiar, consentimientos
+
+
+4. PALETA MODO OSCURO (DARK MODE - OPTIMIZADO WCAG AAA)
+--------------------------------------------------------------------------------
+Elemento                     HEX / RGBA                       Uso principal
+--------------------------------------------------------------------------------
+Color Primario               #14B8C7                          Botones activos, elementos destacados
+Color Acento                 #E5A853                          Acentos y focos cálidos
+Fondo de Página (Dark Bg)    #101413                          Fondo general oscuro de alto confort
+Superficie / Tarjeta         #181D1B                          Tarjetas elevadas, contenedores
+Fondo de Inputs              #1B211E                          Controles de formulario en modo oscuro
+Texto Principal              #F0F3F1                          Títulos y textos claros
+Texto Secundario             #9EA8A2                          Textos atenuados y etiquetas
+Borde / Divisor              #2B3430                          Separadores y líneas sutiles
+Hover Interactivo            #202623                          Hover en listas y botones neutros
+Placeholder Inputs           #6D7771                          Texto guía en inputs
+
+Estados en Modo Oscuro:
+- Éxito (Success) Fondo:     rgba(30, 122, 76, 0.22)   Texto: #4ADE80
+- Pendiente (Pending) Fondo: rgba(198, 138, 61, 0.22)  Texto: #FBBF24
+- Alerta (Alert) Fondo:      rgba(140, 46, 46, 0.22)   Texto: #F87171
+- Especial (Info) Fondo:     rgba(20, 184, 199, 0.16)  Texto: #38D9E8
+- Tarjeta Ámbar:             #241A10 (Borde: #5C3D1B)  Texto: #FBBF24
+
+
+5. TOKENS EN FORMATO CSS (LISTO PARA COPIAR Y PEGAR EN :ROOT)
+--------------------------------------------------------------------------------
+:root {
+  /* Modo Claro */
+  --color-primary: #068591;
+  --color-primary-hover: #056e78;
+  --color-accent: #C68A3D;
+  --color-accent-hover: #b07831;
+  
+  --color-page-bg: #F7F7F8;
+  --color-card-bg: #FFFFFF;
+  --color-card-subtle: #EFECE6;
+  --color-input-bg: #F7F7F8;
+  
+  --color-text-main: #292A24;
+  --color-text-sec: #5C6058;
+  --color-border: #DEDBD1;
+  
+  --color-success-bg: #DFF3E7;
+  --color-success-text: #1E7A4C;
+  --color-pending-bg: #FBE9D2;
+  --color-pending-text: #9A5B12;
+  --color-alert-bg: #FBEAEA;
+  --color-alert-text: #8C2E2E;
+  --color-special-bg: #D9F0F1;
+  --color-special-text: #075158;
+  
+  --font-family-sans: 'Work Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-family-heading: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-full: 9999px;
+  
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+html.dark {
+  /* Modo Oscuro */
+  --color-primary: #14B8C7;
+  --color-primary-hover: #22d3ee;
+  --color-accent: #E5A853;
+  --color-accent-hover: #f59e0b;
+  
+  --color-page-bg: #101413;
+  --color-card-bg: #181D1B;
+  --color-card-subtle: #212824;
+  --color-input-bg: #1B211E;
+  
+  --color-text-main: #F0F3F1;
+  --color-text-sec: #9EA8A2;
+  --color-border: #2B3430;
+  
+  --color-success-bg: rgba(30, 122, 76, 0.22);
+  --color-success-text: #4ADE80;
+  --color-pending-bg: rgba(198, 138, 61, 0.22);
+  --color-pending-text: #FBBF24;
+  --color-alert-bg: rgba(140, 46, 46, 0.22);
+  --color-alert-text: #F87171;
+  --color-special-bg: rgba(20, 184, 199, 0.16);
+  --color-special-text: #38D9E8;
+  
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+
+6. CONFIGURACIÓN COMPATIBLE CON TAILWIND CSS
+--------------------------------------------------------------------------------
+Para configurar o extender en tailwind.config.js:
+
+module.exports = {
+  darkMode: 'class',
+  theme: {
+    extend: {
+      colors: {
+        primary: {
+          DEFAULT: '#068591',
+          light: '#14B8C7',
+          dark: '#056e78',
+        },
+        accent: {
+          DEFAULT: '#C68A3D',
+          light: '#E5A853',
+        },
+        surface: {
+          page: '#F7F7F8',
+          card: '#FFFFFF',
+          'dark-page': '#101413',
+          'dark-card': '#181D1B',
+        },
+        status: {
+          'success-bg': '#DFF3E7',
+          'success-text': '#1E7A4C',
+          'pending-bg': '#FBE9D2',
+          'pending-text': '#9A5B12',
+          'alert-bg': '#FBEAEA',
+          'alert-text': '#8C2E2E',
+          'info-bg': '#D9F0F1',
+          'info-text': '#075158',
+        }
+      },
+      fontFamily: {
+        sans: ['"Work Sans"', 'sans-serif'],
+        heading: ['"Plus Jakarta Sans"', 'sans-serif'],
+      }
+    }
+  }
+}
+================================================================================

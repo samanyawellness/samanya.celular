@@ -19,7 +19,8 @@ import {
   AdminTab,
   AdminSubrole,
   SedeInfo,
-  ShiftInfo
+  ShiftInfo,
+  UserCentro
 } from '../types';
 import {
   INITIAL_RESIDENTS,
@@ -35,9 +36,10 @@ import {
   INITIAL_SUPPLIES,
   STAFF_WORKERS,
   INITIAL_SEDES,
-  INITIAL_SHIFTS
+  INITIAL_SHIFTS,
+  MOCK_USER_CENTROS
 } from '../data/mockData';
-import { api, removeAuthToken } from '../services/api';
+import { api, removeAuthToken, setActiveCentroContext, getActiveCentroContext } from '../services/api';
 
 interface AppContextType {
   // Authentication & Role
@@ -61,6 +63,15 @@ interface AppContextType {
   login: (email: string, pass: string) => Promise<boolean>;
   logout: () => void;
   switchRole: (newRole: UserRole, subrole?: AdminSubrole) => void;
+
+  // Centro & Organización (Multi-Tenant / Multi-Sede)
+  assignedCentros: UserCentro[];
+  activeCentro: UserCentro | null;
+  activeOrganizacionId: number | string | null;
+  pendingCentroSelection: boolean;
+  selectActiveCentro: (centro: UserCentro) => void;
+  cancelCentroSelection: () => void;
+  switchActiveCentro: (centro: UserCentro) => void;
 
   // Navigation (Cuidador)
   activeTab: 'inicio' | 'tareas' | 'residentes' | 'consentimientos' | 'perfil';
@@ -219,6 +230,29 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Arrancar por la pantalla de login como requiere el usuario
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 
+  // Contexto Multi-Sede y Multi-Tenant (Centros y Organizaciones)
+  const [assignedCentros, setAssignedCentros] = useState<UserCentro[]>(() => {
+    const saved = localStorage.getItem('samanya_assigned_centros');
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  const [activeCentro, setActiveCentro] = useState<UserCentro | null>(() => {
+    const saved = localStorage.getItem('samanya_active_centro');
+    return saved ? JSON.parse(saved) : null;
+  });
+
+  const [activeOrganizacionId, setActiveOrganizacionId] = useState<number | string | null>(() => {
+    const saved = localStorage.getItem('samanya_active_org_id');
+    return saved ? saved : (activeCentro?.idOrganizacion || 1);
+  });
+
+  const [pendingCentroSelection, setPendingCentroSelection] = useState<boolean>(false);
+  const [pendingUserData, setPendingUserData] = useState<{
+    dbUser: any;
+    roleMapped: UserRole;
+    centros: UserCentro[];
+  } | null>(null);
+
   const [currentUser, setCurrentUser] = useState({
     name: 'María Rodríguez',
     email: 'mrodriguez@samanya.com.co',
@@ -283,7 +317,26 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Persistence keys
   const [residents, setResidents] = useState<Resident[]>(() => {
     const saved = localStorage.getItem('samanya_residents');
-    return saved ? JSON.parse(saved) : INITIAL_RESIDENTS;
+    if (!saved) return INITIAL_RESIDENTS;
+    try {
+      const parsed: Resident[] = JSON.parse(saved);
+      return parsed.map((p) => {
+        const init = INITIAL_RESIDENTS.find((i) => i.id === p.id);
+        const defaultCentroId =
+          p.id === 'res-4' || p.id === 'res-5' || p.id === '4' || p.id === '5' || p.id === '7' || p.id === '8' || p.id === '9' || p.id === '10'
+            ? 2
+            : 1;
+        const assignedIdCentro = p.idCentro || init?.idCentro || defaultCentroId;
+        const assignedNombreCentro = Number(assignedIdCentro) === 2 ? 'Sede Campestre La Calera' : 'Sede Central Bogotá';
+        return {
+          ...p,
+          idCentro: assignedIdCentro,
+          nombreCentro: p.nombreCentro || init?.nombreCentro || assignedNombreCentro
+        };
+      });
+    } catch {
+      return INITIAL_RESIDENTS;
+    }
   });
 
   const [tasks, setTasks] = useState<TaskItem[]>(() => {
@@ -430,10 +483,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, [deletedClinicalRecords]);
 
   // Cargar datos de la Base de Datos Oracle
-  const loadDatabaseData = async () => {
+  const loadDatabaseData = async (targetCentroId?: number | string) => {
     try {
+      const cid = targetCentroId ?? activeCentro?.idCentro;
       const [resList, taskList, vitalsList, bitacoraList, consentsList, notifsList] = await Promise.all([
-        api.getResidents().catch(() => []),
+        api.getResidents(cid).catch(() => []),
         api.getTasks().catch(() => []),
         api.getVitalSigns().catch(() => []),
         api.getBitacora().catch(() => []),
@@ -467,31 +521,160 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   useEffect(() => {
     if (isLoggedIn) {
-      loadDatabaseData();
+      loadDatabaseData(activeCentro?.idCentro);
     }
-  }, [isLoggedIn]);
+  }, [isLoggedIn, activeCentro?.idCentro]);
 
-  const login = async (usernameOrEmail: string, pass: string): Promise<boolean> => {
-    try {
-      const result = await api.login(usernameOrEmail, pass);
-      const dbUser = result.user;
-      const isFam = dbUser.role === 'FAMILIAR';
-      const roleMapped: UserRole = isFam ? 'familiar' : 'cuidador';
+  const selectActiveCentro = (centro: UserCentro) => {
+    setActiveCentro(centro);
+    setActiveOrganizacionId(centro.idOrganizacion);
+    setActiveCentroContext(centro.idCentro, centro.idOrganizacion);
+    localStorage.setItem('samanya_active_centro', JSON.stringify(centro));
+    localStorage.setItem('samanya_active_org_id', String(centro.idOrganizacion));
 
+    if (pendingUserData) {
+      const { dbUser, roleMapped } = pendingUserData;
+      const isFam = roleMapped === 'familiar';
       setCurrentUser({
         name: dbUser.nombreCompleto,
         email: dbUser.email,
         role: roleMapped,
-        shift: isFam ? 'Familiar Responsable Vinculado' : 'Turno Mañana (07:00 - 15:00)',
-        unit: isFam ? 'Portal Familiar' : 'Ala Principal — Cuidados Asistenciales',
+        shift: isFam ? 'Familiar Responsable Vinculado' : `${centro.nombreCentro} · Turno Asignado`,
+        unit: isFam ? 'Portal Familiar' : `${centro.nombreCentro} — Cuidados Asistenciales`,
         avatar: dbUser.avatarUrl || (isFam
           ? 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'
           : 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150')
       });
+      setPendingUserData(null);
+    }
 
-      setIsLoggedIn(true);
-      showToast(`¡Bienvenido(a), ${dbUser.nombreCompleto}! Conectado a Oracle DB.`, 'success');
-      return true;
+    setPendingCentroSelection(false);
+    setIsLoggedIn(true);
+    showToast(`¡Bienvenido(a)! Laborando en ${centro.nombreCentro} (${centro.nombreOrganizacion}).`, 'success');
+    loadDatabaseData(centro.idCentro);
+  };
+
+  const cancelCentroSelection = () => {
+    setPendingCentroSelection(false);
+    setPendingUserData(null);
+    removeAuthToken();
+    showToast('Selección de centro cancelada', 'info');
+  };
+
+  const switchActiveCentro = (centro: UserCentro) => {
+    setActiveCentro(centro);
+    setActiveOrganizacionId(centro.idOrganizacion);
+    setActiveCentroContext(centro.idCentro, centro.idOrganizacion);
+    localStorage.setItem('samanya_active_centro', JSON.stringify(centro));
+    localStorage.setItem('samanya_active_org_id', String(centro.idOrganizacion));
+    showToast(`Cambiado a ${centro.nombreCentro} (${centro.nombreOrganizacion})`, 'info');
+    loadDatabaseData(centro.idCentro);
+  };
+
+  const login = async (usernameOrEmail: string, pass: string): Promise<boolean> => {
+    try {
+      let dbUser: any;
+      let centros: UserCentro[] = [];
+
+      try {
+        const result = await api.login(usernameOrEmail, pass);
+        dbUser = result.user;
+        centros = (result.centros as UserCentro[]) || [];
+      } catch (apiErr) {
+        // En caso de modo mock / desarrollo sin backend activo
+        const lowerKey = usernameOrEmail.trim().toLowerCase();
+        const mockCentros = MOCK_USER_CENTROS[lowerKey];
+        if (mockCentros) {
+          const isFam = lowerKey === 'jperez' || lowerKey === 'ldelgado' || lowerKey === 'sdelgado';
+          const isAdmin = lowerKey === 'admin';
+          dbUser = {
+            id: lowerKey === 'admin' ? 1 : lowerKey === 'mrodriguez' ? 2 : lowerKey === 'cramirez' ? 3 : 8,
+            username: lowerKey,
+            email: `${lowerKey}@samanya.com.co`,
+            nombreCompleto: lowerKey === 'mrodriguez'
+              ? 'Martha Cecilia Rodríguez Peña'
+              : lowerKey === 'cramirez'
+              ? 'Carlos Eduardo Ramírez Soto'
+              : lowerKey === 'admin'
+              ? 'Administrador Principal Samanya'
+              : lowerKey === 'sdelgado'
+              ? 'Sofía Delgado Silva'
+              : lowerKey === 'ldelgado'
+              ? 'Lucía Delgado Serrano'
+              : 'Javier Pérez González',
+            role: isAdmin ? 'ADMIN' : isFam ? 'FAMILIAR' : 'CUIDADOR',
+            nombreRol: isAdmin ? 'Administrador' : isFam ? 'Familiar' : 'Cuidador',
+            avatarUrl: undefined
+          };
+          centros = mockCentros;
+        } else {
+          throw apiErr;
+        }
+      }
+
+      // Si no vinieron centros, buscar en mock o asignar centro por defecto
+      if (!centros || centros.length === 0) {
+        const lowerKey = usernameOrEmail.trim().toLowerCase();
+        centros = MOCK_USER_CENTROS[lowerKey] || [
+          {
+            idCentro: 1,
+            codigoCentro: 'SEDE-CENTRAL',
+            nombreCentro: 'Sede Central Bogotá',
+            ciudad: 'Bogotá D.C.',
+            direccion: 'Calle 127 # 19-45, Usaquén',
+            idOrganizacion: 1,
+            codigoOrganizacion: 'ORG-SAMANYA',
+            nombreOrganizacion: 'Samanya Senior Living',
+            codigoRol: dbUser.role,
+            nombreRol: dbUser.nombreRol,
+            esSedePrincipal: true
+          }
+        ];
+      }
+
+      setAssignedCentros(centros);
+      localStorage.setItem('samanya_assigned_centros', JSON.stringify(centros));
+
+      const isFam = dbUser.role === 'FAMILIAR';
+      const roleMapped: UserRole = isFam ? 'familiar' : dbUser.role === 'ADMIN' ? 'admin' : 'cuidador';
+
+      // REGLA CLAVE DE NEGOCIO:
+      // Si el usuario SOLO TIENE 1 CENTRO: entra DIRECTO a la aplicación
+      if (centros.length === 1) {
+        const unicoCentro = centros[0];
+        setActiveCentro(unicoCentro);
+        setActiveOrganizacionId(unicoCentro.idOrganizacion);
+        setActiveCentroContext(unicoCentro.idCentro, unicoCentro.idOrganizacion);
+        localStorage.setItem('samanya_active_centro', JSON.stringify(unicoCentro));
+        localStorage.setItem('samanya_active_org_id', String(unicoCentro.idOrganizacion));
+
+        setCurrentUser({
+          name: dbUser.nombreCompleto,
+          email: dbUser.email,
+          role: roleMapped,
+          shift: isFam ? 'Familiar Responsable Vinculado' : `${unicoCentro.nombreCentro} · Turno Asignado`,
+          unit: isFam ? 'Portal Familiar' : `${unicoCentro.nombreCentro} — Cuidados Asistenciales`,
+          avatar: dbUser.avatarUrl || (isFam
+            ? 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'
+            : 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150')
+        });
+
+        setPendingCentroSelection(false);
+        setPendingUserData(null);
+        setIsLoggedIn(true);
+        showToast(`¡Bienvenido(a), ${dbUser.nombreCompleto}! Ingreso directo a ${unicoCentro.nombreCentro}.`, 'success');
+        return true;
+      }
+
+      // Si el usuario TIENE MÁS DE 1 CENTRO: abre ventana modal para escoger con cuál labora
+      setPendingUserData({
+        dbUser,
+        roleMapped,
+        centros
+      });
+      setPendingCentroSelection(true);
+      setIsLoggedIn(false);
+      return false;
     } catch (err: any) {
       showToast(err.message || 'Credenciales inválidas', 'alert');
       throw err;
@@ -501,6 +684,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const logout = () => {
     removeAuthToken();
     localStorage.removeItem('samanya_logged_in');
+    localStorage.removeItem('samanya_active_centro');
+    localStorage.removeItem('samanya_active_org_id');
+    localStorage.removeItem('samanya_assigned_centros');
+    setActiveCentro(null);
+    setActiveOrganizacionId(null);
+    setAssignedCentros([]);
+    setPendingCentroSelection(false);
+    setPendingUserData(null);
     setIsLoggedIn(false);
     showToast('Sesión cerrada correctamente', 'info');
   };
@@ -735,8 +926,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       residentId: resIdNum,
       contenido: entryData.text,
       grabadoPorVoz: entryData.recordedByVoice,
-      audioUrl: entryData.audioUrl,
-      fotoAdjuntaUrl: entryData.photoUrl
+      audioUrl: (entryData as any).audioUrl,
+      fotoAdjuntaUrl: (entryData as any).photoUrl
     }).catch(err => console.error('Error al persistir bitácora en Oracle DB:', err));
 
     // Timeline event
@@ -863,8 +1054,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       temperature: vitalsData.temperature,
       oxygenSaturation: vitalsData.spO2 || 98,
       glucose: vitalsData.glucose,
-      weight: vitalsData.weight,
-      notes: vitalsData.observations
+      weight: (vitalsData as any).weight,
+      notes: vitalsData.notes || (vitalsData as any).observations
     }).catch(err => console.error('Error al persistir signos vitales en Oracle DB:', err));
 
     const newEvent: ActivityEvent = {
@@ -1267,6 +1458,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         login,
         logout,
         switchRole,
+        assignedCentros,
+        activeCentro,
+        activeOrganizacionId,
+        pendingCentroSelection,
+        selectActiveCentro,
+        cancelCentroSelection,
+        switchActiveCentro,
         activeTab,
         setActiveTab,
         activeFamiliarTab,

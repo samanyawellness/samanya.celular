@@ -7,11 +7,24 @@ declare global {
   namespace Express {
     interface Request {
       user?: TokenPayload;
+      idCentro?: number;
+      idOrganizacion?: number;
     }
   }
 }
 
 export function authenticate(req: Request, res: Response, next: NextFunction): void {
+  // Extraer encabezados de contexto multi-tenant y multi-centro si están presentes
+  const headerCentro = req.headers['x-centro-id'];
+  if (headerCentro) {
+    req.idCentro = Number(headerCentro);
+  }
+
+  const headerOrg = req.headers['x-organizacion-id'];
+  if (headerOrg) {
+    req.idOrganizacion = Number(headerOrg);
+  }
+
   let token: string | undefined;
   const authHeader = req.headers.authorization;
 

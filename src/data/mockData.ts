@@ -1,4 +1,4 @@
-import { Resident, TaskItem, ActivityEvent, ConsentRecord, AppNotification, BitacoraEntry, VitalSigns, IncidentReport, ClinicalRecord, DeletedClinicalRecord, SupplyEntry, StaffWorker, SedeInfo, ShiftInfo } from '../types';
+import { Resident, TaskItem, ActivityEvent, ConsentRecord, AppNotification, BitacoraEntry, VitalSigns, IncidentReport, ClinicalRecord, DeletedClinicalRecord, SupplyEntry, StaffWorker, SedeInfo, ShiftInfo, UserCentro } from '../types';
 
 export const INITIAL_RESIDENTS: Resident[] = [
   {
@@ -12,6 +12,8 @@ export const INITIAL_RESIDENTS: Resident[] = [
     diet: 'Dieta hiposódica blanda',
     mobility: 'Silla de ruedas con asistencia',
     alerts: ['Riesgo de caída alto', 'Alergia a Penicilina'],
+    idCentro: 1,
+    nombreCentro: 'Sede Central Bogotá',
     medications: [
       {
         id: 'med-1',
@@ -56,6 +58,8 @@ export const INITIAL_RESIDENTS: Resident[] = [
     diet: 'Dieta diabética normal',
     mobility: 'Andador autónomo',
     alerts: ['Monitoreo glucémico diario'],
+    idCentro: 1,
+    nombreCentro: 'Sede Central Bogotá',
     responsible: [
       {
         name: 'Javier Pérez (Hijo)',
@@ -74,6 +78,8 @@ export const INITIAL_RESIDENTS: Resident[] = [
     diet: 'Dieta triturada / espesantes',
     mobility: 'Reposo en cama / Transferencia asistida',
     alerts: ['Disfagia severa', 'Prevención de UPP'],
+    idCentro: 1,
+    nombreCentro: 'Sede Central Bogotá',
     responsible: [
       {
         name: 'Marta Valverde (Sobrina)',
@@ -92,6 +98,8 @@ export const INITIAL_RESIDENTS: Resident[] = [
     diet: 'Normal equilibrada',
     mobility: 'Marcha independiente',
     alerts: ['Deterioro cognitivo leve'],
+    idCentro: 2,
+    nombreCentro: 'Sede Campestre La Calera',
     responsible: [
       {
         name: 'Ignacio Gómez Ibáñez (Hijo)',
@@ -110,6 +118,8 @@ export const INITIAL_RESIDENTS: Resident[] = [
     diet: 'Hiposódica estricta',
     mobility: 'Silla de ruedas',
     alerts: ['Hipertensión arterial', 'Control de ingesta de líquidos'],
+    idCentro: 2,
+    nombreCentro: 'Sede Campestre La Calera',
     responsible: [
       {
         name: 'Elena Morales Soto (Hija)',
@@ -977,5 +987,149 @@ export const INITIAL_SHIFTS: ShiftInfo[] = [
     ]
   }
 ];
+
+export const MOCK_USER_CENTROS: Record<string, UserCentro[]> = {
+  // Martha Rodríguez: Cuidadora vinculada a 2 centros en Bogotá y La Calera (Multi-centro -> Modal)
+  mrodriguez: [
+    {
+      idCentro: 1,
+      codigoCentro: 'SEDE-CENTRAL',
+      nombreCentro: 'Sede Central Bogotá',
+      ciudad: 'Bogotá D.C.',
+      direccion: 'Calle 127 # 19-45, Usaquén',
+      idOrganizacion: 1,
+      codigoOrganizacion: 'ORG-SAMANYA',
+      nombreOrganizacion: 'Samanya Senior Living',
+      codigoRol: 'CUIDADOR',
+      nombreRol: 'Enfermera Jefe / Cuidadora Principal',
+      esSedePrincipal: true
+    },
+    {
+      idCentro: 2,
+      codigoCentro: 'SEDE-NORTE',
+      nombreCentro: 'Sede Campestre La Calera',
+      ciudad: 'La Calera',
+      direccion: 'Km 4 Vía La Calera',
+      idOrganizacion: 1,
+      codigoOrganizacion: 'ORG-SAMANYA',
+      nombreOrganizacion: 'Samanya Senior Living',
+      codigoRol: 'CUIDADOR',
+      nombreRol: 'Cuidadora de Apoyo Asistencial',
+      esSedePrincipal: false
+    }
+  ],
+
+  // Carlos Ramírez: Cuidador vinculado a 1 solo centro (Mono-centro -> Acceso directo)
+  cramirez: [
+    {
+      idCentro: 1,
+      codigoCentro: 'SEDE-CENTRAL',
+      nombreCentro: 'Sede Central Bogotá',
+      ciudad: 'Bogotá D.C.',
+      direccion: 'Calle 127 # 19-45, Usaquén',
+      idOrganizacion: 1,
+      codigoOrganizacion: 'ORG-SAMANYA',
+      nombreOrganizacion: 'Samanya Senior Living',
+      codigoRol: 'CUIDADOR',
+      nombreRol: 'Cuidador Asistencial TM',
+      esSedePrincipal: true
+    }
+  ],
+
+  // Administrador Principal: Acceso a las sedes de la organización (Multi-centro -> Modal)
+  admin: [
+    {
+      idCentro: 1,
+      codigoCentro: 'SEDE-CENTRAL',
+      nombreCentro: 'Sede Central Bogotá',
+      ciudad: 'Bogotá D.C.',
+      direccion: 'Calle 127 # 19-45, Usaquén',
+      idOrganizacion: 1,
+      codigoOrganizacion: 'ORG-SAMANYA',
+      nombreOrganizacion: 'Samanya Senior Living',
+      codigoRol: 'ADMIN',
+      nombreRol: 'Administrador General',
+      esSedePrincipal: true
+    },
+    {
+      idCentro: 2,
+      codigoCentro: 'SEDE-NORTE',
+      nombreCentro: 'Sede Campestre La Calera',
+      ciudad: 'La Calera',
+      direccion: 'Km 4 Vía La Calera',
+      idOrganizacion: 1,
+      codigoOrganizacion: 'ORG-SAMANYA',
+      nombreOrganizacion: 'Samanya Senior Living',
+      codigoRol: 'ADMIN',
+      nombreRol: 'Supervisión de Sede Campestre',
+      esSedePrincipal: false
+    }
+  ],
+
+  // Javier Pérez: Familiar de Manuel Pérez en Sede Central (Mono-centro -> Acceso directo)
+  jperez: [
+    {
+      idCentro: 1,
+      codigoCentro: 'SEDE-CENTRAL',
+      nombreCentro: 'Sede Central Bogotá',
+      ciudad: 'Bogotá D.C.',
+      direccion: 'Calle 127 # 19-45, Usaquén',
+      idOrganizacion: 1,
+      codigoOrganizacion: 'ORG-SAMANYA',
+      nombreOrganizacion: 'Samanya Senior Living',
+      codigoRol: 'FAMILIAR',
+      nombreRol: 'Familiar Responsable',
+      esSedePrincipal: true
+    }
+  ],
+
+  // Lucía Delgado: Familiar de Carmen Delgado en Sede Central (Mono-centro -> Acceso directo)
+  ldelgado: [
+    {
+      idCentro: 1,
+      codigoCentro: 'SEDE-CENTRAL',
+      nombreCentro: 'Sede Central Bogotá',
+      ciudad: 'Bogotá D.C.',
+      direccion: 'Calle 127 # 19-45, Usaquén',
+      idOrganizacion: 1,
+      codigoOrganizacion: 'ORG-SAMANYA',
+      nombreOrganizacion: 'Samanya Senior Living',
+      codigoRol: 'FAMILIAR',
+      nombreRol: 'Familiar Responsable',
+      esSedePrincipal: true
+    }
+  ],
+
+  // Sofía Delgado: Familiar con residentes en ambas sedes (Multi-centro -> Modal)
+  sdelgado: [
+    {
+      idCentro: 1,
+      codigoCentro: 'SEDE-CENTRAL',
+      nombreCentro: 'Sede Central Bogotá',
+      ciudad: 'Bogotá D.C.',
+      direccion: 'Calle 127 # 19-45, Usaquén',
+      idOrganizacion: 1,
+      codigoOrganizacion: 'ORG-SAMANYA',
+      nombreOrganizacion: 'Samanya Senior Living',
+      codigoRol: 'FAMILIAR',
+      nombreRol: 'Acudiente Principal',
+      esSedePrincipal: true
+    },
+    {
+      idCentro: 2,
+      codigoCentro: 'SEDE-NORTE',
+      nombreCentro: 'Sede Campestre La Calera',
+      ciudad: 'La Calera',
+      direccion: 'Km 4 Vía La Calera',
+      idOrganizacion: 1,
+      codigoOrganizacion: 'ORG-SAMANYA',
+      nombreOrganizacion: 'Samanya Senior Living',
+      codigoRol: 'FAMILIAR',
+      nombreRol: 'Acudiente Vinculado',
+      esSedePrincipal: false
+    }
+  ]
+};
+
 
 

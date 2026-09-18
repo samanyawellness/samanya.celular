@@ -2,6 +2,21 @@ export type UserRole = 'cuidador' | 'familiar' | 'admin';
 export type AdminSubrole = 'administrador' | 'dueno';
 export type AdminTab = 'perfil' | 'turnos' | 'inicio' | 'tareas';
 
+export interface UserCentro {
+  idCentro: number | string;
+  codigoCentro: string;
+  nombreCentro: string;
+  ciudad: string;
+  direccion?: string;
+  idOrganizacion: number | string;
+  codigoOrganizacion: string;
+  nombreOrganizacion: string;
+  idRol?: number;
+  codigoRol?: string;
+  nombreRol?: string;
+  esSedePrincipal?: boolean;
+}
+
 export interface SedeInfo {
   id: string;
   name: string;
@@ -101,6 +116,8 @@ export interface Resident {
   diet: string;
   mobility: string;
   alerts: string[];
+  idCentro?: number | string;
+  nombreCentro?: string;
   medications?: ResidentMedication[];
   responsible: {
     name: string;

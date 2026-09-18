@@ -5,7 +5,10 @@ import {
   KeyRound,
   Settings,
   LogOut,
-  X
+  X,
+  Building2,
+  RefreshCw,
+  Shield
 } from 'lucide-react';
 import { DarkModeToggle } from './DarkModeToggle';
 
@@ -16,10 +19,14 @@ export const RoleMenu: React.FC = () => {
     currentUser,
     residents,
     logout,
-    showToast
+    showToast,
+    activeCentro,
+    assignedCentros,
+    switchActiveCentro
   } = useApp();
 
   const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [showCentroPicker, setShowCentroPicker] = useState(false);
   const [currentPass, setCurrentPass] = useState('');
   const [newPass, setNewPass] = useState('');
   const [confirmPass, setConfirmPass] = useState('');
@@ -98,6 +105,69 @@ export const RoleMenu: React.FC = () => {
               </span>
             </div>
           </div>
+        </div>
+
+        {/* Información de Centro y Organización Activa */}
+        <div className="p-3 bg-[#D9F0F1]/40 rounded-2xl border border-[#068591]/25">
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-[11px] font-bold text-[#075158] uppercase tracking-wide flex items-center gap-1">
+              <Building2 className="w-3.5 h-3.5 text-[#068591]" />
+              Centro Activo
+            </span>
+            {assignedCentros && assignedCentros.length > 1 && (
+              <button
+                type="button"
+                onClick={() => setShowCentroPicker(!showCentroPicker)}
+                className="text-xs font-bold text-[#068591] hover:underline flex items-center gap-1"
+              >
+                <RefreshCw className="w-3 h-3" />
+                <span>Cambiar sede</span>
+              </button>
+            )}
+          </div>
+
+          <p className="text-sm font-bold text-[#292A24]">
+            {activeCentro?.nombreCentro || 'Sede Central Bogotá'}
+          </p>
+          <p className="text-xs text-[#5C6058] flex items-center gap-1 mt-0.5">
+            <Shield className="w-3 h-3 text-[#068591]" />
+            <span>{activeCentro?.nombreOrganizacion || 'Samanya Senior Living'} ({activeCentro?.codigoOrganizacion || 'ORG-SAMANYA'})</span>
+          </p>
+
+          {/* Desplegable si el usuario tiene múltiples centros y desea alternar */}
+          {showCentroPicker && assignedCentros && assignedCentros.length > 1 && (
+            <div className="mt-2.5 pt-2 border-t border-[#068591]/20 space-y-1.5">
+              <span className="text-[10px] text-[#5C6058] font-medium block">
+                Selecciona la sede a la que deseas cambiar:
+              </span>
+              {assignedCentros.map((c) => {
+                const isCurrent = String(c.idCentro) === String(activeCentro?.idCentro);
+                return (
+                  <button
+                    key={String(c.idCentro)}
+                    type="button"
+                    disabled={isCurrent}
+                    onClick={() => {
+                      switchActiveCentro(c);
+                      setShowCentroPicker(false);
+                      setIsRoleMenuOpen(false);
+                    }}
+                    className={`w-full text-left text-xs p-2 rounded-xl border transition-all flex items-center justify-between ${
+                      isCurrent
+                        ? 'bg-[#068591] text-white font-bold border-[#068591]'
+                        : 'bg-white text-[#292A24] font-medium border-[#DEDBD1] hover:border-[#068591]'
+                    }`}
+                  >
+                    <div>
+                      <div>{c.nombreCentro}</div>
+                      <div className="text-[10px] opacity-80">{c.ciudad}</div>
+                    </div>
+                    {isCurrent && <span className="text-[10px] bg-white/20 px-1.5 py-0.5 rounded">Actual</span>}
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {/* Action Buttons List */}

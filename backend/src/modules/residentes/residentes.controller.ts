@@ -8,7 +8,9 @@ export class ResidentesController {
     try {
       const userId = req.user?.id || 1;
       const role = req.user?.role || 'CUIDADOR';
-      const data = await residentesService.listarResidentes(userId, role);
+      const idCentroParam = req.query.idCentro ? Number(req.query.idCentro) : undefined;
+      const idCentro = idCentroParam || req.idCentro;
+      const data = await residentesService.listarResidentes(userId, role, idCentro);
       res.status(200).json({
         success: true,
         count: data.length,

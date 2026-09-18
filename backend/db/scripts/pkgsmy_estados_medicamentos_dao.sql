@@ -349,6 +349,7 @@ AS
     BEGIN
         SELECT JSON_OBJECT(
                    'id' VALUE t.id,
+                   'id_organizacion' VALUE t.id_organizacion,
                    'nombre_estado_medicamento' VALUE t.nombre_estado_medicamento,
                    'fecha_creacion' VALUE TO_CHAR(t.fecha_creacion, 'YYYY-MM-DD"T"HH24:MI:SS'),
                    'id_usuario_ultima_modificacion' VALUE t.id_usuario_ultima_modificacion
@@ -374,6 +375,7 @@ AS
     BEGIN
         SELECT JSON_OBJECT(
                    'id' VALUE t.id,
+                   'id_organizacion' VALUE t.id_organizacion,
                    'nombre_estado_medicamento' VALUE t.nombre_estado_medicamento,
                    'fecha_creacion' VALUE TO_CHAR(t.fecha_creacion, 'YYYY-MM-DD"T"HH24:MI:SS'),
                    'id_usuario_ultima_modificacion' VALUE t.id_usuario_ultima_modificacion

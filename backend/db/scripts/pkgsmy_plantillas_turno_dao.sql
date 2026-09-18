@@ -350,6 +350,7 @@ AS
     BEGIN
         SELECT JSON_OBJECT(
                    'id' VALUE t.id,
+                   'id_organizacion' VALUE t.id_organizacion,
                    'codigo' VALUE t.codigo,
                    'nombre' VALUE t.nombre,
                    'hora_inicio' VALUE t.hora_inicio,
@@ -381,6 +382,7 @@ AS
     BEGIN
         SELECT JSON_OBJECT(
                    'id' VALUE t.id,
+                   'id_organizacion' VALUE t.id_organizacion,
                    'codigo' VALUE t.codigo,
                    'nombre' VALUE t.nombre,
                    'hora_inicio' VALUE t.hora_inicio,

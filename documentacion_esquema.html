@@ -969,61 +969,62 @@ erDiagram
           <thead>
             <tr>
               <th>Tabla Maestra (Lookup)</th>
+              <th>Organización (Tenant)</th>
               <th>Campo Clave (PK)</th>
-              <th>Campo Descriptor</th>
+              <th>Campo Descriptor (UQ por Tenant)</th>
               <th>Tabla Relacionada</th>
               <th>Clave Foránea (FK)</th>
             </tr>
           </thead>
           <tbody>
-            <tr><td class="col-name">SMY_ESTADOS_ROLES</td><td>ID</td><td>NOMBRE_ESTADO_ROL</td><td>SMY_ROLES</td><td>ID_ESTADO_ROL</td></tr>
-            <tr><td class="col-name">SMY_TIPOS_USUARIOS</td><td>ID</td><td>NOMBRE_TIPO_USUARIO</td><td>SMY_USUARIOS</td><td>ID_TIPO_USUARIO</td></tr>
-            <tr><td class="col-name">SMY_ESTADOS_USUARIOS</td><td>ID</td><td>NOMBRE_ESTADO_USUARIO</td><td>SMY_USUARIOS</td><td>ID_ESTADO_USUARIO</td></tr>
-            <tr><td class="col-name">SMY_CANALES_NOTIFICACION</td><td>ID</td><td>NOMBRE_CANAL_NOTIFICACION</td><td>SMY_USUARIOS / SMY_ACUDIENTES</td><td>ID_CANAL_NOTIF_PREF</td></tr>
-            <tr><td class="col-name">SMY_TIPOS_IDENTIFICACION</td><td>ID</td><td>NOMBRE_TIPO_IDENTIFICACION / SIGLA</td><td>SMY_EMPLEADOS / SMY_RESIDENTES / SMY_ACUDIENTES</td><td>ID_TIPO_IDENTIFICACION</td></tr>
-            <tr><td class="col-name">SMY_CARGOS_EMPLEADOS</td><td>ID</td><td>NOMBRE_CARGO_EMPLEADO</td><td>SMY_EMPLEADOS</td><td>ID_CARGO_EMPLEADO</td></tr>
-            <tr><td class="col-name">SMY_AREAS_EMPLEADOS</td><td>ID</td><td>NOMBRE_AREA_EMPLEADO</td><td>SMY_EMPLEADOS</td><td>ID_AREA_EMPLEADO</td></tr>
-            <tr><td class="col-name">SMY_ESTADOS_EMPLEADOS</td><td>ID</td><td>NOMBRE_ESTADO_EMPLEADO</td><td>SMY_EMPLEADOS</td><td>ID_ESTADO_EMPLEADO</td></tr>
+            <tr><td class="col-name">SMY_ESTADOS_ROLES</td><td><span class="badge badge-fk">ID_ORGANIZACION</span></td><td>ID</td><td>NOMBRE_ESTADO_ROL</td><td>SMY_ROLES</td><td>ID_ESTADO_ROL</td></tr>
+            <tr><td class="col-name">SMY_TIPOS_USUARIOS</td><td><span class="badge badge-fk">ID_ORGANIZACION</span></td><td>ID</td><td>NOMBRE_TIPO_USUARIO</td><td>SMY_USUARIOS</td><td>ID_TIPO_USUARIO</td></tr>
+            <tr><td class="col-name">SMY_ESTADOS_USUARIOS</td><td><span class="badge badge-fk">ID_ORGANIZACION</span></td><td>ID</td><td>NOMBRE_ESTADO_USUARIO</td><td>SMY_USUARIOS</td><td>ID_ESTADO_USUARIO</td></tr>
+            <tr><td class="col-name">SMY_CANALES_NOTIFICACION</td><td><span class="badge badge-fk">ID_ORGANIZACION</span></td><td>ID</td><td>NOMBRE_CANAL_NOTIFICACION</td><td>SMY_USUARIOS / SMY_ACUDIENTES</td><td>ID_CANAL_NOTIF_PREF</td></tr>
+            <tr><td class="col-name">SMY_TIPOS_IDENTIFICACION</td><td><span class="badge badge-fk">ID_ORGANIZACION</span></td><td>ID</td><td>NOMBRE_TIPO_IDENTIFICACION / SIGLA</td><td>SMY_EMPLEADOS / SMY_RESIDENTES / SMY_ACUDIENTES</td><td>ID_TIPO_IDENTIFICACION</td></tr>
+            <tr><td class="col-name">SMY_CARGOS_EMPLEADOS</td><td><span class="badge badge-fk">ID_ORGANIZACION</span></td><td>ID</td><td>NOMBRE_CARGO_EMPLEADO</td><td>SMY_EMPLEADOS</td><td>ID_CARGO_EMPLEADO</td></tr>
+            <tr><td class="col-name">SMY_AREAS_EMPLEADOS</td><td><span class="badge badge-fk">ID_ORGANIZACION</span></td><td>ID</td><td>NOMBRE_AREA_EMPLEADO</td><td>SMY_EMPLEADOS</td><td>ID_AREA_EMPLEADO</td></tr>
+            <tr><td class="col-name">SMY_ESTADOS_EMPLEADOS</td><td><span class="badge badge-fk">ID_ORGANIZACION</span></td><td>ID</td><td>NOMBRE_ESTADO_EMPLEADO</td><td>SMY_EMPLEADOS</td><td>ID_ESTADO_EMPLEADO</td></tr>
             <tr><td class="col-name">SMY_TIPOS_DOC_EMPLEADOS</td><td>ID</td><td>NOMBRE_TIPO_DOC_EMPLEADO</td><td>SMY_DOCUMENTOS_EMPLEADO</td><td>ID_TIPO_DOCUMENTO_EMPLEADO</td></tr>
-            <tr><td class="col-name">SMY_ESTADOS_PLANTILLAS_TURNO</td><td>ID</td><td>NOMBRE_ESTADO_PLANTILLA</td><td>SMY_PLANTILLAS_TURNO</td><td>ID_ESTADO_PLANTILLA</td></tr>
-            <tr><td class="col-name">SMY_ESTADOS_TURNOS</td><td>ID</td><td>NOMBRE_ESTADO_TURNO</td><td>SMY_TURNOS_ASIGNADOS</td><td>ID_ESTADO_TURNO</td></tr>
-            <tr><td class="col-name">SMY_TIPOS_PERMISOS</td><td>ID</td><td>NOMBRE_TIPO_PERMISO</td><td>SMY_SOLICITUDES_PERMISOS</td><td>ID_TIPO_PERMISO</td></tr>
-            <tr><td class="col-name">SMY_ESTADOS_PERMISOS</td><td>ID</td><td>NOMBRE_ESTADO_PERMISO</td><td>SMY_SOLICITUDES_PERMISOS</td><td>ID_ESTADO_PERMISO</td></tr>
-            <tr><td class="col-name">SMY_GENEROS</td><td>ID</td><td>NOMBRE_GENERO</td><td>SMY_RESIDENTES / SMY_SOLICITUDES_ADM</td><td>ID_GENERO</td></tr>
-            <tr><td class="col-name">SMY_NIVELES_MOVILIDAD</td><td>ID</td><td>NOMBRE_NIVEL_MOVILIDAD</td><td>SMY_RESIDENTES / SMY_SOLICITUDES_ADM</td><td>ID_NIVEL_MOVILIDAD</td></tr>
-            <tr><td class="col-name">SMY_TIPOS_DIETAS</td><td>ID</td><td>NOMBRE_TIPO_DIETA</td><td>SMY_RESIDENTES / SMY_PLANES_NUTRICIONALES</td><td>ID_TIPO_DIETA</td></tr>
-            <tr><td class="col-name">SMY_CONSISTENCIAS_DIETA</td><td>ID</td><td>NOMBRE_CONSISTENCIA_DIETA</td><td>SMY_PLANES_NUTRICIONALES</td><td>ID_CONSISTENCIA_DIETA</td></tr>
-            <tr><td class="col-name">SMY_ESTADOS_RESIDENTES</td><td>ID</td><td>NOMBRE_ESTADO_RESIDENTE</td><td>SMY_RESIDENTES</td><td>ID_ESTADO_RESIDENTE</td></tr>
-            <tr><td class="col-name">SMY_PARENTESCOS</td><td>ID</td><td>NOMBRE_PARENTESCO</td><td>SMY_RESIDENTE_ACUDIENTE / SMY_CONS_DEST</td><td>ID_PARENTESCO</td></tr>
-            <tr><td class="col-name">SMY_ESTADOS_SOLICITUDES_ADM</td><td>ID</td><td>NOMBRE_ESTADO_SOLICITUD_ADM</td><td>SMY_SOLICITUDES_ADMISION</td><td>ID_ESTADO_SOLICITUD_ADM</td></tr>
-            <tr><td class="col-name">SMY_CATEGORIAS_DOC_CLINICOS</td><td>ID</td><td>NOMBRE_CATEGORIA_DOC_CLINICO</td><td>SMY_DOCUMENTOS_CLINICOS</td><td>ID_CATEGORIA_DOC_CLINICO</td></tr>
-            <tr><td class="col-name">SMY_TIPOS_ENTRADAS_DOC</td><td>ID</td><td>NOMBRE_TIPO_ENTRADA_DOC</td><td>SMY_DOCUMENTOS_CLINICOS</td><td>ID_TIPO_ENTRADA_DOC</td></tr>
-            <tr><td class="col-name">SMY_TIPOS_ARCHIVOS_DOC</td><td>ID</td><td>NOMBRE_TIPO_ARCHIVO_DOC</td><td>SMY_DOCUMENTOS_CLINICOS</td><td>ID_TIPO_ARCHIVO_DOC</td></tr>
-            <tr><td class="col-name">SMY_ESTADOS_DOC_CLINICOS</td><td>ID</td><td>NOMBRE_ESTADO_DOC_CLINICO</td><td>SMY_DOCUMENTOS_CLINICOS</td><td>ID_ESTADO_DOC_CLINICO</td></tr>
-            <tr><td class="col-name">SMY_CATEGORIAS_BITACORA</td><td>ID</td><td>NOMBRE_CATEGORIA_BITACORA</td><td>SMY_BITACORA_RESIDENTE</td><td>ID_CATEGORIA_BITACORA</td></tr>
-            <tr><td class="col-name">SMY_VIAS_ADMINISTRACION</td><td>ID</td><td>NOMBRE_VIA_ADMINISTRACION</td><td>SMY_MEDICAMENTOS_PRESCRITOS</td><td>ID_VIA_ADMINISTRACION</td></tr>
-            <tr><td class="col-name">SMY_ESTADOS_MEDICAMENTOS</td><td>ID</td><td>NOMBRE_ESTADO_MEDICAMENTO</td><td>SMY_MEDICAMENTOS_PRESCRITOS</td><td>ID_ESTADO_MEDICAMENTO</td></tr>
-            <tr><td class="col-name">SMY_ESTADOS_ADMIN_MED</td><td>ID</td><td>NOMBRE_ESTADO_ADMIN_MED</td><td>SMY_REGISTROS_ADMIN_MED</td><td>ID_ESTADO_ADMIN_MED</td></tr>
-            <tr><td class="col-name">SMY_TIPOS_COMIDAS</td><td>ID</td><td>NOMBRE_TIPO_COMIDA</td><td>SMY_REGISTROS_ALIM_SESION / DETALLE</td><td>ID_TIPO_COMIDA</td></tr>
-            <tr><td class="col-name">SMY_TIPOS_TAREAS</td><td>ID</td><td>NOMBRE_TIPO_TAREA</td><td>SMY_TAREAS_OPERATIVAS</td><td>ID_TIPO_TAREA</td></tr>
-            <tr><td class="col-name">SMY_ALCANCES_TAREAS</td><td>ID</td><td>NOMBRE_ALCANCE_TAREA</td><td>SMY_TAREAS_OPERATIVAS</td><td>ID_ALCANCE_TAREA</td></tr>
-            <tr><td class="col-name">SMY_ESTADOS_TAREAS</td><td>ID</td><td>NOMBRE_ESTADO_TAREA</td><td>SMY_TAREAS_OPERATIVAS</td><td>ID_ESTADO_TAREA</td></tr>
-            <tr><td class="col-name">SMY_TIPOS_EVENTOS</td><td>ID</td><td>NOMBRE_TIPO_EVENTO</td><td>SMY_EVENTOS_CALENDARIO</td><td>ID_TIPO_EVENTO</td></tr>
-            <tr><td class="col-name">SMY_TIPOS_SUMINISTROS</td><td>ID</td><td>NOMBRE_TIPO_SUMINISTRO</td><td>SMY_SUMINISTROS_REGISTRO</td><td>ID_TIPO_SUMINISTRO</td></tr>
-            <tr><td class="col-name">SMY_ESTADOS_PAGOS</td><td>ID</td><td>NOMBRE_ESTADO_PAGO</td><td>SMY_SUMINISTROS_REGISTRO</td><td>ID_ESTADO_PAGO</td></tr>
-            <tr><td class="col-name">SMY_TIPOS_CONSENTIMIENTOS</td><td>ID</td><td>NOMBRE_TIPO_CONSENTIMIENTO</td><td>SMY_CONSENTIMIENTOS</td><td>ID_TIPO_CONSENTIMIENTO</td></tr>
-            <tr><td class="col-name">SMY_ESTADOS_CONSENTIMIENTOS</td><td>ID</td><td>NOMBRE_ESTADO_CONSENTIMIENTO</td><td>SMY_CONSENTIMIENTOS</td><td>ID_ESTADO_CONSENTIMIENTO</td></tr>
-            <tr><td class="col-name">SMY_ESTADOS_FIRMAS_CONS</td><td>ID</td><td>NOMBRE_ESTADO_FIRMA_CONS</td><td>SMY_CONSENTIMIENTO_DESTINATARIOS</td><td>ID_ESTADO_FIRMA_CONS</td></tr>
-            <tr><td class="col-name">SMY_TIPOS_INCIDENTES</td><td>ID</td><td>NOMBRE_TIPO_INCIDENTE</td><td>SMY_INCIDENTES</td><td>ID_TIPO_INCIDENTE</td></tr>
-            <tr><td class="col-name">SMY_SEVERIDADES_INCIDENTES</td><td>ID</td><td>NOMBRE_SEVERIDAD_INCIDENTE</td><td>SMY_INCIDENTES</td><td>ID_SEVERIDAD_INCIDENTE</td></tr>
-            <tr><td class="col-name">SMY_ESTADOS_INCIDENTES</td><td>ID</td><td>NOMBRE_ESTADO_INCIDENTE</td><td>SMY_INCIDENTES</td><td>ID_ESTADO_INCIDENTE</td></tr>
-            <tr><td class="col-name">SMY_ROLES_EN_INCIDENTE</td><td>ID</td><td>NOMBRE_ROL_INCIDENTE</td><td>SMY_INCIDENTE_RESIDENTES</td><td>ID_ROL_INCIDENTE</td></tr>
-            <tr><td class="col-name">SMY_TIPOS_CANALES_CHAT</td><td>ID</td><td>NOMBRE_TIPO_CANAL_CHAT</td><td>SMY_CONVERSACIONES_CHAT</td><td>ID_TIPO_CANAL_CHAT</td></tr>
-            <tr><td class="col-name">SMY_TIPOS_ADJUNTOS_CHAT</td><td>ID</td><td>NOMBRE_TIPO_ADJUNTO_CHAT</td><td>SMY_MENSAJES_CHAT</td><td>ID_TIPO_ADJUNTO_CHAT</td></tr>
-            <tr><td class="col-name">SMY_TIPOS_NOTIFICACIONES</td><td>ID</td><td>NOMBRE_TIPO_NOTIFICACION</td><td>SMY_NOTIFICACIONES_SISTEMA</td><td>ID_TIPO_NOTIFICACION</td></tr>
-            <tr><td class="col-name">SMY_ESTADOS_PARAMETROS</td><td>ID</td><td>NOMBRE_ESTADO_PARAMETRO</td><td>SMY_PARAMETROS</td><td>ID_ESTADO_PARAMETRO</td></tr>
-            <tr><td class="col-name">SMY_ESTADOS_ARCHIVOS</td><td>ID</td><td>NOMBRE_ESTADO_ARCHIVO</td><td>SMY_ARCHIVOS</td><td>ID_ESTADO_ARCHIVO</td></tr>
-            <tr><td class="col-name">SMY_CLASES_ARCHIVOS</td><td>ID</td><td>NOMBRE_CLASE / CODIGO_CLASE</td><td>SMY_ARCHIVOS</td><td>ID_CLASE_ARCHIVO</td></tr>
+            <tr><td class="col-name">SMY_ESTADOS_PLANTILLAS_TURNO</td><td><span class="badge badge-fk">ID_ORGANIZACION</span></td><td>ID</td><td>NOMBRE_ESTADO_PLANTILLA</td><td>SMY_PLANTILLAS_TURNO</td><td>ID_ESTADO_PLANTILLA</td></tr>
+            <tr><td class="col-name">SMY_ESTADOS_TURNOS</td><td><span class="badge badge-fk">ID_ORGANIZACION</span></td><td>ID</td><td>NOMBRE_ESTADO_TURNO</td><td>SMY_TURNOS_ASIGNADOS</td><td>ID_ESTADO_TURNO</td></tr>
+            <tr><td class="col-name">SMY_TIPOS_PERMISOS</td><td><span class="badge badge-fk">ID_ORGANIZACION</span></td><td>ID</td><td>NOMBRE_TIPO_PERMISO</td><td>SMY_SOLICITUDES_PERMISOS</td><td>ID_TIPO_PERMISO</td></tr>
+            <tr><td class="col-name">SMY_ESTADOS_PERMISOS</td><td><span class="badge badge-fk">ID_ORGANIZACION</span></td><td>ID</td><td>NOMBRE_ESTADO_PERMISO</td><td>SMY_SOLICITUDES_PERMISOS</td><td>ID_ESTADO_PERMISO</td></tr>
+            <tr><td class="col-name">SMY_GENEROS</td><td><span class="badge badge-fk">ID_ORGANIZACION</span></td><td>ID</td><td>NOMBRE_GENERO</td><td>SMY_RESIDENTES / SMY_SOLICITUDES_ADM</td><td>ID_GENERO</td></tr>
+            <tr><td class="col-name">SMY_NIVELES_MOVILIDAD</td><td><span class="badge badge-fk">ID_ORGANIZACION</span></td><td>ID</td><td>NOMBRE_NIVEL_MOVILIDAD</td><td>SMY_RESIDENTES / SMY_SOLICITUDES_ADM</td><td>ID_NIVEL_MOVILIDAD</td></tr>
+            <tr><td class="col-name">SMY_TIPOS_DIETAS</td><td><span class="badge badge-fk">ID_ORGANIZACION</span></td><td>ID</td><td>NOMBRE_TIPO_DIETA</td><td>SMY_RESIDENTES / SMY_PLANES_NUTRICIONALES</td><td>ID_TIPO_DIETA</td></tr>
+            <tr><td class="col-name">SMY_CONSISTENCIAS_DIETA</td><td><span class="badge badge-fk">ID_ORGANIZACION</span></td><td>ID</td><td>NOMBRE_CONSISTENCIA_DIETA</td><td>SMY_PLANES_NUTRICIONALES</td><td>ID_CONSISTENCIA_DIETA</td></tr>
+            <tr><td class="col-name">SMY_ESTADOS_RESIDENTES</td><td><span class="badge badge-fk">ID_ORGANIZACION</span></td><td>ID</td><td>NOMBRE_ESTADO_RESIDENTE</td><td>SMY_RESIDENTES</td><td>ID_ESTADO_RESIDENTE</td></tr>
+            <tr><td class="col-name">SMY_PARENTESCOS</td><td><span class="badge badge-fk">ID_ORGANIZACION</span></td><td>ID</td><td>NOMBRE_PARENTESCO</td><td>SMY_RESIDENTE_ACUDIENTE / SMY_CONS_DEST</td><td>ID_PARENTESCO</td></tr>
+            <tr><td class="col-name">SMY_ESTADOS_SOLICITUDES_ADM</td><td><span class="badge badge-fk">ID_ORGANIZACION</span></td><td>ID</td><td>NOMBRE_ESTADO_SOLICITUD_ADM</td><td>SMY_SOLICITUDES_ADMISION</td><td>ID_ESTADO_SOLICITUD_ADM</td></tr>
+            <tr><td class="col-name">SMY_CATEGORIAS_DOC_CLINICOS</td><td><span class="badge badge-fk">ID_ORGANIZACION</span></td><td>ID</td><td>NOMBRE_CATEGORIA_DOC_CLINICO</td><td>SMY_DOCUMENTOS_CLINICOS</td><td>ID_CATEGORIA_DOC_CLINICO</td></tr>
+            <tr><td class="col-name">SMY_TIPOS_ENTRADAS_DOC</td><td><span class="badge badge-fk">ID_ORGANIZACION</span></td><td>ID</td><td>NOMBRE_TIPO_ENTRADA_DOC</td><td>SMY_DOCUMENTOS_CLINICOS</td><td>ID_TIPO_ENTRADA_DOC</td></tr>
+            <tr><td class="col-name">SMY_TIPOS_ARCHIVOS_DOC</td><td><span class="badge badge-fk">ID_ORGANIZACION</span></td><td>ID</td><td>NOMBRE_TIPO_ARCHIVO_DOC</td><td>SMY_DOCUMENTOS_CLINICOS</td><td>ID_TIPO_ARCHIVO_DOC</td></tr>
+            <tr><td class="col-name">SMY_ESTADOS_DOC_CLINICOS</td><td><span class="badge badge-fk">ID_ORGANIZACION</span></td><td>ID</td><td>NOMBRE_ESTADO_DOC_CLINICO</td><td>SMY_DOCUMENTOS_CLINICOS</td><td>ID_ESTADO_DOC_CLINICO</td></tr>
+            <tr><td class="col-name">SMY_CATEGORIAS_BITACORA</td><td><span class="badge badge-fk">ID_ORGANIZACION</span></td><td>ID</td><td>NOMBRE_CATEGORIA_BITACORA</td><td>SMY_BITACORA_RESIDENTE</td><td>ID_CATEGORIA_BITACORA</td></tr>
+            <tr><td class="col-name">SMY_VIAS_ADMINISTRACION</td><td><span class="badge badge-fk">ID_ORGANIZACION</span></td><td>ID</td><td>NOMBRE_VIA_ADMINISTRACION</td><td>SMY_MEDICAMENTOS_PRESCRITOS</td><td>ID_VIA_ADMINISTRACION</td></tr>
+            <tr><td class="col-name">SMY_ESTADOS_MEDICAMENTOS</td><td><span class="badge badge-fk">ID_ORGANIZACION</span></td><td>ID</td><td>NOMBRE_ESTADO_MEDICAMENTO</td><td>SMY_MEDICAMENTOS_PRESCRITOS</td><td>ID_ESTADO_MEDICAMENTO</td></tr>
+            <tr><td class="col-name">SMY_ESTADOS_ADMIN_MED</td><td><span class="badge badge-fk">ID_ORGANIZACION</span></td><td>ID</td><td>NOMBRE_ESTADO_ADMIN_MED</td><td>SMY_REGISTROS_ADMIN_MED</td><td>ID_ESTADO_ADMIN_MED</td></tr>
+            <tr><td class="col-name">SMY_TIPOS_COMIDAS</td><td><span class="badge badge-fk">ID_ORGANIZACION</span></td><td>ID</td><td>NOMBRE_TIPO_COMIDA</td><td>SMY_REGISTROS_ALIM_SESION / DETALLE</td><td>ID_TIPO_COMIDA</td></tr>
+            <tr><td class="col-name">SMY_TIPOS_TAREAS</td><td><span class="badge badge-fk">ID_ORGANIZACION</span></td><td>ID</td><td>NOMBRE_TIPO_TAREA</td><td>SMY_TAREAS_OPERATIVAS</td><td>ID_TIPO_TAREA</td></tr>
+            <tr><td class="col-name">SMY_ALCANCES_TAREAS</td><td><span class="badge badge-fk">ID_ORGANIZACION</span></td><td>ID</td><td>NOMBRE_ALCANCE_TAREA</td><td>SMY_TAREAS_OPERATIVAS</td><td>ID_ALCANCE_TAREA</td></tr>
+            <tr><td class="col-name">SMY_ESTADOS_TAREAS</td><td><span class="badge badge-fk">ID_ORGANIZACION</span></td><td>ID</td><td>NOMBRE_ESTADO_TAREA</td><td>SMY_TAREAS_OPERATIVAS</td><td>ID_ESTADO_TAREA</td></tr>
+            <tr><td class="col-name">SMY_TIPOS_EVENTOS</td><td><span class="badge badge-fk">ID_ORGANIZACION</span></td><td>ID</td><td>NOMBRE_TIPO_EVENTO</td><td>SMY_EVENTOS_CALENDARIO</td><td>ID_TIPO_EVENTO</td></tr>
+            <tr><td class="col-name">SMY_TIPOS_SUMINISTROS</td><td><span class="badge badge-fk">ID_ORGANIZACION</span></td><td>ID</td><td>NOMBRE_TIPO_SUMINISTRO</td><td>SMY_SUMINISTROS_REGISTRO</td><td>ID_TIPO_SUMINISTRO</td></tr>
+            <tr><td class="col-name">SMY_ESTADOS_PAGOS</td><td><span class="badge badge-fk">ID_ORGANIZACION</span></td><td>ID</td><td>NOMBRE_ESTADO_PAGO</td><td>SMY_SUMINISTROS_REGISTRO</td><td>ID_ESTADO_PAGO</td></tr>
+            <tr><td class="col-name">SMY_TIPOS_CONSENTIMIENTOS</td><td><span class="badge badge-fk">ID_ORGANIZACION</span></td><td>ID</td><td>NOMBRE_TIPO_CONSENTIMIENTO</td><td>SMY_CONSENTIMIENTOS</td><td>ID_TIPO_CONSENTIMIENTO</td></tr>
+            <tr><td class="col-name">SMY_ESTADOS_CONSENTIMIENTOS</td><td><span class="badge badge-fk">ID_ORGANIZACION</span></td><td>ID</td><td>NOMBRE_ESTADO_CONSENTIMIENTO</td><td>SMY_CONSENTIMIENTOS</td><td>ID_ESTADO_CONSENTIMIENTO</td></tr>
+            <tr><td class="col-name">SMY_ESTADOS_FIRMAS_CONS</td><td><span class="badge badge-fk">ID_ORGANIZACION</span></td><td>ID</td><td>NOMBRE_ESTADO_FIRMA_CONS</td><td>SMY_CONSENTIMIENTO_DESTINATARIOS</td><td>ID_ESTADO_FIRMA_CONS</td></tr>
+            <tr><td class="col-name">SMY_TIPOS_INCIDENTES</td><td><span class="badge badge-fk">ID_ORGANIZACION</span></td><td>ID</td><td>NOMBRE_TIPO_INCIDENTE</td><td>SMY_INCIDENTES</td><td>ID_TIPO_INCIDENTE</td></tr>
+            <tr><td class="col-name">SMY_SEVERIDADES_INCIDENTES</td><td><span class="badge badge-fk">ID_ORGANIZACION</span></td><td>ID</td><td>NOMBRE_SEVERIDAD_INCIDENTE</td><td>SMY_INCIDENTES</td><td>ID_SEVERIDAD_INCIDENTE</td></tr>
+            <tr><td class="col-name">SMY_ESTADOS_INCIDENTES</td><td><span class="badge badge-fk">ID_ORGANIZACION</span></td><td>ID</td><td>NOMBRE_ESTADO_INCIDENTE</td><td>SMY_INCIDENTES</td><td>ID_ESTADO_INCIDENTE</td></tr>
+            <tr><td class="col-name">SMY_ROLES_EN_INCIDENTE</td><td><span class="badge badge-fk">ID_ORGANIZACION</span></td><td>ID</td><td>NOMBRE_ROL_INCIDENTE</td><td>SMY_INCIDENTE_RESIDENTES</td><td>ID_ROL_INCIDENTE</td></tr>
+            <tr><td class="col-name">SMY_TIPOS_CANALES_CHAT</td><td><span class="badge badge-fk">ID_ORGANIZACION</span></td><td>ID</td><td>NOMBRE_TIPO_CANAL_CHAT</td><td>SMY_CONVERSACIONES_CHAT</td><td>ID_TIPO_CANAL_CHAT</td></tr>
+            <tr><td class="col-name">SMY_TIPOS_ADJUNTOS_CHAT</td><td><span class="badge badge-fk">ID_ORGANIZACION</span></td><td>ID</td><td>NOMBRE_TIPO_ADJUNTO_CHAT</td><td>SMY_MENSAJES_CHAT</td><td>ID_TIPO_ADJUNTO_CHAT</td></tr>
+            <tr><td class="col-name">SMY_TIPOS_NOTIFICACIONES</td><td><span class="badge badge-fk">ID_ORGANIZACION</span></td><td>ID</td><td>NOMBRE_TIPO_NOTIFICACION</td><td>SMY_NOTIFICACIONES_SISTEMA</td><td>ID_TIPO_NOTIFICACION</td></tr>
+            <tr><td class="col-name">SMY_ESTADOS_PARAMETROS</td><td><span class="badge badge-fk">ID_ORGANIZACION</span></td><td>ID</td><td>NOMBRE_ESTADO_PARAMETRO</td><td>SMY_PARAMETROS</td><td>ID_ESTADO_PARAMETRO</td></tr>
+            <tr><td class="col-name">SMY_ESTADOS_ARCHIVOS</td><td><span class="badge badge-fk">ID_ORGANIZACION</span></td><td>ID</td><td>NOMBRE_ESTADO_ARCHIVO</td><td>SMY_ARCHIVOS</td><td>ID_ESTADO_ARCHIVO</td></tr>
+            <tr><td class="col-name">SMY_CLASES_ARCHIVOS</td><td><span class="badge badge-fk">ID_ORGANIZACION</span></td><td>ID</td><td>NOMBRE_CLASE / CODIGO_CLASE</td><td>SMY_ARCHIVOS</td><td>ID_CLASE_ARCHIVO</td></tr>
             <tr><td class="col-name">SMY_ESTADOS_ORGANIZACIONES</td><td>ID</td><td>NOMBRE_ESTADO</td><td>SMY_ORGANIZACIONES</td><td>ID_ESTADO_ORGANIZACION</td></tr>
             <tr><td class="col-name">SMY_ORGANIZACIONES</td><td>ID</td><td>RAZON_SOCIAL / CODIGO_ORGANIZACION</td><td>SMY_CENTROS / SMY_ORG_DUENOS</td><td>ID_ORGANIZACION</td></tr>
             <tr><td class="col-name">SMY_CENTROS</td><td>ID</td><td>NOMBRE_CENTRO / CODIGO_CENTRO</td><td>SMY_RESIDENTES / SMY_EMPLEADOS / SMY_ARCHIVOS</td><td>ID_CENTRO</td></tr>
@@ -1066,7 +1067,7 @@ erDiagram
               <tr><td class="col-name">RAZON_SOCIAL</td><td class="col-type">VARCHAR2(150)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Nombre legal registrado ante cámara de comercio.</td></tr>
               <tr><td class="col-name">NOMBRE_COMERCIAL</td><td class="col-type">VARCHAR2(120)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Nombre comercial para marca y portal de cara al usuario.</td></tr>
               <tr><td class="col-name">NUMERO_IDENTIFICACION_TRIB</td><td class="col-type">VARCHAR2(30)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Número de identificación tributaria (NIT/RUT único).</td></tr>
-              <tr><td class="col-name">ID_TIPO_IDENTIFICACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK hacia SMY_TIPOS_IDENTIFICACION(ID).</td></tr>
+              <tr><td class="col-name">ID_TIPO_IDENTIFICACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-req">No</span></td><td>1</td><td>Tipo de documento fiscal (ej. 1=NIT, 2=RUT).</td></tr>
               <tr><td class="col-name">EMAIL_CORPORATIVO</td><td class="col-type">VARCHAR2(120)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Correo institucional para notificaciones y facturación.</td></tr>
               <tr><td class="col-name">TELEFONO_CONTACTO</td><td class="col-type">VARCHAR2(30)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Línea PBX o WhatsApp corporativo.</td></tr>
               <tr><td class="col-name">SITIO_WEB</td><td class="col-type">VARCHAR2(200)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>URL del portal oficial corporativo.</td></tr>
@@ -1158,6 +1159,7 @@ erDiagram
             <thead><tr><th>Columna</th><th>Tipo Oracle</th><th>Nulo</th><th>Defecto (Bogotá UTC-5)</th><th>Descripción y Foráneas</th></tr></thead>
             <tbody>
               <tr><td class="col-name">ID</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-pk">PK</span></td><td>SEQ_SMY_ROLES</td><td>Identificador único del rol.</td></tr>
+              <tr><td class="col-name">ID_ORGANIZACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK obligatoria hacia SMY_ORGANIZACIONES(ID). Multi-tenancy por organización.</td></tr>
               <tr><td class="col-name">CODIGO</td><td class="col-type">VARCHAR2(30)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Código único (ej. 'ADMIN', 'CUIDADOR').</td></tr>
               <tr><td class="col-name">NOMBRE</td><td class="col-type">VARCHAR2(80)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Nombre del rol.</td></tr>
               <tr><td class="col-name">DESCRIPCION</td><td class="col-type">VARCHAR2(255)</td><td><span class="badge badge-opt">Sí</span></td><td>-</td><td>Alcance del perfil.</td></tr>
@@ -1325,6 +1327,7 @@ erDiagram
             <thead><tr><th>Columna</th><th>Tipo Oracle</th><th>Nulo</th><th>Defecto (Bogotá UTC-5)</th><th>Descripción y Foráneas</th></tr></thead>
             <tbody>
               <tr><td class="col-name">ID</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-pk">PK</span></td><td>SEQ_SMY_PLANTILLAS_TURNO</td><td>ID de la plantilla de turno.</td></tr>
+              <tr><td class="col-name">ID_ORGANIZACION</td><td class="col-type">NUMBER(10)</td><td><span class="badge badge-fk">FK</span></td><td>-</td><td>FK obligatoria hacia SMY_ORGANIZACIONES(ID). Multi-tenancy por organización.</td></tr>
               <tr><td class="col-name">NOMBRE</td><td class="col-type">VARCHAR2(60)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Nombre del turno (Mañana, Noche).</td></tr>
               <tr><td class="col-name">HORA_INICIO</td><td class="col-type">VARCHAR2(8)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Hora de inicio (ej. '06:00').</td></tr>
               <tr><td class="col-name">HORA_FIN</td><td class="col-type">VARCHAR2(8)</td><td><span class="badge badge-req">No</span></td><td>-</td><td>Hora de culminación (ej. '14:00').</td></tr>

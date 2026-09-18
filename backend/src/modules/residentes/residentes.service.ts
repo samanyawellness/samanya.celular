@@ -3,6 +3,8 @@ import { withConnection } from '../../config/oracle.js';
 
 export interface ResidenteResumenDTO {
   id: string;
+  idCentro?: number;
+  nombreCentro?: string;
   codigoExpediente?: string;
   identificacion: string;
   nombres: string;
@@ -37,28 +39,38 @@ export interface ResidenteResumenDTO {
 export class ResidentesService {
   /**
    * Obtiene listado general de residentes activos desde Oracle DB
+   * Filtra por ID_CENTRO si se especifica (para administradores o personal adscrito a una sede)
    * Si el usuario es FAMILIAR, filtra únicamente los residentes vinculados
    */
-  async listarResidentes(idUsuario: number, role?: string): Promise<ResidenteResumenDTO[]> {
+  async listarResidentes(idUsuario: number, role?: string, idCentro?: number): Promise<ResidenteResumenDTO[]> {
     return withConnection(async (connection) => {
-      let residentFilterSql = '';
+      const conditions: string[] = [];
       const filterBinds: any = {};
 
+      if (idCentro && !isNaN(idCentro)) {
+        conditions.push('r.ID_CENTRO = :idCentro');
+        filterBinds.idCentro = idCentro;
+      }
+
       if (role === 'FAMILIAR') {
-        residentFilterSql = `
-          WHERE r.ID IN (
+        conditions.push(`
+          r.ID IN (
             SELECT ra.ID_RESIDENTE 
               FROM SMY_RESIDENTE_ACUDIENTE ra
               JOIN SMY_ACUDIENTES a ON a.ID = ra.ID_ACUDIENTE
              WHERE a.ID_USUARIO = :idUsuario
           )
-        `;
+        `);
         filterBinds.idUsuario = idUsuario;
       }
+
+      const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
 
       const sql = `
         SELECT 
           r.ID,
+          r.ID_CENTRO,
+          c.NOMBRE_CENTRO,
           r.CODIGO_EXPEDIENTE,
           r.IDENTIFICACION,
           r.NOMBRES,
@@ -73,10 +85,11 @@ export class ResidentesService {
           r.ALERTAS_CLINICAS,
           NVL(e.NOMBRE_ESTADO_RESIDENTE, 'Activo') AS ESTADO
         FROM SMY_RESIDENTES r
+        INNER JOIN SMY_CENTROS c ON r.ID_CENTRO = c.ID
         INNER JOIN SMY_ESTADOS_RESIDENTES e ON r.ID_ESTADO_RESIDENTE = e.ID
         LEFT JOIN SMY_NIVELES_MOVILIDAD m ON r.ID_NIVEL_MOVILIDAD = m.ID
         LEFT JOIN SMY_TIPOS_DIETAS d ON r.ID_TIPO_DIETA = d.ID
-        ${residentFilterSql}
+        ${whereClause}
         ORDER BY r.HABITACION, r.CAMA
       `;
 
@@ -165,6 +178,8 @@ export class ResidentesService {
           diet: r.TIPO_DIETA,
           alerts: alertsList,
           status: r.ESTADO,
+          idCentro: r.ID_CENTRO,
+          nombreCentro: r.NOMBRE_CENTRO,
           responsible,
           medications
         };

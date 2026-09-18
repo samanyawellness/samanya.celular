@@ -7,9 +7,11 @@
 CREATE OR REPLACE PACKAGE PKGCA_RESIDENTES
 AS
     /**
-     * Retorna cursor multi-fila con censo de residentes activos filtrados por habitación o estado
+     * Retorna cursor multi-fila con censo de residentes activos filtrados por centro, estado o texto
+     * Si p_id_centro es especificado, aísla los residentes pertenecientes a dicha sede/centro.
      */
     PROCEDURE p_consultar_censo (
+        p_id_centro        IN  smy_residentes.id_centro%TYPE DEFAULT NULL,
         p_id_estado        IN  smy_residentes.id_estado_residente%TYPE DEFAULT NULL,
         p_filtro_texto     IN  VARCHAR2 DEFAULT NULL,
         p_cursor           OUT SYS_REFCURSOR
@@ -30,6 +32,7 @@ CREATE OR REPLACE PACKAGE BODY PKGCA_RESIDENTES
 AS
 
     PROCEDURE p_consultar_censo (
+        p_id_centro        IN  smy_residentes.id_centro%TYPE DEFAULT NULL,
         p_id_estado        IN  smy_residentes.id_estado_residente%TYPE DEFAULT NULL,
         p_filtro_texto     IN  VARCHAR2 DEFAULT NULL,
         p_cursor           OUT SYS_REFCURSOR
@@ -38,24 +41,29 @@ AS
         OPEN p_cursor FOR
             SELECT 
                 r.id,
+                r.id_centro,
+                c.nombre_centro,
                 r.codigo_expediente,
                 r.identificacion,
                 r.nombres,
                 r.apellidos,
                 r.nombres || ' ' || r.apellidos AS nombre_completo,
                 TRUNC(MONTHS_BETWEEN(SYSDATE, r.fecha_nacimiento) / 12) AS edad,
+                TO_CHAR(r.fecha_nacimiento, 'YYYY-MM-DD') AS fecha_nacimiento,
                 r.habitacion,
                 r.cama,
                 r.foto_url,
-                m.nombre_nivel_movilidad AS nivel_movilidad,
-                d.nombre_tipo_dieta AS tipo_dieta,
+                NVL(m.nombre_nivel_movilidad, 'Independiente') AS nivel_movilidad,
+                NVL(d.nombre_tipo_dieta, 'Normal / General') AS tipo_dieta,
                 r.alertas_clinicas,
-                e.nombre_estado_residente AS estado
+                NVL(e.nombre_estado_residente, 'Activo') AS estado
             FROM smy_residentes r
+            INNER JOIN smy_centros c ON r.id_centro = c.id
             INNER JOIN smy_estados_residentes e ON r.id_estado_residente = e.id
             LEFT JOIN smy_niveles_movilidad m ON r.id_nivel_movilidad = m.id
             LEFT JOIN smy_tipos_dietas d ON r.id_tipo_dieta = d.id
-            WHERE (p_id_estado IS NULL OR r.id_estado_residente = p_id_estado)
+            WHERE (p_id_centro IS NULL OR r.id_centro = p_id_centro)
+              AND (p_id_estado IS NULL OR r.id_estado_residente = p_id_estado)
               AND (p_filtro_texto IS NULL OR (
                     UPPER(r.nombres) LIKE '%' || UPPER(p_filtro_texto) || '%' OR
                     UPPER(r.apellidos) LIKE '%' || UPPER(p_filtro_texto) || '%' OR
@@ -72,6 +80,8 @@ AS
     BEGIN
         SELECT JSON_OBJECT(
             'id'                  VALUE r.id,
+            'idCentro'            VALUE r.id_centro,
+            'nombreCentro'        VALUE c.nombre_centro,
             'codigoExpediente'    VALUE r.codigo_expediente,
             'identificacion'      VALUE r.identificacion,
             'nombres'             VALUE r.nombres,
@@ -110,6 +120,7 @@ AS
         )
         INTO vcl_resultado
         FROM smy_residentes r
+        INNER JOIN smy_centros c ON r.id_centro = c.id
         INNER JOIN smy_estados_residentes e ON r.id_estado_residente = e.id
         LEFT JOIN smy_niveles_movilidad m ON r.id_nivel_movilidad = m.id
         LEFT JOIN smy_tipos_dietas d ON r.id_tipo_dieta = d.id

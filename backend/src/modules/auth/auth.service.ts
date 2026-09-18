@@ -56,6 +56,23 @@ export class AuthService {
       expiresIn: env.JWT_REFRESH_EXPIRES_IN as any
     });
 
+    // Consultar centros asignados al usuario (multi-sede / multi-tenant)
+    const centrosDb = await this.authRepo.findCentrosByUserId(user.ID);
+    const centros = centrosDb.map((c) => ({
+      idCentro: c.ID_CENTRO,
+      codigoCentro: c.CODIGO_CENTRO,
+      nombreCentro: c.NOMBRE_CENTRO,
+      ciudad: c.CIUDAD,
+      direccion: c.DIRECCION,
+      idOrganizacion: c.ID_ORGANIZACION,
+      codigoOrganizacion: c.CODIGO_ORGANIZACION,
+      nombreOrganizacion: c.NOMBRE_ORGANIZACION,
+      idRol: c.ID_ROL,
+      codigoRol: c.CODIGO_ROL,
+      nombreRol: c.NOMBRE_ROL,
+      esSedePrincipal: c.ES_SEDE_PRINCIPAL === 'S'
+    }));
+
     return {
       accessToken,
       refreshToken,
@@ -68,7 +85,9 @@ export class AuthService {
         nombreRol: user.NOMBRE_ROL,
         telefono: user.TELEFONO,
         avatarUrl: user.AVATAR_URL
-      }
+      },
+      centros,
+      activeCentro: centros.length === 1 ? centros[0] : null
     };
   }
 
@@ -105,6 +124,22 @@ export class AuthService {
       throw new Error('Usuario no encontrado');
     }
 
+    const centrosDb = await this.authRepo.findCentrosByUserId(user.ID);
+    const centros = centrosDb.map((c) => ({
+      idCentro: c.ID_CENTRO,
+      codigoCentro: c.CODIGO_CENTRO,
+      nombreCentro: c.NOMBRE_CENTRO,
+      ciudad: c.CIUDAD,
+      direccion: c.DIRECCION,
+      idOrganizacion: c.ID_ORGANIZACION,
+      codigoOrganizacion: c.CODIGO_ORGANIZACION,
+      nombreOrganizacion: c.NOMBRE_ORGANIZACION,
+      idRol: c.ID_ROL,
+      codigoRol: c.CODIGO_ROL,
+      nombreRol: c.NOMBRE_ROL,
+      esSedePrincipal: c.ES_SEDE_PRINCIPAL === 'S'
+    }));
+
     return {
       id: user.ID,
       username: user.USERNAME,
@@ -113,7 +148,9 @@ export class AuthService {
       role: user.CODIGO_ROL,
       nombreRol: user.NOMBRE_ROL,
       telefono: user.TELEFONO,
-      avatarUrl: user.AVATAR_URL
+      avatarUrl: user.AVATAR_URL,
+      centros,
+      activeCentro: centros.length === 1 ? centros[0] : null
     };
   }
 }

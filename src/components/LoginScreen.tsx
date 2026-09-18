@@ -2,9 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { LogIn, KeyRound, Mail, ArrowLeft, CheckCircle2, ShieldCheck, Heart, Server, Wifi, RefreshCw, AlertCircle, Settings } from 'lucide-react';
 import { getApiBaseUrl, testApiHealth } from '../services/api';
+import { CentroSelectionModal } from './CentroSelectionModal';
 
 export const LoginScreen: React.FC = () => {
-  const { login } = useApp();
+  const {
+    login,
+    pendingCentroSelection,
+    assignedCentros,
+    selectActiveCentro,
+    cancelCentroSelection,
+    currentUser
+  } = useApp();
   const [view, setView] = useState<'login' | 'recover'>('login');
   const [email, setEmail] = useState('mrodriguez');
   const [password, setPassword] = useState('Samanya2026*');
@@ -148,8 +156,9 @@ export const LoginScreen: React.FC = () => {
 
             {/* Quick pre-fill buttons from real Oracle DB */}
             <div className="p-3 bg-[#D9F0F1]/60 rounded-2xl border border-[#068591]/20">
-              <p className="text-xs font-bold text-[#075158] uppercase tracking-wide mb-1.5">
-                Cuentas en Base de Datos Oracle
+              <p className="text-xs font-bold text-[#075158] uppercase tracking-wide mb-1.5 flex items-center justify-between">
+                <span>Cuentas de Prueba (Oracle DB)</span>
+                <span className="text-[10px] text-[#068591] font-normal">Identificación de Centro</span>
               </p>
               <div className="flex flex-wrap gap-2">
                 <button
@@ -159,8 +168,31 @@ export const LoginScreen: React.FC = () => {
                     setPassword('Samanya2026*');
                   }}
                   className="text-xs bg-white text-[#075158] font-semibold px-2.5 py-1.5 rounded-xl border border-[#068591]/30 hover:bg-[#D9F0F1] transition-colors"
+                  title="Tiene 2 centros: Sede Central y Campestre -> Abre ventana modal"
                 >
-                  María (Cuidadora)
+                  Martha (2 sedes → Modal)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEmail('cramirez');
+                    setPassword('Samanya2026*');
+                  }}
+                  className="text-xs bg-white text-[#075158] font-semibold px-2.5 py-1.5 rounded-xl border border-[#068591]/30 hover:bg-[#D9F0F1] transition-colors"
+                  title="Tiene 1 solo centro: Sede Central -> Entra directo"
+                >
+                  Carlos (1 sede → Directo)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEmail('admin');
+                    setPassword('Samanya2026*');
+                  }}
+                  className="text-xs bg-white text-[#075158] font-semibold px-2.5 py-1.5 rounded-xl border border-[#068591]/30 hover:bg-[#D9F0F1] transition-colors"
+                  title="Tiene 2 sedes activas -> Abre ventana modal"
+                >
+                  Admin (2 sedes)
                 </button>
                 <button
                   type="button"
@@ -170,17 +202,7 @@ export const LoginScreen: React.FC = () => {
                   }}
                   className="text-xs bg-white text-[#075158] font-semibold px-2.5 py-1.5 rounded-xl border border-[#068591]/30 hover:bg-[#D9F0F1] transition-colors"
                 >
-                  Javier (Familiar)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setEmail('ldelgado');
-                    setPassword('Samanya2026*');
-                  }}
-                  className="text-xs bg-white text-[#075158] font-semibold px-2.5 py-1.5 rounded-xl border border-[#068591]/30 hover:bg-[#D9F0F1] transition-colors"
-                >
-                  Lucía (Familiar)
+                  Javier (Familiar 1 sede)
                 </button>
               </div>
             </div>
@@ -384,6 +406,16 @@ export const LoginScreen: React.FC = () => {
         <ShieldCheck className="w-4 h-4 text-[#068591]" />
         <span>Acceso seguro protegido · Protocolo sanitario RGPD</span>
       </div>
+
+      {/* Modal interactivo de Selección de Centro (Multi-Sede) */}
+      <CentroSelectionModal
+        isOpen={pendingCentroSelection}
+        userName={currentUser.name || email}
+        userRole={currentUser.role}
+        centros={assignedCentros}
+        onSelectCentro={(centro) => selectActiveCentro(centro)}
+        onCancel={cancelCentroSelection}
+      />
     </div>
   );
 };

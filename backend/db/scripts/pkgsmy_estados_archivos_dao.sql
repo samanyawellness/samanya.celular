@@ -349,6 +349,7 @@ AS
     BEGIN
         SELECT JSON_OBJECT(
                    'id' VALUE t.id,
+                   'id_organizacion' VALUE t.id_organizacion,
                    'nombre_estado_archivo' VALUE t.nombre_estado_archivo,
                    'descripcion' VALUE t.descripcion,
                    'fecha_creacion' VALUE TO_CHAR(t.fecha_creacion, 'YYYY-MM-DD"T"HH24:MI:SS'),
@@ -375,6 +376,7 @@ AS
     BEGIN
         SELECT JSON_OBJECT(
                    'id' VALUE t.id,
+                   'id_organizacion' VALUE t.id_organizacion,
                    'nombre_estado_archivo' VALUE t.nombre_estado_archivo,
                    'descripcion' VALUE t.descripcion,
                    'fecha_creacion' VALUE TO_CHAR(t.fecha_creacion, 'YYYY-MM-DD"T"HH24:MI:SS'),

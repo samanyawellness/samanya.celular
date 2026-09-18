@@ -60,6 +60,7 @@ PROMPT =========================================================================
 
 -- =============================================================================
 -- 0. ORGANIZACIONES Y CENTROS GERIÁTRICOS (ESTRUCTURA MULTI-TENANT)
+--    Garantiza aislamiento de datos y catálogos maestros asignados a cada organización
 -- =============================================================================
 PROMPT 0. Garantizando Organizaciones y Centros Multi-Tenant...
 
@@ -294,14 +295,14 @@ VALUES (2, 2, 1, 1, 'N', 'S');
 INSERT INTO SMY_CENTRO_USUARIOS (ID, ID_CENTRO, ID_USUARIO, ID_ROL, ES_SEDE_PRINCIPAL, ESTADO_ACTIVO)
 VALUES (3, 3, 1, 1, 'N', 'S');
 
--- Martha Rodríguez (Enfermera Jefe) en Sede Central (principal) y apoyo en Sede Campestre
+-- Martha Rodríguez (Enfermera Jefe) en Sede Central (principal) y apoyo en Sede Campestre (Multi-centro)
 INSERT INTO SMY_CENTRO_USUARIOS (ID, ID_CENTRO, ID_USUARIO, ID_ROL, ES_SEDE_PRINCIPAL, ESTADO_ACTIVO)
 VALUES (4, 1, 2, 2, 'S', 'S');
 
 INSERT INTO SMY_CENTRO_USUARIOS (ID, ID_CENTRO, ID_USUARIO, ID_ROL, ES_SEDE_PRINCIPAL, ESTADO_ACTIVO)
 VALUES (5, 2, 2, 2, 'N', 'S');
 
--- Carlos Ramírez adscrito a Sede Central
+-- Carlos Ramírez adscrito únicamente a Sede Central (Mono-centro -> Acceso directo)
 INSERT INTO SMY_CENTRO_USUARIOS (ID, ID_CENTRO, ID_USUARIO, ID_ROL, ES_SEDE_PRINCIPAL, ESTADO_ACTIVO)
 VALUES (6, 1, 3, 2, 'S', 'S');
 
@@ -312,6 +313,66 @@ VALUES (7, 2, 4, 2, 'S', 'S');
 -- Andrés Gómez adscrito a Sede Central
 INSERT INTO SMY_CENTRO_USUARIOS (ID, ID_CENTRO, ID_USUARIO, ID_ROL, ES_SEDE_PRINCIPAL, ESTADO_ACTIVO)
 VALUES (8, 1, 5, 2, 'S', 'S');
+
+-- Familiares y Acudientes asignados a la(s) sede(s) donde residen sus familiares
+-- Lucía Delgado (Residente 1 en Sede Central)
+INSERT INTO SMY_CENTRO_USUARIOS (ID, ID_CENTRO, ID_USUARIO, ID_ROL, ES_SEDE_PRINCIPAL, ESTADO_ACTIVO)
+VALUES (9, 1, 6, 3, 'S', 'S');
+
+-- Carlos Delgado (Residente 1 en Sede Central)
+INSERT INTO SMY_CENTRO_USUARIOS (ID, ID_CENTRO, ID_USUARIO, ID_ROL, ES_SEDE_PRINCIPAL, ESTADO_ACTIVO)
+VALUES (10, 1, 7, 3, 'S', 'S');
+
+-- Javier Pérez (Residente 2 en Sede Central)
+INSERT INTO SMY_CENTRO_USUARIOS (ID, ID_CENTRO, ID_USUARIO, ID_ROL, ES_SEDE_PRINCIPAL, ESTADO_ACTIVO)
+VALUES (11, 1, 8, 3, 'S', 'S');
+
+-- Beatriz Pérez (Residente 2 en Sede Central)
+INSERT INTO SMY_CENTRO_USUARIOS (ID, ID_CENTRO, ID_USUARIO, ID_ROL, ES_SEDE_PRINCIPAL, ESTADO_ACTIVO)
+VALUES (12, 1, 9, 3, 'S', 'S');
+
+-- Mariana López (Residente 3 en Sede Central)
+INSERT INTO SMY_CENTRO_USUARIOS (ID, ID_CENTRO, ID_USUARIO, ID_ROL, ES_SEDE_PRINCIPAL, ESTADO_ACTIVO)
+VALUES (13, 1, 10, 3, 'S', 'S');
+
+-- Roberto Hernández (Residente 4 en Sede Central)
+INSERT INTO SMY_CENTRO_USUARIOS (ID, ID_CENTRO, ID_USUARIO, ID_ROL, ES_SEDE_PRINCIPAL, ESTADO_ACTIVO)
+VALUES (14, 1, 11, 3, 'S', 'S');
+
+-- Ana María Torres (Residente 5 en Sede Central)
+INSERT INTO SMY_CENTRO_USUARIOS (ID, ID_CENTRO, ID_USUARIO, ID_ROL, ES_SEDE_PRINCIPAL, ESTADO_ACTIVO)
+VALUES (15, 1, 12, 3, 'S', 'S');
+
+-- Jorge Castro (Residente 6 en Sede Campestre La Calera)
+INSERT INTO SMY_CENTRO_USUARIOS (ID, ID_CENTRO, ID_USUARIO, ID_ROL, ES_SEDE_PRINCIPAL, ESTADO_ACTIVO)
+VALUES (16, 2, 13, 3, 'S', 'S');
+
+-- Claudia Morales (Residente 7 en Sede Campestre La Calera)
+INSERT INTO SMY_CENTRO_USUARIOS (ID, ID_CENTRO, ID_USUARIO, ID_ROL, ES_SEDE_PRINCIPAL, ESTADO_ACTIVO)
+VALUES (17, 2, 14, 3, 'S', 'S');
+
+-- Fernando Sánchez (Residente 8 en Sede Campestre La Calera)
+INSERT INTO SMY_CENTRO_USUARIOS (ID, ID_CENTRO, ID_USUARIO, ID_ROL, ES_SEDE_PRINCIPAL, ESTADO_ACTIVO)
+VALUES (18, 2, 15, 3, 'S', 'S');
+
+-- Patricia Navarro (Residente 9 en Sede Campestre La Calera)
+INSERT INTO SMY_CENTRO_USUARIOS (ID, ID_CENTRO, ID_USUARIO, ID_ROL, ES_SEDE_PRINCIPAL, ESTADO_ACTIVO)
+VALUES (19, 2, 16, 3, 'S', 'S');
+
+-- Gustavo Castillo (Residente 10 en Sede Campestre La Calera)
+INSERT INTO SMY_CENTRO_USUARIOS (ID, ID_CENTRO, ID_USUARIO, ID_ROL, ES_SEDE_PRINCIPAL, ESTADO_ACTIVO)
+VALUES (20, 2, 17, 3, 'S', 'S');
+
+-- Sofía Delgado (Familiar con presencia en Sede Central y Campestre -> Multi-centro)
+INSERT INTO SMY_CENTRO_USUARIOS (ID, ID_CENTRO, ID_USUARIO, ID_ROL, ES_SEDE_PRINCIPAL, ESTADO_ACTIVO)
+VALUES (21, 1, 18, 3, 'S', 'S');
+
+INSERT INTO SMY_CENTRO_USUARIOS (ID, ID_CENTRO, ID_USUARIO, ID_ROL, ES_SEDE_PRINCIPAL, ESTADO_ACTIVO)
+VALUES (22, 2, 18, 3, 'N', 'S');
+
+-- Valentina Pérez (Residente 2 en Sede Central)
+INSERT INTO SMY_CENTRO_USUARIOS (ID, ID_CENTRO, ID_USUARIO, ID_ROL, ES_SEDE_PRINCIPAL, ESTADO_ACTIVO)
+VALUES (23, 1, 19, 3, 'S', 'S');
 
 COMMIT;
 
@@ -1637,7 +1698,7 @@ PROMPT =========================================================================
 PROMPT   POBLACIÓN DE DATOS DUMMY COMPLETADA CON ÉXITO
 PROMPT   RESUMEN:
 PROMPT     - 2 Organizaciones y 3 Centros Geriátricos Multi-Tenant
-PROMPT     - 3 Registros de Dueños / Socios y 8 Asignaciones Multi-Sede
+PROMPT     - 3 Registros de Dueños / Socios y 23 Asignaciones Multi-Sede en SMY_CENTRO_USUARIOS
 PROMPT     - 10 Residentes registrados con Historia Clínica (6 en Central, 4 en Campestre)
 PROMPT     - 4 Empleados / Cuidadores asignados por sede
 PROMPT     - 2 Solicitudes previas de admisión con contactos
