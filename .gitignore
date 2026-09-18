@@ -24,3 +24,4 @@ ewallet.pem
 configuraciones.txt
 smy_parametros.sql
 *smy_parametros*.sql
+graphify-out/cache/

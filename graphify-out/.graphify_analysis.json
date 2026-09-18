@@ -1,0 +1,1621 @@
+{
+  "communities": {
+    "0": [
+      "mobile_src_constants_theme",
+      "mobile_src_constants_theme_colors",
+      "mobile_src_data_mockdata",
+      "mobile_src_data_mockdata_bitacoraentry",
+      "mobile_src_data_mockdata_consentrecord",
+      "mobile_src_data_mockdata_mock_bitacora",
+      "mobile_src_data_mockdata_mock_consents",
+      "mobile_src_data_mockdata_mock_residents",
+      "mobile_src_data_mockdata_mock_tasks",
+      "mobile_src_data_mockdata_resident",
+      "mobile_src_data_mockdata_residentmedication",
+      "mobile_src_data_mockdata_taskitem",
+      "mobile_src_navigation_adminnavigator",
+      "mobile_src_navigation_adminnavigator_adminnavigator",
+      "mobile_src_navigation_adminnavigator_tab",
+      "mobile_src_navigation_cuidadornavigator",
+      "mobile_src_navigation_cuidadornavigator_cuidadornavigator",
+      "mobile_src_navigation_cuidadornavigator_tab",
+      "mobile_src_navigation_familiarnavigator",
+      "mobile_src_navigation_familiarnavigator_familiarnavigator",
+      "mobile_src_navigation_familiarnavigator_tab",
+      "mobile_src_navigation_navigation_types",
+      "mobile_src_navigation_navigation_types_admintabparamlist",
+      "mobile_src_navigation_navigation_types_authstackparamlist",
+      "mobile_src_navigation_navigation_types_cuidadortabparamlist",
+      "mobile_src_navigation_navigation_types_familiartabparamlist",
+      "mobile_src_navigation_navigation_types_rootstackparamlist",
+      "mobile_src_navigation_rootnavigator",
+      "mobile_src_navigation_rootnavigator_rootnavigator",
+      "mobile_src_navigation_rootnavigator_stack",
+      "mobile_src_navigation_rootnavigator_styles",
+      "mobile_src_screens_admin_admindashboardscreen",
+      "mobile_src_screens_admin_admindashboardscreen_admindashboardscreen",
+      "mobile_src_screens_admin_admindashboardscreen_styles",
+      "mobile_src_screens_auth_loginscreen",
+      "mobile_src_screens_auth_loginscreen_loginscreen",
+      "mobile_src_screens_auth_loginscreen_styles",
+      "mobile_src_screens_cuidador_consentsscreen",
+      "mobile_src_screens_cuidador_consentsscreen_consentsscreen",
+      "mobile_src_screens_cuidador_consentsscreen_styles",
+      "mobile_src_screens_cuidador_homescreen",
+      "mobile_src_screens_cuidador_homescreen_homescreen",
+      "mobile_src_screens_cuidador_homescreen_homescreenprops",
+      "mobile_src_screens_cuidador_homescreen_styles",
+      "mobile_src_screens_cuidador_incidentreportmodal",
+      "mobile_src_screens_cuidador_incidentreportmodal_incidentreportmodal",
+      "mobile_src_screens_cuidador_incidentreportmodal_incidentreportmodalprops",
+      "mobile_src_screens_cuidador_incidentreportmodal_styles",
+      "mobile_src_screens_cuidador_profilescreen",
+      "mobile_src_screens_cuidador_profilescreen_profilescreen",
+      "mobile_src_screens_cuidador_profilescreen_styles",
+      "mobile_src_screens_cuidador_residentdetailmodal",
+      "mobile_src_screens_cuidador_residentdetailmodal_residentdetailmodal",
+      "mobile_src_screens_cuidador_residentdetailmodal_residentdetailmodalprops",
+      "mobile_src_screens_cuidador_residentdetailmodal_styles",
+      "mobile_src_screens_cuidador_residentsscreen",
+      "mobile_src_screens_cuidador_residentsscreen_residentsscreen",
+      "mobile_src_screens_cuidador_residentsscreen_styles",
+      "mobile_src_screens_cuidador_tasksscreen",
+      "mobile_src_screens_cuidador_tasksscreen_styles",
+      "mobile_src_screens_cuidador_tasksscreen_tasksscreen",
+      "mobile_src_screens_familiar_familiarbitacorascreen",
+      "mobile_src_screens_familiar_familiarbitacorascreen_familiarbitacorascreen",
+      "mobile_src_screens_familiar_familiarbitacorascreen_styles",
+      "mobile_src_screens_familiar_familiarconsentmodal",
+      "mobile_src_screens_familiar_familiarconsentmodal_familiarconsentmodal",
+      "mobile_src_screens_familiar_familiarconsentmodal_familiarconsentmodalprops",
+      "mobile_src_screens_familiar_familiarconsentmodal_styles",
+      "mobile_src_screens_familiar_familiarhomescreen",
+      "mobile_src_screens_familiar_familiarhomescreen_familiarhomescreen",
+      "mobile_src_screens_familiar_familiarhomescreen_familiarhomescreenprops",
+      "mobile_src_screens_familiar_familiarhomescreen_styles",
+      "mobile_src_screens_familiar_familiarresidentescreen",
+      "mobile_src_screens_familiar_familiarresidentescreen_familiarresidentescreen",
+      "mobile_src_screens_familiar_familiarresidentescreen_styles",
+      "mobile_src_store_auth_store",
+      "mobile_src_store_auth_store_authstate",
+      "mobile_src_store_auth_store_useauthstore",
+      "mobile_src_store_auth_store_userprofile",
+      "mobile_src_store_auth_store_userrole",
+      "ref_lucide_react_native",
+      "ref_react_native",
+      "ref_react_navigation_bottom_tabs"
+    ],
+    "1": [
+      "ref_lucide_react",
+      "ref_react",
+      "src_app",
+      "src_app_mainlayout",
+      "src_components_admin_adminbottomnav",
+      "src_components_admin_adminbottomnav_adminbottomnav",
+      "src_components_admin_adminhomescreen",
+      "src_components_admin_adminhomescreen_adminhomescreen",
+      "src_components_admin_adminshiftdetailmodal_adminshiftdetailmodal",
+      "src_components_admin_admintaskdetailmodal",
+      "src_components_admin_admintaskdetailmodal_admintaskdetailmodal",
+      "src_components_admin_sedeselectorchip",
+      "src_components_admin_sedeselectorchip_sedeselectorchip",
+      "src_components_bitacoramodal",
+      "src_components_bitacoramodal_bitacoramodal",
+      "src_components_bottomnav",
+      "src_components_bottomnav_bottomnav",
+      "src_components_darkmodetoggle",
+      "src_components_darkmodetoggle_darkmodetoggle",
+      "src_components_darkmodetoggle_darkmodetoggleprops",
+      "src_components_familiar_familiarbottomnav",
+      "src_components_familiar_familiarbottomnav_familiarbottomnav",
+      "src_components_familiar_familiarconsentmodal",
+      "src_components_familiar_familiarconsentmodal_familiarconsentmodal",
+      "src_components_familiar_familiarhomescreen",
+      "src_components_familiar_familiarhomescreen_familiarhomescreen",
+      "src_components_familiar_familiarprofilescreen",
+      "src_components_familiar_familiarprofilescreen_familiarprofilescreen",
+      "src_components_familiar_familiarvitalsmodal",
+      "src_components_familiar_familiarvitalsmodal_familiarvitalsmodal",
+      "src_components_familiar_residentselectorchip",
+      "src_components_familiar_residentselectorchip_residentselectorchip",
+      "src_components_header",
+      "src_components_header_header",
+      "src_components_header_headerprops",
+      "src_components_homescreen",
+      "src_components_homescreen_homescreen",
+      "src_components_massregistrationmodal",
+      "src_components_massregistrationmodal_massregistrationmodal",
+      "src_components_newconsentmodal",
+      "src_components_newconsentmodal_newconsentmodal",
+      "src_components_notificationsscreen",
+      "src_components_notificationsscreen_notificationsscreen",
+      "src_components_profilescreen",
+      "src_components_profilescreen_profilescreen",
+      "src_components_residentsscreen",
+      "src_components_residentsscreen_residentsscreen",
+      "src_components_rolemenu",
+      "src_components_rolemenu_rolemenu",
+      "src_components_tasksscreen",
+      "src_components_tasksscreen_tasksscreen",
+      "src_components_timelinedrawer",
+      "src_components_timelinedrawer_timelinedrawer",
+      "src_components_toast",
+      "src_components_toast_toast",
+      "src_components_vitalsignsmodal",
+      "src_components_vitalsignsmodal_vitalsignsmodal",
+      "src_components_voiceinputbutton",
+      "src_components_voiceinputbutton_voiceinputbutton",
+      "src_components_voiceinputbutton_voiceinputbuttonprops",
+      "src_context_appcontext_useapp"
+    ],
+    "2": [
+      "src_components_admin_adminshiftdetailmodal",
+      "src_components_admin_adminshiftsscreen",
+      "src_components_admin_adminshiftsscreen_adminshiftsscreen",
+      "src_context_appcontext",
+      "src_context_appcontext_appcontext",
+      "src_context_appcontext_appcontexttype",
+      "src_data_mockdata",
+      "src_data_mockdata_initial_activity_timeline",
+      "src_data_mockdata_initial_bitacora",
+      "src_data_mockdata_initial_clinical_records",
+      "src_data_mockdata_initial_consents",
+      "src_data_mockdata_initial_deleted_clinical_records",
+      "src_data_mockdata_initial_incidents",
+      "src_data_mockdata_initial_notifications",
+      "src_data_mockdata_initial_residents",
+      "src_data_mockdata_initial_sedes",
+      "src_data_mockdata_initial_shifts",
+      "src_data_mockdata_initial_supplies",
+      "src_data_mockdata_initial_tasks",
+      "src_data_mockdata_initial_vitals",
+      "src_data_mockdata_mock_user_centros",
+      "src_data_mockdata_staff_workers",
+      "src_types",
+      "src_types_activityevent",
+      "src_types_adminsubrole",
+      "src_types_admintab",
+      "src_types_appnotification",
+      "src_types_apptab",
+      "src_types_bitacoraentry",
+      "src_types_clinicalrecord",
+      "src_types_consenttype",
+      "src_types_deletedclinicalrecord",
+      "src_types_familiartab",
+      "src_types_incidentreport",
+      "src_types_paymentstatus",
+      "src_types_residentmedication",
+      "src_types_sedeinfo",
+      "src_types_shiftinfo",
+      "src_types_shiftworkerinfo",
+      "src_types_staffworker",
+      "src_types_supplyentry",
+      "src_types_supplytype",
+      "src_types_taskscope",
+      "src_types_tasktype",
+      "src_types_vitalsigns"
+    ],
+    "3": [
+      "mobile_app_app",
+      "mobile_app_queryclient",
+      "mobile_app_tsx_mobile_app",
+      "mobile_package",
+      "mobile_package_devdependencies",
+      "mobile_package_devdependencies_babel_core",
+      "mobile_package_devdependencies_types_react",
+      "mobile_package_devdependencies_typescript",
+      "mobile_package_json_ref_react",
+      "mobile_package_main",
+      "mobile_package_name",
+      "mobile_package_private",
+      "mobile_package_scripts",
+      "mobile_package_scripts_android",
+      "mobile_package_scripts_ios",
+      "mobile_package_scripts_start",
+      "mobile_package_scripts_typecheck",
+      "mobile_package_scripts_web",
+      "mobile_package_version",
+      "mobile_src_api_client",
+      "mobile_src_api_client_apiclient",
+      "mobile_src_api_client_failedqueue",
+      "mobile_src_api_client_processqueue",
+      "ref_axios",
+      "ref_babel_core",
+      "ref_expo",
+      "ref_expo_camera",
+      "ref_expo_constants",
+      "ref_expo_font",
+      "ref_expo_linear_gradient",
+      "ref_expo_notifications",
+      "ref_expo_secure_store",
+      "ref_expo_status_bar",
+      "ref_react_native_safe_area_context",
+      "ref_react_native_screens",
+      "ref_react_native_svg",
+      "ref_react_navigation_native",
+      "ref_react_navigation_native_stack",
+      "ref_tanstack_react_query",
+      "ref_types_react",
+      "ref_zustand"
+    ],
+    "4": [
+      "backend_src_modules_archivos_gdrive_service",
+      "backend_src_modules_archivos_gdrive_service_gdriveuploadresult",
+      "backend_src_modules_archivos_gdrive_service_googledriveservice",
+      "backend_src_modules_archivos_gdrive_service_googledriveservice_asegurarjerarquiadirectorios",
+      "backend_src_modules_archivos_gdrive_service_googledriveservice_copiararchivo",
+      "backend_src_modules_archivos_gdrive_service_googledriveservice_enviarapapelera",
+      "backend_src_modules_archivos_gdrive_service_googledriveservice_getclient",
+      "backend_src_modules_archivos_gdrive_service_googledriveservice_obtenerocrearcarpeta",
+      "backend_src_modules_archivos_gdrive_service_googledriveservice_obtenerstreamarchivo",
+      "backend_src_modules_archivos_gdrive_service_googledriveservice_renombrararchivo",
+      "backend_src_modules_archivos_gdrive_service_googledriveservice_subirarchivo",
+      "backend_src_oauth_setup",
+      "backend_src_oauth_setup_main",
+      "backend_src_oauth_setup_scopes",
+      "backend_src_oauth_setup_testdriveupload",
+      "backend_src_test_gdrive",
+      "backend_src_test_gdrive_main",
+      "ref_child_process",
+      "ref_fs",
+      "ref_googleapis",
+      "ref_http",
+      "ref_path",
+      "ref_stream",
+      "ref_tailwindcss_vite",
+      "ref_url",
+      "ref_vite",
+      "ref_vitejs_plugin_react",
+      "vite_config"
+    ],
+    "5": [
+      "mobile_app_adaptiveicon_backgroundcolor",
+      "mobile_app_adaptiveicon_foregroundimage",
+      "mobile_app_android_adaptiveicon",
+      "mobile_app_android_package",
+      "mobile_app_expo",
+      "mobile_app_expo_android",
+      "mobile_app_expo_extra",
+      "mobile_app_expo_icon",
+      "mobile_app_expo_ios",
+      "mobile_app_expo_name",
+      "mobile_app_expo_orientation",
+      "mobile_app_expo_plugins",
+      "mobile_app_expo_slug",
+      "mobile_app_expo_splash",
+      "mobile_app_expo_userinterfacestyle",
+      "mobile_app_expo_version",
+      "mobile_app_extra_apiurl",
+      "mobile_app_ios_bundleidentifier",
+      "mobile_app_ios_supportstablet",
+      "mobile_app_json_mobile_app",
+      "mobile_app_splash_backgroundcolor",
+      "mobile_app_splash_image",
+      "mobile_app_splash_resizemode"
+    ],
+    "6": [
+      "mobile_package_dependencies",
+      "mobile_package_dependencies_axios",
+      "mobile_package_dependencies_expo",
+      "mobile_package_dependencies_expo_camera",
+      "mobile_package_dependencies_expo_constants",
+      "mobile_package_dependencies_expo_font",
+      "mobile_package_dependencies_expo_linear_gradient",
+      "mobile_package_dependencies_expo_notifications",
+      "mobile_package_dependencies_expo_secure_store",
+      "mobile_package_dependencies_expo_status_bar",
+      "mobile_package_dependencies_lucide_react_native",
+      "mobile_package_dependencies_react",
+      "mobile_package_dependencies_react_native",
+      "mobile_package_dependencies_react_native_safe_area_context",
+      "mobile_package_dependencies_react_native_screens",
+      "mobile_package_dependencies_react_native_svg",
+      "mobile_package_dependencies_react_navigation_bottom_tabs",
+      "mobile_package_dependencies_react_navigation_native",
+      "mobile_package_dependencies_react_navigation_native_stack",
+      "mobile_package_dependencies_tanstack_react_query",
+      "mobile_package_dependencies_zustand"
+    ],
+    "7": [
+      "backend_package",
+      "backend_package_description",
+      "backend_package_engines",
+      "backend_package_engines_node",
+      "backend_package_json_ref_express",
+      "backend_package_json_ref_tsx",
+      "backend_package_main",
+      "backend_package_name",
+      "backend_package_private",
+      "backend_package_version",
+      "package_json_ref_dotenv",
+      "ref_bcryptjs",
+      "ref_cors",
+      "ref_helmet",
+      "ref_rimraf",
+      "ref_types_bcryptjs",
+      "ref_types_cors",
+      "ref_types_jsonwebtoken",
+      "ref_types_multer",
+      "ref_types_oracledb"
+    ],
+    "8": [
+      "creacion_modelo_relacional_idx_smy_bit_res_fec",
+      "creacion_modelo_relacional_idx_smy_cons_res_est",
+      "creacion_modelo_relacional_idx_smy_inc_fec_sev",
+      "creacion_modelo_relacional_idx_smy_ir_inc",
+      "creacion_modelo_relacional_idx_smy_ir_res",
+      "creacion_modelo_relacional_idx_smy_mp_res_est",
+      "creacion_modelo_relacional_idx_smy_sv_res_fec",
+      "creacion_modelo_relacional_v_smy_timeline_residente",
+      "smy_bitacora_residente",
+      "smy_consentimientos",
+      "smy_estados_admin_med",
+      "smy_incidente_residentes",
+      "smy_incidentes",
+      "smy_medicamentos_prescritos",
+      "smy_signos_vitales",
+      "smy_tipos_consentimientos",
+      "smy_tipos_incidentes",
+      "smy_vias_administracion"
+    ],
+    "9": [
+      "package",
+      "package_json_ref_express",
+      "package_json_ref_react",
+      "package_json_ref_tsx",
+      "package_json_ref_types_express",
+      "package_json_ref_types_node",
+      "package_json_ref_typescript",
+      "package_name",
+      "package_private",
+      "package_type",
+      "package_version",
+      "ref_autoprefixer",
+      "ref_capacitor_android",
+      "ref_esbuild",
+      "ref_google_genai",
+      "ref_motion",
+      "ref_react_dom",
+      "ref_tailwindcss"
+    ],
+    "10": [
+      "tsconfig",
+      "tsconfig_compileroptions",
+      "tsconfig_compileroptions_allowimportingtsextensions",
+      "tsconfig_compileroptions_allowjs",
+      "tsconfig_compileroptions_experimentaldecorators",
+      "tsconfig_compileroptions_isolatedmodules",
+      "tsconfig_compileroptions_jsx",
+      "tsconfig_compileroptions_lib",
+      "tsconfig_compileroptions_module",
+      "tsconfig_compileroptions_moduledetection",
+      "tsconfig_compileroptions_moduleresolution",
+      "tsconfig_compileroptions_noemit",
+      "tsconfig_compileroptions_paths",
+      "tsconfig_compileroptions_skiplibcheck",
+      "tsconfig_compileroptions_target",
+      "tsconfig_compileroptions_usedefineforclassfields",
+      "tsconfig_exclude",
+      "tsconfig_include"
+    ],
+    "11": [
+      "ref_capacitor_core",
+      "src_components_centroselectionmodal",
+      "src_components_centroselectionmodal_centroselectionmodal",
+      "src_components_centroselectionmodal_centroselectionmodalprops",
+      "src_components_loginscreen",
+      "src_components_loginscreen_loginscreen",
+      "src_context_appcontext_appprovider",
+      "src_services_api",
+      "src_services_api_getactivecentrocontext",
+      "src_services_api_getapibaseurl",
+      "src_services_api_getauthtoken",
+      "src_services_api_removeauthtoken",
+      "src_services_api_request",
+      "src_services_api_setactivecentrocontext",
+      "src_services_api_setauthtoken",
+      "src_services_api_testapihealth",
+      "src_types_usercentro"
+    ],
+    "12": [
+      "backend_src_app",
+      "backend_src_app_createapp",
+      "backend_src_config_env",
+      "backend_src_config_env_env",
+      "backend_src_config_env_envschema",
+      "backend_src_config_env_parsed",
+      "backend_src_config_oracle",
+      "backend_src_config_oracle_closeoraclepool",
+      "backend_src_config_oracle_initoraclepool",
+      "backend_src_middlewares_error_middleware",
+      "backend_src_middlewares_error_middleware_errorhandler",
+      "backend_src_server",
+      "backend_src_server_bootstrap",
+      "ref_dotenv",
+      "ref_zod"
+    ],
+    "13": [
+      "backend_src_config_oracle_withconnection",
+      "backend_src_modules_archivos_archivos_service_archivosservice",
+      "backend_src_modules_archivos_archivos_service_archivosservice_borrararchivologico",
+      "backend_src_modules_archivos_archivos_service_archivosservice_copiararchivo",
+      "backend_src_modules_archivos_archivos_service_archivosservice_listararchivosresidente",
+      "backend_src_modules_archivos_archivos_service_archivosservice_obtenerstreamarchivo",
+      "backend_src_modules_archivos_archivos_service_archivosservice_renombrararchivo",
+      "backend_src_modules_archivos_archivos_service_archivosservice_subirarchivo",
+      "backend_src_modules_residentes_residentes_service_residentesservice",
+      "backend_src_modules_residentes_residentes_service_residentesservice_listarresidentes",
+      "backend_src_modules_residentes_residentes_service_residentesservice_obtenerbitacora",
+      "backend_src_modules_residentes_residentes_service_residentesservice_obtenerdetalle",
+      "backend_src_modules_residentes_residentes_service_residentesservice_obtenersignosvitales",
+      "backend_src_modules_residentes_residentes_service_residentesservice_registrarbitacora",
+      "backend_src_modules_residentes_residentes_service_residentesservice_registrarsignosvitales"
+    ],
+    "14": [
+      "backend_src_modules_devices_devices_controller",
+      "backend_src_modules_devices_devices_controller_devicescontroller",
+      "backend_src_modules_devices_devices_controller_devicescontroller_constructor",
+      "backend_src_modules_devices_devices_controller_devicescontroller_register",
+      "backend_src_modules_devices_devices_controller_devicescontroller_unregister",
+      "backend_src_modules_devices_devices_dto",
+      "backend_src_modules_devices_devices_dto_registerdevicedto",
+      "backend_src_modules_devices_devices_dto_registerdeviceschema",
+      "backend_src_modules_devices_devices_dto_unregisterdevicedto",
+      "backend_src_modules_devices_devices_dto_unregisterdeviceschema",
+      "backend_src_modules_devices_devices_service",
+      "backend_src_modules_devices_devices_service_devicesservice",
+      "backend_src_modules_devices_devices_service_devicesservice_constructor",
+      "backend_src_modules_devices_devices_service_devicesservice_registerdevice",
+      "backend_src_modules_devices_devices_service_devicesservice_unregisterdevice"
+    ],
+    "15": [
+      "backend_tsconfig",
+      "backend_tsconfig_compileroptions",
+      "backend_tsconfig_compileroptions_esmoduleinterop",
+      "backend_tsconfig_compileroptions_forceconsistentcasinginfilenames",
+      "backend_tsconfig_compileroptions_lib",
+      "backend_tsconfig_compileroptions_module",
+      "backend_tsconfig_compileroptions_moduleresolution",
+      "backend_tsconfig_compileroptions_outdir",
+      "backend_tsconfig_compileroptions_resolvejsonmodule",
+      "backend_tsconfig_compileroptions_rootdir",
+      "backend_tsconfig_compileroptions_skiplibcheck",
+      "backend_tsconfig_compileroptions_strict",
+      "backend_tsconfig_compileroptions_target",
+      "backend_tsconfig_exclude",
+      "backend_tsconfig_include"
+    ],
+    "16": [
+      "creacion_modelo_relacional",
+      "creacion_modelo_relacional_idx_smy_arc_cen_est",
+      "creacion_modelo_relacional_idx_smy_arc_cla_est",
+      "creacion_modelo_relacional_idx_smy_arc_dir_bd",
+      "creacion_modelo_relacional_idx_smy_arc_hash",
+      "creacion_modelo_relacional_idx_smy_arc_origen",
+      "creacion_modelo_relacional_idx_smy_arc_res_est",
+      "creacion_modelo_relacional_idx_smy_dp_usu_act",
+      "creacion_modelo_relacional_idx_smy_ra_acu",
+      "creacion_modelo_relacional_idx_smy_ra_res",
+      "creacion_modelo_relacional_idx_smy_to_fec_est",
+      "smy_archivos",
+      "smy_dispositivos_push",
+      "smy_residente_acudiente",
+      "smy_tareas_operativas"
+    ],
+    "17": [
+      "backend_src_modules_archivos_archivos_controller",
+      "backend_src_modules_archivos_archivos_controller_archivoscontroller",
+      "backend_src_modules_archivos_archivos_controller_archivoscontroller_borrararchivo",
+      "backend_src_modules_archivos_archivos_controller_archivoscontroller_copiararchivo",
+      "backend_src_modules_archivos_archivos_controller_archivoscontroller_descargararchivo",
+      "backend_src_modules_archivos_archivos_controller_archivoscontroller_listarporresidente",
+      "backend_src_modules_archivos_archivos_controller_archivoscontroller_renombrararchivo",
+      "backend_src_modules_archivos_archivos_controller_archivoscontroller_subirarchivo",
+      "backend_src_modules_archivos_archivos_controller_archivoscontroller_verarchivo",
+      "backend_src_modules_archivos_archivos_routes",
+      "backend_src_modules_archivos_archivos_routes_archivosroutes",
+      "backend_src_modules_archivos_archivos_routes_upload",
+      "ref_express",
+      "ref_multer"
+    ],
+    "18": [
+      "backend_src_modules_maestras_maestras_controller",
+      "backend_src_modules_maestras_maestras_controller_maestrascontroller",
+      "backend_src_modules_maestras_maestras_controller_maestrascontroller_constructor",
+      "backend_src_modules_maestras_maestras_controller_maestrascontroller_gettabla",
+      "backend_src_modules_maestras_maestras_controller_maestrascontroller_gettablasdisponibles",
+      "backend_src_modules_maestras_maestras_routes",
+      "backend_src_modules_maestras_maestras_routes_controller",
+      "backend_src_modules_maestras_maestras_routes_maestrasroutes",
+      "backend_src_modules_maestras_maestras_routes_router",
+      "backend_src_modules_maestras_maestras_service",
+      "backend_src_modules_maestras_maestras_service_maestrasservice",
+      "backend_src_modules_maestras_maestras_service_maestrasservice_consultartablamaestra",
+      "backend_src_modules_maestras_maestras_service_maestrasservice_obtenertablaspermitidas",
+      "backend_src_modules_maestras_maestras_service_tablas_maestras_organizacion"
+    ],
+    "19": [
+      "package_dependencies",
+      "package_dependencies_capacitor_android",
+      "package_dependencies_capacitor_core",
+      "package_dependencies_dotenv",
+      "package_dependencies_express",
+      "package_dependencies_google_genai",
+      "package_dependencies_lucide_react",
+      "package_dependencies_motion",
+      "package_dependencies_react",
+      "package_dependencies_react_dom",
+      "package_dependencies_tailwindcss_vite",
+      "package_dependencies_vite",
+      "package_dependencies_vitejs_plugin_react"
+    ],
+    "20": [
+      "src_components_common_clinicalhistorysection",
+      "src_components_common_clinicalhistorysection_clinicalhistorysection",
+      "src_components_common_clinicalhistorysection_clinicalhistorysectionprops",
+      "src_components_familiar_familiarresidentescreen",
+      "src_components_familiar_familiarresidentescreen_familiarresidentescreen",
+      "src_components_residentdetailmodal",
+      "src_components_residentdetailmodal_residentdetailmodal",
+      "src_components_residentqrplaceholderscreen",
+      "src_components_residentqrplaceholderscreen_residentqrplaceholderscreen",
+      "src_components_residentqrplaceholderscreen_residentqrplaceholderscreenprops",
+      "src_services_api_api",
+      "src_types_clinicalrecordcategory",
+      "src_types_resident"
+    ],
+    "21": [
+      "android_app_src_androidtest_java_com_getcapacitor_myapp_exampleinstrumentedtest",
+      "android_app_src_androidtest_java_com_getcapacitor_myapp_exampleinstrumentedtest_exampleinstrumentedtest",
+      "android_app_src_androidtest_java_com_getcapacitor_myapp_exampleinstrumentedtest_exampleinstrumentedtest_useappcontext",
+      "android_app_src_test_java_com_getcapacitor_myapp_exampleunittest",
+      "android_app_src_test_java_com_getcapacitor_myapp_exampleunittest_exampleunittest",
+      "android_app_src_test_java_com_getcapacitor_myapp_exampleunittest_exampleunittest_addition_iscorrect",
+      "androidx_test_ext_junit_runners_androidjunit4",
+      "assert",
+      "context",
+      "instrumentationregistry",
+      "org_junit_runner_runwith",
+      "org_junit_test"
+    ],
+    "22": [
+      "backend_src_modules_auth_auth_controller",
+      "backend_src_modules_auth_auth_dto",
+      "backend_src_modules_auth_auth_dto_logindto",
+      "backend_src_modules_auth_auth_dto_loginschema",
+      "backend_src_modules_auth_auth_dto_refreshtokendto",
+      "backend_src_modules_auth_auth_dto_refreshtokenschema",
+      "backend_src_modules_auth_auth_service",
+      "backend_src_modules_auth_auth_service_authservice",
+      "backend_src_modules_auth_auth_service_authservice_constructor",
+      "backend_src_modules_auth_auth_service_authservice_getprofile",
+      "backend_src_modules_auth_auth_service_authservice_login",
+      "backend_src_modules_auth_auth_service_authservice_refreshtoken"
+    ],
+    "23": [
+      "backend_src_test_archivos_logic",
+      "backend_src_test_archivos_logic_construirrutadocumentos",
+      "backend_src_test_archivos_logic_construirrutaresidente",
+      "backend_src_test_archivos_logic_construirrutasede",
+      "backend_src_test_archivos_logic_generarnombrealmacenado",
+      "backend_src_test_archivos_logic_nombrealmacenado",
+      "backend_src_test_archivos_logic_normalizarextension",
+      "backend_src_test_archivos_logic_rutadoc",
+      "backend_src_test_archivos_logic_rutares",
+      "backend_src_test_archivos_logic_rutasede",
+      "backend_src_test_archivos_logic_sanitizarcadena",
+      "ref_crypto"
+    ],
+    "24": [
+      "backend_package_dependencies",
+      "backend_package_dependencies_bcryptjs",
+      "backend_package_dependencies_cors",
+      "backend_package_dependencies_dotenv",
+      "backend_package_dependencies_express",
+      "backend_package_dependencies_googleapis",
+      "backend_package_dependencies_helmet",
+      "backend_package_dependencies_jsonwebtoken",
+      "backend_package_dependencies_multer",
+      "backend_package_dependencies_oracledb",
+      "backend_package_dependencies_zod"
+    ],
+    "25": [
+      "backend_package_devdependencies",
+      "backend_package_devdependencies_rimraf",
+      "backend_package_devdependencies_tsx",
+      "backend_package_devdependencies_types_bcryptjs",
+      "backend_package_devdependencies_types_cors",
+      "backend_package_devdependencies_types_express",
+      "backend_package_devdependencies_types_jsonwebtoken",
+      "backend_package_devdependencies_types_multer",
+      "backend_package_devdependencies_types_node",
+      "backend_package_devdependencies_types_oracledb",
+      "backend_package_devdependencies_typescript"
+    ],
+    "26": [
+      "backend_src_modules_residentes_residentes_controller",
+      "backend_src_modules_residentes_residentes_controller_residentescontroller",
+      "backend_src_modules_residentes_residentes_controller_residentescontroller_bitacora",
+      "backend_src_modules_residentes_residentes_controller_residentescontroller_detalle",
+      "backend_src_modules_residentes_residentes_controller_residentescontroller_listar",
+      "backend_src_modules_residentes_residentes_controller_residentescontroller_registrarbitacora",
+      "backend_src_modules_residentes_residentes_controller_residentescontroller_registrarsignosvitales",
+      "backend_src_modules_residentes_residentes_controller_residentescontroller_signosvitales",
+      "backend_src_modules_residentes_residentes_controller_residentesservice",
+      "backend_src_modules_residentes_residentes_service",
+      "backend_src_modules_residentes_residentes_service_residenteresumendto"
+    ],
+    "27": [
+      "src_components_consentsscreen",
+      "src_components_consentsscreen_consentsscreen",
+      "src_components_familiar_familiarbitacorascreen",
+      "src_components_familiar_familiarbitacorascreen_bitacoratypefilter",
+      "src_components_familiar_familiarbitacorascreen_familiarbitacorascreen",
+      "src_components_familiar_familiarcalendarioscreen",
+      "src_components_familiar_familiarcalendarioscreen_caregiverfiltercategory",
+      "src_components_familiar_familiarcalendarioscreen_familiarcalendarioscreen",
+      "src_components_familiar_familiarcalendarioscreen_timelineitem",
+      "src_types_consentrecord",
+      "src_types_consentstatus"
+    ],
+    "28": [
+      "backend_src_modules_auth_auth_controller_authcontroller",
+      "backend_src_modules_auth_auth_controller_authcontroller_constructor",
+      "backend_src_modules_auth_auth_controller_authcontroller_getme",
+      "backend_src_modules_auth_auth_controller_authcontroller_login",
+      "backend_src_modules_auth_auth_controller_authcontroller_logout",
+      "backend_src_modules_auth_auth_controller_authcontroller_refreshtoken",
+      "backend_src_modules_auth_auth_routes",
+      "backend_src_modules_auth_auth_routes_authroutes",
+      "backend_src_modules_auth_auth_routes_controller",
+      "backend_src_modules_auth_auth_routes_router"
+    ],
+    "29": [
+      "backend_src_modules_consentimientos_consentimientos_controller",
+      "backend_src_modules_consentimientos_consentimientos_controller_consentimientoscontroller",
+      "backend_src_modules_consentimientos_consentimientos_controller_consentimientoscontroller_firmar",
+      "backend_src_modules_consentimientos_consentimientos_controller_consentimientoscontroller_listar",
+      "backend_src_modules_consentimientos_consentimientos_controller_consentimientosservice",
+      "backend_src_modules_consentimientos_consentimientos_service",
+      "backend_src_modules_consentimientos_consentimientos_service_consentimientosservice",
+      "backend_src_modules_consentimientos_consentimientos_service_consentimientosservice_listarconsentimientos",
+      "backend_src_modules_consentimientos_consentimientos_service_consentimientosservice_registrarfirma",
+      "backend_src_modules_consentimientos_consentimientos_service_firmarconsentimientodto"
+    ],
+    "30": [
+      "package_devdependencies",
+      "package_devdependencies_autoprefixer",
+      "package_devdependencies_capacitor_cli",
+      "package_devdependencies_esbuild",
+      "package_devdependencies_tailwindcss",
+      "package_devdependencies_tsx",
+      "package_devdependencies_types_express",
+      "package_devdependencies_types_node",
+      "package_devdependencies_typescript",
+      "package_devdependencies_vite"
+    ],
+    "31": [
+      "backend_src_middlewares_auth_middleware",
+      "backend_src_middlewares_auth_middleware_express",
+      "backend_src_middlewares_auth_middleware_request",
+      "backend_src_middlewares_auth_middleware_requirerole",
+      "backend_src_types_auth_types",
+      "backend_src_types_auth_types_apiresponse",
+      "backend_src_types_auth_types_tokenpayload",
+      "backend_src_types_auth_types_userrole",
+      "ref_jsonwebtoken"
+    ],
+    "32": [
+      "backend_src_middlewares_auth_middleware_authenticate",
+      "backend_src_modules_consentimientos_consentimientos_routes",
+      "backend_src_modules_consentimientos_consentimientos_routes_consentimientosroutes",
+      "backend_src_modules_consentimientos_consentimientos_routes_controller",
+      "backend_src_modules_consentimientos_consentimientos_routes_router",
+      "backend_src_modules_devices_devices_routes",
+      "backend_src_modules_devices_devices_routes_controller",
+      "backend_src_modules_devices_devices_routes_deviceroutes",
+      "backend_src_modules_devices_devices_routes_router"
+    ],
+    "33": [
+      "backend_src_modules_auth_auth_repository",
+      "backend_src_modules_auth_auth_repository_authrepository",
+      "backend_src_modules_auth_auth_repository_authrepository_findbyid",
+      "backend_src_modules_auth_auth_repository_authrepository_findbyusernameoremail",
+      "backend_src_modules_auth_auth_repository_authrepository_findcentrosbyuserid",
+      "backend_src_modules_auth_auth_repository_authrepository_recordaccesslog",
+      "backend_src_modules_auth_auth_repository_authrepository_updatelastaccess",
+      "backend_src_modules_auth_auth_repository_usercentrodbrow",
+      "backend_src_modules_auth_auth_repository_userdbrow"
+    ],
+    "34": [
+      "backend_src_modules_tareas_tareas_controller",
+      "backend_src_modules_tareas_tareas_controller_tareascontroller",
+      "backend_src_modules_tareas_tareas_controller_tareascontroller_completar",
+      "backend_src_modules_tareas_tareas_controller_tareascontroller_listar",
+      "backend_src_modules_tareas_tareas_controller_tareasservice",
+      "backend_src_modules_tareas_tareas_service",
+      "backend_src_modules_tareas_tareas_service_tareasservice",
+      "backend_src_modules_tareas_tareas_service_tareasservice_completartarea",
+      "backend_src_modules_tareas_tareas_service_tareasservice_listartareas"
+    ],
+    "35": [
+      "creacion_modelo_relacional_idx_smy_cen_org",
+      "creacion_modelo_relacional_idx_smy_res_centro",
+      "creacion_modelo_relacional_idx_smy_res_estado",
+      "creacion_modelo_relacional_idx_smy_res_hab",
+      "creacion_modelo_relacional_vw_smy_archivos_activos",
+      "smy_centros",
+      "smy_clases_archivos",
+      "smy_estados_archivos",
+      "smy_residentes"
+    ],
+    "36": [
+      "src_types_taskstatus",
+      "src_utils_taskformatters",
+      "src_utils_taskformatters_formattaskmaintitle",
+      "src_utils_taskformatters_gettaskcategoryvisual",
+      "src_utils_taskformatters_gettaskrelativetime",
+      "src_utils_taskformatters_istaskoverdue",
+      "src_utils_taskformatters_parsetimetominutes",
+      "src_utils_taskformatters_relativetimeinfo",
+      "src_utils_taskformatters_taskvisual"
+    ],
+    "37": [
+      "backend_src_modules_notificaciones_notificaciones_controller",
+      "backend_src_modules_notificaciones_notificaciones_controller_notificacionescontroller",
+      "backend_src_modules_notificaciones_notificaciones_controller_notificacionescontroller_listar",
+      "backend_src_modules_notificaciones_notificaciones_controller_notificacionesservice",
+      "backend_src_modules_notificaciones_notificaciones_service",
+      "backend_src_modules_notificaciones_notificaciones_service_notificacionesservice",
+      "backend_src_modules_notificaciones_notificaciones_service_notificacionesservice_listarnotificaciones"
+    ],
+    "38": [
+      "mobile_tsconfig",
+      "mobile_tsconfig_compileroptions",
+      "mobile_tsconfig_compileroptions_baseurl",
+      "mobile_tsconfig_compileroptions_paths",
+      "mobile_tsconfig_compileroptions_strict",
+      "mobile_tsconfig_extends",
+      "ref_expo_tsconfig_base"
+    ],
+    "39": [
+      "src_components_admin_adminprofilescreen",
+      "src_components_admin_adminprofilescreen_adminprofilescreen",
+      "src_components_roledropdownselector",
+      "src_components_roledropdownselector_role_options",
+      "src_components_roledropdownselector_roledropdownselector",
+      "src_components_roledropdownselector_roleoption",
+      "src_types_userrole"
+    ],
+    "40": [
+      "src_components_admin_admintasksscreen",
+      "src_components_admin_admintasksscreen_admintasksscreen",
+      "src_components_admin_admintasksscreen_entityfilter",
+      "src_components_taskdetailmodal",
+      "src_components_taskdetailmodal_taskdetailmodal",
+      "src_components_taskdetailmodal_taskdetailmodalprops",
+      "src_types_taskitem"
+    ],
+    "41": [
+      "backend_package_scripts",
+      "backend_package_scripts_build",
+      "backend_package_scripts_dev",
+      "backend_package_scripts_oauth_setup",
+      "backend_package_scripts_start",
+      "backend_package_scripts_typecheck"
+    ],
+    "42": [
+      "backend_src_modules_archivos_archivos_service",
+      "backend_src_modules_archivos_archivos_service_archivodto",
+      "backend_src_modules_archivos_archivos_service_subirarchivoparams",
+      "backend_src_utils_oracle_cursor",
+      "backend_src_utils_oracle_cursor_readresultset",
+      "ref_oracledb"
+    ],
+    "43": [
+      "package_scripts",
+      "package_scripts_build",
+      "package_scripts_clean",
+      "package_scripts_dev",
+      "package_scripts_lint",
+      "package_scripts_preview"
+    ],
+    "44": [
+      "backend_src_modules_devices_devices_repository",
+      "backend_src_modules_devices_devices_repository_devicesrepository",
+      "backend_src_modules_devices_devices_repository_devicesrepository_deactivatetoken",
+      "backend_src_modules_devices_devices_repository_devicesrepository_getactivetokensbyuser",
+      "backend_src_modules_devices_devices_repository_devicesrepository_registerorupdatetoken"
+    ],
+    "45": [
+      "creacion_modelo_relacional_idx_smy_org_est",
+      "creacion_modelo_relacional_smy_estados_organizaciones",
+      "errorescreacionmodelo",
+      "errorescreacionmodelo_smy_organizaciones",
+      "smy_tipos_identificacion"
+    ],
+    "46": [
+      "android_gradlew",
+      "android_gradlew__entry",
+      "android_gradlew_die",
+      "android_gradlew_warn"
+    ],
+    "47": [
+      "backend_src_modules_notificaciones_notificaciones_routes",
+      "backend_src_modules_notificaciones_notificaciones_routes_controller",
+      "backend_src_modules_notificaciones_notificaciones_routes_notificacionesroutes",
+      "backend_src_modules_notificaciones_notificaciones_routes_router"
+    ],
+    "48": [
+      "backend_src_modules_residentes_residentes_routes",
+      "backend_src_modules_residentes_residentes_routes_controller",
+      "backend_src_modules_residentes_residentes_routes_residentesroutes",
+      "backend_src_modules_residentes_residentes_routes_router"
+    ],
+    "49": [
+      "backend_src_modules_tareas_tareas_routes",
+      "backend_src_modules_tareas_tareas_routes_controller",
+      "backend_src_modules_tareas_tareas_routes_router",
+      "backend_src_modules_tareas_tareas_routes_tareasroutes"
+    ],
+    "50": [
+      "ref_react_dom_client",
+      "src_app_app",
+      "src_index",
+      "src_main"
+    ],
+    "51": [
+      "src_components_incidentreportscreen",
+      "src_components_incidentreportscreen_incidentreportscreen",
+      "src_types_incidentseverity",
+      "src_types_incidenttype"
+    ],
+    "52": [
+      "android_app_src_main_java_com_samanya_os_mainactivity",
+      "android_app_src_main_java_com_samanya_os_mainactivity_mainactivity",
+      "com_getcapacitor_bridgeactivity"
+    ],
+    "53": [
+      "capacitor_config",
+      "capacitor_config_config",
+      "ref_capacitor_cli"
+    ],
+    "54": [
+      "creacion_modelo_relacional_idx_smy_cen_usr_cen",
+      "creacion_modelo_relacional_idx_smy_cen_usr_usr",
+      "smy_centro_usuarios"
+    ],
+    "55": [
+      "creacion_modelo_relacional_idx_smy_emp_centro",
+      "creacion_modelo_relacional_idx_smy_empleados_usu",
+      "smy_empleados"
+    ],
+    "56": [
+      "creacion_modelo_relacional_idx_smy_err_fecha",
+      "creacion_modelo_relacional_idx_smy_err_prog",
+      "smy_errores"
+    ],
+    "57": [
+      "creacion_modelo_relacional_idx_smy_org_due_org",
+      "creacion_modelo_relacional_idx_smy_org_due_usr",
+      "smy_organizacion_duenos"
+    ],
+    "58": [
+      "creacion_modelo_relacional_idx_smy_par_grupo",
+      "creacion_modelo_relacional_idx_smy_par_org_cen",
+      "smy_parametros"
+    ],
+    "59": [
+      "creacion_modelo_relacional_idx_smy_ram_pres_fec",
+      "creacion_modelo_relacional_idx_smy_ram_res_fec",
+      "smy_registros_admin_med"
+    ],
+    "60": [
+      "creacion_modelo_relacional_idx_smy_tr_res",
+      "creacion_modelo_relacional_idx_smy_tr_tarea",
+      "smy_tarea_residentes"
+    ],
+    "61": [
+      "creacion_modelo_relacional_idx_smy_usuarios_rol",
+      "creacion_modelo_relacional_idx_smy_usuarios_tipo",
+      "smy_usuarios"
+    ],
+    "62": [
+      "backend_db_scripts_f_fecha_actual",
+      "backend_db_scripts_f_fecha_actual_f_fecha_actual"
+    ],
+    "63": [
+      "backend_db_scripts_p_do_commit",
+      "backend_db_scripts_p_do_commit_p_do_commit"
+    ],
+    "64": [
+      "creacion_modelo_relacional_idx_smy_mc_conv",
+      "smy_mensajes_chat"
+    ],
+    "65": [
+      "creacion_modelo_relacional_idx_smy_notif_user_lei",
+      "smy_notificaciones_sistema"
+    ],
+    "66": [
+      "creacion_modelo_relacional_idx_smy_rad_res_fec",
+      "smy_registros_alim_detalle"
+    ],
+    "67": [
+      "creacion_modelo_relacional_idx_smy_sol_centro",
+      "smy_solicitudes_admision"
+    ],
+    "68": [
+      "creacion_modelo_relacional_idx_smy_sum_res_fec",
+      "smy_suministros_registro"
+    ],
+    "69": [
+      "android_app_build"
+    ],
+    "70": [
+      "android_app_capacitor_build"
+    ],
+    "71": [
+      "android_build"
+    ],
+    "72": [
+      "android_capacitor_settings"
+    ],
+    "73": [
+      "android_settings"
+    ],
+    "74": [
+      "android_variables"
+    ],
+    "75": [
+      "backend_db_scripts_build_all"
+    ],
+    "76": [
+      "backend_db_scripts_datos_prueba_dummy"
+    ],
+    "77": [
+      "backend_db_scripts_inicializar_bd"
+    ],
+    "78": [
+      "backend_db_scripts_pkgca_residentes"
+    ],
+    "79": [
+      "backend_db_scripts_pkgca_smy_archivos"
+    ],
+    "80": [
+      "backend_db_scripts_pkgca_smy_consentimientos"
+    ],
+    "81": [
+      "backend_db_scripts_pkgca_smy_dispositivos_push"
+    ],
+    "82": [
+      "backend_db_scripts_pkgca_smy_usuarios"
+    ],
+    "83": [
+      "backend_db_scripts_pkgcn_archivos"
+    ],
+    "84": [
+      "backend_db_scripts_pkgcn_auth"
+    ],
+    "85": [
+      "backend_db_scripts_pkgcn_consentimientos"
+    ],
+    "86": [
+      "backend_db_scripts_pkgln_archivos"
+    ],
+    "87": [
+      "backend_db_scripts_pkgln_auth"
+    ],
+    "88": [
+      "backend_db_scripts_pkgln_consentimientos"
+    ],
+    "89": [
+      "backend_db_scripts_pkgsmy_acudientes_dao"
+    ],
+    "90": [
+      "backend_db_scripts_pkgsmy_alcances_tareas_dao"
+    ],
+    "91": [
+      "backend_db_scripts_pkgsmy_archivos_dao"
+    ],
+    "92": [
+      "backend_db_scripts_pkgsmy_areas_empleados_dao"
+    ],
+    "93": [
+      "backend_db_scripts_pkgsmy_auditoria_accesos_dao"
+    ],
+    "94": [
+      "backend_db_scripts_pkgsmy_bitacora_residente_dao"
+    ],
+    "95": [
+      "backend_db_scripts_pkgsmy_canales_notificacion_dao"
+    ],
+    "96": [
+      "backend_db_scripts_pkgsmy_cargos_empleados_dao"
+    ],
+    "97": [
+      "backend_db_scripts_pkgsmy_categorias_bitacora_dao"
+    ],
+    "98": [
+      "backend_db_scripts_pkgsmy_categorias_doc_clinicos_dao"
+    ],
+    "99": [
+      "backend_db_scripts_pkgsmy_centro_usuarios_dao"
+    ],
+    "100": [
+      "backend_db_scripts_pkgsmy_centros_dao"
+    ],
+    "101": [
+      "backend_db_scripts_pkgsmy_chat_participantes_dao"
+    ],
+    "102": [
+      "backend_db_scripts_pkgsmy_clases_archivos_dao"
+    ],
+    "103": [
+      "backend_db_scripts_pkgsmy_consentimiento_destinatarios_dao"
+    ],
+    "104": [
+      "backend_db_scripts_pkgsmy_consentimientos_dao"
+    ],
+    "105": [
+      "backend_db_scripts_pkgsmy_consistencias_dieta_dao"
+    ],
+    "106": [
+      "backend_db_scripts_pkgsmy_conversaciones_chat_dao"
+    ],
+    "107": [
+      "backend_db_scripts_pkgsmy_dispositivos_push_dao"
+    ],
+    "108": [
+      "backend_db_scripts_pkgsmy_documentos_clinicos_dao"
+    ],
+    "109": [
+      "backend_db_scripts_pkgsmy_documentos_eliminados_log_dao"
+    ],
+    "110": [
+      "backend_db_scripts_pkgsmy_documentos_empleado_dao"
+    ],
+    "111": [
+      "backend_db_scripts_pkgsmy_empleados_dao"
+    ],
+    "112": [
+      "backend_db_scripts_pkgsmy_errores_dao"
+    ],
+    "113": [
+      "backend_db_scripts_pkgsmy_estados_admin_med_dao"
+    ],
+    "114": [
+      "backend_db_scripts_pkgsmy_estados_archivos_dao"
+    ],
+    "115": [
+      "backend_db_scripts_pkgsmy_estados_consentimientos_dao"
+    ],
+    "116": [
+      "backend_db_scripts_pkgsmy_estados_doc_clinicos_dao"
+    ],
+    "117": [
+      "backend_db_scripts_pkgsmy_estados_empleados_dao"
+    ],
+    "118": [
+      "backend_db_scripts_pkgsmy_estados_firmas_cons_dao"
+    ],
+    "119": [
+      "backend_db_scripts_pkgsmy_estados_incidentes_dao"
+    ],
+    "120": [
+      "backend_db_scripts_pkgsmy_estados_medicamentos_dao"
+    ],
+    "121": [
+      "backend_db_scripts_pkgsmy_estados_organizaciones_dao"
+    ],
+    "122": [
+      "backend_db_scripts_pkgsmy_estados_pagos_dao"
+    ],
+    "123": [
+      "backend_db_scripts_pkgsmy_estados_parametros_dao"
+    ],
+    "124": [
+      "backend_db_scripts_pkgsmy_estados_permisos_dao"
+    ],
+    "125": [
+      "backend_db_scripts_pkgsmy_estados_plantillas_turno_dao"
+    ],
+    "126": [
+      "backend_db_scripts_pkgsmy_estados_residentes_dao"
+    ],
+    "127": [
+      "backend_db_scripts_pkgsmy_estados_roles_dao"
+    ],
+    "128": [
+      "backend_db_scripts_pkgsmy_estados_solicitudes_adm_dao"
+    ],
+    "129": [
+      "backend_db_scripts_pkgsmy_estados_tareas_dao"
+    ],
+    "130": [
+      "backend_db_scripts_pkgsmy_estados_turnos_dao"
+    ],
+    "131": [
+      "backend_db_scripts_pkgsmy_estados_usuarios_dao"
+    ],
+    "132": [
+      "backend_db_scripts_pkgsmy_eventos_calendario_dao"
+    ],
+    "133": [
+      "backend_db_scripts_pkgsmy_generos_dao"
+    ],
+    "134": [
+      "backend_db_scripts_pkgsmy_historias_clinicas_dao"
+    ],
+    "135": [
+      "backend_db_scripts_pkgsmy_incidente_residentes_dao"
+    ],
+    "136": [
+      "backend_db_scripts_pkgsmy_incidentes_dao"
+    ],
+    "137": [
+      "backend_db_scripts_pkgsmy_medicamentos_prescritos_dao"
+    ],
+    "138": [
+      "backend_db_scripts_pkgsmy_mensajes_chat_dao"
+    ],
+    "139": [
+      "backend_db_scripts_pkgsmy_niveles_movilidad_dao"
+    ],
+    "140": [
+      "backend_db_scripts_pkgsmy_notificaciones_sistema_dao"
+    ],
+    "141": [
+      "backend_db_scripts_pkgsmy_organizacion_duenos_dao"
+    ],
+    "142": [
+      "backend_db_scripts_pkgsmy_organizaciones_dao"
+    ],
+    "143": [
+      "backend_db_scripts_pkgsmy_parametros_dao"
+    ],
+    "144": [
+      "backend_db_scripts_pkgsmy_parentescos_dao"
+    ],
+    "145": [
+      "backend_db_scripts_pkgsmy_planes_nutricionales_dao"
+    ],
+    "146": [
+      "backend_db_scripts_pkgsmy_plantillas_turno_dao"
+    ],
+    "147": [
+      "backend_db_scripts_pkgsmy_registros_admin_med_dao"
+    ],
+    "148": [
+      "backend_db_scripts_pkgsmy_registros_alim_detalle_dao"
+    ],
+    "149": [
+      "backend_db_scripts_pkgsmy_registros_alim_sesion_dao"
+    ],
+    "150": [
+      "backend_db_scripts_pkgsmy_residente_acudiente_dao"
+    ],
+    "151": [
+      "backend_db_scripts_pkgsmy_residentes_dao"
+    ],
+    "152": [
+      "backend_db_scripts_pkgsmy_roles_dao"
+    ],
+    "153": [
+      "backend_db_scripts_pkgsmy_roles_en_incidente_dao"
+    ],
+    "154": [
+      "backend_db_scripts_pkgsmy_severidades_incidentes_dao"
+    ],
+    "155": [
+      "backend_db_scripts_pkgsmy_signos_vitales_dao"
+    ],
+    "156": [
+      "backend_db_scripts_pkgsmy_solicitud_adm_contactos_dao"
+    ],
+    "157": [
+      "backend_db_scripts_pkgsmy_solicitudes_admision_dao"
+    ],
+    "158": [
+      "backend_db_scripts_pkgsmy_solicitudes_permisos_dao"
+    ],
+    "159": [
+      "backend_db_scripts_pkgsmy_suministros_registro_dao"
+    ],
+    "160": [
+      "backend_db_scripts_pkgsmy_tarea_residentes_dao"
+    ],
+    "161": [
+      "backend_db_scripts_pkgsmy_tareas_operativas_dao"
+    ],
+    "162": [
+      "backend_db_scripts_pkgsmy_tipos_adjuntos_chat_dao"
+    ],
+    "163": [
+      "backend_db_scripts_pkgsmy_tipos_archivos_doc_dao"
+    ],
+    "164": [
+      "backend_db_scripts_pkgsmy_tipos_canales_chat_dao"
+    ],
+    "165": [
+      "backend_db_scripts_pkgsmy_tipos_comidas_dao"
+    ],
+    "166": [
+      "backend_db_scripts_pkgsmy_tipos_consentimientos_dao"
+    ],
+    "167": [
+      "backend_db_scripts_pkgsmy_tipos_dietas_dao"
+    ],
+    "168": [
+      "backend_db_scripts_pkgsmy_tipos_entradas_doc_dao"
+    ],
+    "169": [
+      "backend_db_scripts_pkgsmy_tipos_eventos_dao"
+    ],
+    "170": [
+      "backend_db_scripts_pkgsmy_tipos_identificacion_dao"
+    ],
+    "171": [
+      "backend_db_scripts_pkgsmy_tipos_incidentes_dao"
+    ],
+    "172": [
+      "backend_db_scripts_pkgsmy_tipos_notificaciones_dao"
+    ],
+    "173": [
+      "backend_db_scripts_pkgsmy_tipos_permisos_dao"
+    ],
+    "174": [
+      "backend_db_scripts_pkgsmy_tipos_suministros_dao"
+    ],
+    "175": [
+      "backend_db_scripts_pkgsmy_tipos_tareas_dao"
+    ],
+    "176": [
+      "backend_db_scripts_pkgsmy_tipos_usuarios_dao"
+    ],
+    "177": [
+      "backend_db_scripts_pkgsmy_turnos_asignados_dao"
+    ],
+    "178": [
+      "backend_db_scripts_pkgsmy_usuarios_dao"
+    ],
+    "179": [
+      "backend_db_scripts_pkgsmy_vias_administracion_dao"
+    ],
+    "180": [
+      "backend_db_scripts_uti_ge_excepciones_pkg"
+    ],
+    "181": [
+      "inicializar_bd"
+    ]
+  },
+  "cohesion": {
+    "0": 0.07552159858947988,
+    "1": 0.10218579234972677,
+    "2": 0.10808080808080808,
+    "3": 0.05365853658536585,
+    "4": 0.1111111111111111,
+    "5": 0.08695652173913043,
+    "6": 0.09523809523809523,
+    "7": 0.1,
+    "8": 0.1111111111111111,
+    "9": 0.1111111111111111,
+    "10": 0.1111111111111111,
+    "11": 0.19852941176470587,
+    "12": 0.26666666666666666,
+    "13": 0.22857142857142856,
+    "14": 0.20952380952380953,
+    "15": 0.13333333333333333,
+    "16": 0.19047619047619047,
+    "17": 0.16483516483516483,
+    "18": 0.16483516483516483,
+    "19": 0.15384615384615385,
+    "20": 0.2564102564102564,
+    "21": 0.24242424242424243,
+    "22": 0.2878787878787879,
+    "23": 0.24242424242424243,
+    "24": 0.18181818181818182,
+    "25": 0.18181818181818182,
+    "26": 0.18181818181818182,
+    "27": 0.2,
+    "28": 0.2,
+    "29": 0.2222222222222222,
+    "30": 0.2,
+    "31": 0.3055555555555556,
+    "32": 0.2222222222222222,
+    "33": 0.2222222222222222,
+    "34": 0.25,
+    "35": 0.2222222222222222,
+    "36": 0.2777777777777778,
+    "37": 0.3333333333333333,
+    "38": 0.2857142857142857,
+    "39": 0.38095238095238093,
+    "40": 0.3333333333333333,
+    "41": 0.3333333333333333,
+    "42": 0.4666666666666667,
+    "43": 0.3333333333333333,
+    "44": 0.4,
+    "45": 0.4,
+    "46": 0.8333333333333334,
+    "47": 0.5,
+    "48": 0.5,
+    "49": 0.5,
+    "50": 0.5,
+    "51": 0.5,
+    "52": 1.0,
+    "53": 0.6666666666666666,
+    "54": 0.6666666666666666,
+    "55": 0.6666666666666666,
+    "56": 0.6666666666666666,
+    "57": 0.6666666666666666,
+    "58": 0.6666666666666666,
+    "59": 0.6666666666666666,
+    "60": 0.6666666666666666,
+    "61": 0.6666666666666666,
+    "62": 1.0,
+    "63": 1.0,
+    "64": 1.0,
+    "65": 1.0,
+    "66": 1.0,
+    "67": 1.0,
+    "68": 1.0,
+    "69": 1.0,
+    "70": 1.0,
+    "71": 1.0,
+    "72": 1.0,
+    "73": 1.0,
+    "74": 1.0,
+    "75": 1.0,
+    "76": 1.0,
+    "77": 1.0,
+    "78": 1.0,
+    "79": 1.0,
+    "80": 1.0,
+    "81": 1.0,
+    "82": 1.0,
+    "83": 1.0,
+    "84": 1.0,
+    "85": 1.0,
+    "86": 1.0,
+    "87": 1.0,
+    "88": 1.0,
+    "89": 1.0,
+    "90": 1.0,
+    "91": 1.0,
+    "92": 1.0,
+    "93": 1.0,
+    "94": 1.0,
+    "95": 1.0,
+    "96": 1.0,
+    "97": 1.0,
+    "98": 1.0,
+    "99": 1.0,
+    "100": 1.0,
+    "101": 1.0,
+    "102": 1.0,
+    "103": 1.0,
+    "104": 1.0,
+    "105": 1.0,
+    "106": 1.0,
+    "107": 1.0,
+    "108": 1.0,
+    "109": 1.0,
+    "110": 1.0,
+    "111": 1.0,
+    "112": 1.0,
+    "113": 1.0,
+    "114": 1.0,
+    "115": 1.0,
+    "116": 1.0,
+    "117": 1.0,
+    "118": 1.0,
+    "119": 1.0,
+    "120": 1.0,
+    "121": 1.0,
+    "122": 1.0,
+    "123": 1.0,
+    "124": 1.0,
+    "125": 1.0,
+    "126": 1.0,
+    "127": 1.0,
+    "128": 1.0,
+    "129": 1.0,
+    "130": 1.0,
+    "131": 1.0,
+    "132": 1.0,
+    "133": 1.0,
+    "134": 1.0,
+    "135": 1.0,
+    "136": 1.0,
+    "137": 1.0,
+    "138": 1.0,
+    "139": 1.0,
+    "140": 1.0,
+    "141": 1.0,
+    "142": 1.0,
+    "143": 1.0,
+    "144": 1.0,
+    "145": 1.0,
+    "146": 1.0,
+    "147": 1.0,
+    "148": 1.0,
+    "149": 1.0,
+    "150": 1.0,
+    "151": 1.0,
+    "152": 1.0,
+    "153": 1.0,
+    "154": 1.0,
+    "155": 1.0,
+    "156": 1.0,
+    "157": 1.0,
+    "158": 1.0,
+    "159": 1.0,
+    "160": 1.0,
+    "161": 1.0,
+    "162": 1.0,
+    "163": 1.0,
+    "164": 1.0,
+    "165": 1.0,
+    "166": 1.0,
+    "167": 1.0,
+    "168": 1.0,
+    "169": 1.0,
+    "170": 1.0,
+    "171": 1.0,
+    "172": 1.0,
+    "173": 1.0,
+    "174": 1.0,
+    "175": 1.0,
+    "176": 1.0,
+    "177": 1.0,
+    "178": 1.0,
+    "179": 1.0,
+    "180": 1.0,
+    "181": 1.0
+  },
+  "gods": [
+    {
+      "id": "src_context_appcontext_useapp",
+      "label": "useApp()",
+      "degree": 79
+    },
+    {
+      "id": "ref_lucide_react",
+      "label": "lucide-react",
+      "degree": 45
+    },
+    {
+      "id": "mobile_src_store_auth_store_useauthstore",
+      "label": "useAuthStore",
+      "degree": 37
+    },
+    {
+      "id": "backend_src_config_oracle_withconnection",
+      "label": "withConnection()",
+      "degree": 35
+    },
+    {
+      "id": "src_context_appcontext_appcontexttype",
+      "label": "AppContextType",
+      "degree": 22
+    },
+    {
+      "id": "mobile_src_constants_theme_colors",
+      "label": "Colors",
+      "degree": 18
+    },
+    {
+      "id": "ref_lucide_react_native",
+      "label": "lucide-react-native",
+      "degree": 16
+    },
+    {
+      "id": "ref_react_native",
+      "label": "react-native",
+      "degree": 15
+    },
+    {
+      "id": "tsconfig_compileroptions",
+      "label": "compilerOptions",
+      "degree": 15
+    },
+    {
+      "id": "creacion_modelo_relacional_v_smy_timeline_residente",
+      "label": "V_SMY_TIMELINE_RESIDENTE",
+      "degree": 13
+    }
+  ],
+  "surprises": [
+    {
+      "source": "AdminProfileScreen()",
+      "target": "useApp()",
+      "source_files": [
+        "src/components/admin/AdminProfileScreen.tsx",
+        "src/context/AppContext.tsx"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "bridges separate communities; peripheral node `AdminProfileScreen()` unexpectedly reaches hub `useApp()`"
+    },
+    {
+      "source": "AdminShiftsScreen()",
+      "target": "useApp()",
+      "source_files": [
+        "src/components/admin/AdminShiftsScreen.tsx",
+        "src/context/AppContext.tsx"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "bridges separate communities; peripheral node `AdminShiftsScreen()` unexpectedly reaches hub `useApp()`"
+    },
+    {
+      "source": "AdminTasksScreen()",
+      "target": "useApp()",
+      "source_files": [
+        "src/components/admin/AdminTasksScreen.tsx",
+        "src/context/AppContext.tsx"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "bridges separate communities; peripheral node `AdminTasksScreen()` unexpectedly reaches hub `useApp()`"
+    },
+    {
+      "source": "FamiliarCalendarioScreen()",
+      "target": "useApp()",
+      "source_files": [
+        "src/components/familiar/FamiliarCalendarioScreen.tsx",
+        "src/context/AppContext.tsx"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "bridges separate communities; peripheral node `FamiliarCalendarioScreen()` unexpectedly reaches hub `useApp()`"
+    },
+    {
+      "source": "App()",
+      "target": "useAuthStore",
+      "source_files": [
+        "mobile/App.tsx",
+        "mobile/src/store/auth.store.ts"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "bridges separate communities; peripheral node `App()` unexpectedly reaches hub `useAuthStore`"
+    }
+  ],
+  "questions": [
+    {
+      "type": "bridge_node",
+      "question": "Why does `lucide-react` connect `useApp` to `AppContext.tsx`, `taskFormatters.ts`, `RoleDropdownSelector.tsx`, `TaskItem`, `package.json`, `api.ts`, `IncidentReportScreen.tsx`, `ClinicalHistorySection.tsx`, `components/ConsentsScreen.tsx`?",
+      "why": "High betweenness centrality (0.141) - this node is a cross-community bridge."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `typescript` connect `package.json` to `mobile/package.json`, `backend/package.json`?",
+      "why": "High betweenness centrality (0.135) - this node is a cross-community bridge."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `oracledb` connect `archivos.service.ts` to `auth.repository.ts`, `tareas.controller.ts`, `notificaciones.controller.ts`, `backend/package.json`, `app.ts`, `maestras.routes.ts`, `ResidentesController`, `consentimientos.controller.ts`?",
+      "why": "High betweenness centrality (0.084) - this node is a cross-community bridge."
+    },
+    {
+      "type": "isolated_nodes",
+      "question": "What connects `ResidentMedication`, `AuthStackParamList`, `RootStackParamList` to the rest of the system?",
+      "why": "252 weakly-connected nodes found - possible documentation gaps or missing edges."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `useAuthStore` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.07552159858947988 - nodes in this community are weakly interconnected."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `useApp` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.10218579234972677 - nodes in this community are weakly interconnected."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `AppContext.tsx` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.10808080808080808 - nodes in this community are weakly interconnected."
+    }
+  ]
+}
