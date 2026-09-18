@@ -8,21 +8,19 @@ CREATE OR REPLACE PACKAGE PKGCA_RESIDENTES
 AS
     /**
      * Retorna cursor multi-fila con censo de residentes activos filtrados por centro, estado o texto
-     * Si p_id_centro es especificado, aísla los residentes pertenecientes a dicha sede/centro.
+     * Parámetro pcl_json: Documento JSON con filtros: { "idCentro": 1, "idEstado": 1, "filtroTexto": "Gomez" }
      */
     PROCEDURE p_consultar_censo (
-        p_id_centro        IN  smy_residentes.id_centro%TYPE DEFAULT NULL,
-        p_id_estado        IN  smy_residentes.id_estado_residente%TYPE DEFAULT NULL,
-        p_filtro_texto     IN  VARCHAR2 DEFAULT NULL,
-        p_cursor           OUT SYS_REFCURSOR
+        pcl_json    IN  CLOB,
+        p_cursor    OUT SYS_REFCURSOR
     );
 
     /**
      * Retorna detalle clínico y general de un residente en formato JSON nativo (CLOB)
-     * Utiliza JSON_OBJECT / JSON_ARRAYAGG RETURNING CLOB sin concatenación de cadenas.
+     * Parámetro pcl_json: Documento JSON con el ID del residente: { "idResidente": 1 }
      */
     FUNCTION f_obtener_ficha_json (
-        p_id_residente     IN  smy_residentes.id%TYPE
+        pcl_json    IN  CLOB
     ) RETURN CLOB;
 
 END PKGCA_RESIDENTES;
@@ -32,12 +30,19 @@ CREATE OR REPLACE PACKAGE BODY PKGCA_RESIDENTES
 AS
 
     PROCEDURE p_consultar_censo (
-        p_id_centro        IN  smy_residentes.id_centro%TYPE DEFAULT NULL,
-        p_id_estado        IN  smy_residentes.id_estado_residente%TYPE DEFAULT NULL,
-        p_filtro_texto     IN  VARCHAR2 DEFAULT NULL,
-        p_cursor           OUT SYS_REFCURSOR
+        pcl_json    IN  CLOB,
+        p_cursor    OUT SYS_REFCURSOR
     ) IS
+        v_id_centro    smy_residentes.id_centro%TYPE;
+        v_id_estado    smy_residentes.id_estado_residente%TYPE;
+        v_filtro_texto VARCHAR2(150);
     BEGIN
+        -- Extracción obligatoria mediante JSON_VALUE
+        v_id_centro    := TO_NUMBER(JSON_VALUE(pcl_json, '$.idCentro'));
+        v_id_estado    := TO_NUMBER(JSON_VALUE(pcl_json, '$.idEstado'));
+        v_filtro_texto := JSON_VALUE(pcl_json, '$.filtroTexto');
+
+        -- Sintaxis tradicional Oracle (CERO JOIN, uniones externas con (+))
         OPEN p_cursor FOR
             SELECT 
                 r.id,
@@ -57,27 +62,35 @@ AS
                 NVL(d.nombre_tipo_dieta, 'Normal / General') AS tipo_dieta,
                 r.alertas_clinicas,
                 NVL(e.nombre_estado_residente, 'Activo') AS estado
-            FROM smy_residentes r
-            INNER JOIN smy_centros c ON r.id_centro = c.id
-            INNER JOIN smy_estados_residentes e ON r.id_estado_residente = e.id
-            LEFT JOIN smy_niveles_movilidad m ON r.id_nivel_movilidad = m.id
-            LEFT JOIN smy_tipos_dietas d ON r.id_tipo_dieta = d.id
-            WHERE (p_id_centro IS NULL OR r.id_centro = p_id_centro)
-              AND (p_id_estado IS NULL OR r.id_estado_residente = p_id_estado)
-              AND (p_filtro_texto IS NULL OR (
-                    UPPER(r.nombres) LIKE '%' || UPPER(p_filtro_texto) || '%' OR
-                    UPPER(r.apellidos) LIKE '%' || UPPER(p_filtro_texto) || '%' OR
-                    UPPER(r.habitacion) LIKE '%' || UPPER(p_filtro_texto) || '%' OR
-                    UPPER(r.cama) LIKE '%' || UPPER(p_filtro_texto) || '%'
+            FROM smy_residentes r,
+                 smy_centros c,
+                 smy_estados_residentes e,
+                 smy_niveles_movilidad m,
+                 smy_tipos_dietas d
+            WHERE r.id_centro = c.id
+              AND r.id_estado_residente = e.id
+              AND r.id_nivel_movilidad = m.id(+)
+              AND r.id_tipo_dieta = d.id(+)
+              AND (v_id_centro IS NULL OR r.id_centro = v_id_centro)
+              AND (v_id_estado IS NULL OR r.id_estado_residente = v_id_estado)
+              AND (v_filtro_texto IS NULL OR (
+                    UPPER(r.nombres) LIKE '%' || UPPER(v_filtro_texto) || '%' OR
+                    UPPER(r.apellidos) LIKE '%' || UPPER(v_filtro_texto) || '%' OR
+                    UPPER(r.habitacion) LIKE '%' || UPPER(v_filtro_texto) || '%' OR
+                    UPPER(r.cama) LIKE '%' || UPPER(v_filtro_texto) || '%'
                   ))
             ORDER BY r.habitacion, r.cama;
     END p_consultar_censo;
 
     FUNCTION f_obtener_ficha_json (
-        p_id_residente     IN  smy_residentes.id%TYPE
+        pcl_json    IN  CLOB
     ) RETURN CLOB IS
-        vcl_resultado CLOB;
+        v_id_residente smy_residentes.id%TYPE;
+        vcl_resultado  CLOB;
     BEGIN
+        -- Extracción obligatoria mediante JSON_VALUE
+        v_id_residente := TO_NUMBER(JSON_VALUE(pcl_json, '$.idResidente'));
+
         SELECT JSON_OBJECT(
             'id'                  VALUE r.id,
             'idCentro'            VALUE r.id_centro,
@@ -111,20 +124,26 @@ AS
                         'email'         VALUE a.email
                     ) RETURNING CLOB
                 )
-                FROM smy_residente_acudiente ra
-                INNER JOIN smy_acudientes a ON ra.id_acudiente = a.id
-                INNER JOIN smy_parentescos p ON ra.id_parentesco = p.id
-                WHERE ra.id_residente = r.id
+                FROM smy_residente_acudiente ra,
+                     smy_acudientes a,
+                     smy_parentescos p
+                WHERE ra.id_acudiente = a.id
+                  AND ra.id_parentesco = p.id
+                  AND ra.id_residente = r.id
             )
             RETURNING CLOB
         )
         INTO vcl_resultado
-        FROM smy_residentes r
-        INNER JOIN smy_centros c ON r.id_centro = c.id
-        INNER JOIN smy_estados_residentes e ON r.id_estado_residente = e.id
-        LEFT JOIN smy_niveles_movilidad m ON r.id_nivel_movilidad = m.id
-        LEFT JOIN smy_tipos_dietas d ON r.id_tipo_dieta = d.id
-        WHERE r.id = p_id_residente;
+        FROM smy_residentes r,
+             smy_centros c,
+             smy_estados_residentes e,
+             smy_niveles_movilidad m,
+             smy_tipos_dietas d
+        WHERE r.id_centro = c.id
+          AND r.id_estado_residente = e.id
+          AND r.id_nivel_movilidad = m.id(+)
+          AND r.id_tipo_dieta = d.id(+)
+          AND r.id = v_id_residente;
 
         RETURN vcl_resultado;
     EXCEPTION

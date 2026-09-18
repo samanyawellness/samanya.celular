@@ -1079,3 +1079,14 @@ FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-17 23:20:19
 ================================================================================
 Subir al repositorio y hacer push
 
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-17 23:27:23
+================================================================================
+SUbir al repositorio cuando lo indique.
+Deseo que el skill de oracle-plsql-architecture se ajuste para indicar que no se utilice sentencias con la nomenclatura JOIN, los parametros a los paquetes pkgca_, los pkgcn_ y los pkgln_ se reciban en un parametro clob que contiene un json con los campos, cuando se usen extraer el valos usando json_value
+
+================================================================================
+FECHA Y HORA (Bogotá, Colombia - UTC-5): 2026-09-17 23:32:31
+================================================================================
+subir al repositorio y hacer push
+

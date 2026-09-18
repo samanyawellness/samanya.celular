@@ -56,15 +56,16 @@ export class ResidentesService {
         conditions.push(`
           r.ID IN (
             SELECT ra.ID_RESIDENTE 
-              FROM SMY_RESIDENTE_ACUDIENTE ra
-              JOIN SMY_ACUDIENTES a ON a.ID = ra.ID_ACUDIENTE
-             WHERE a.ID_USUARIO = :idUsuario
+              FROM SMY_RESIDENTE_ACUDIENTE ra,
+                   SMY_ACUDIENTES a
+             WHERE a.ID = ra.ID_ACUDIENTE
+               AND a.ID_USUARIO = :idUsuario
           )
         `);
         filterBinds.idUsuario = idUsuario;
       }
 
-      const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+      const extraWhere = conditions.length > 0 ? `AND ${conditions.join(' AND ')}` : '';
 
       const sql = `
         SELECT 
@@ -84,12 +85,16 @@ export class ResidentesService {
           NVL(d.NOMBRE_TIPO_DIETA, 'Normal / General') AS TIPO_DIETA,
           r.ALERTAS_CLINICAS,
           NVL(e.NOMBRE_ESTADO_RESIDENTE, 'Activo') AS ESTADO
-        FROM SMY_RESIDENTES r
-        INNER JOIN SMY_CENTROS c ON r.ID_CENTRO = c.ID
-        INNER JOIN SMY_ESTADOS_RESIDENTES e ON r.ID_ESTADO_RESIDENTE = e.ID
-        LEFT JOIN SMY_NIVELES_MOVILIDAD m ON r.ID_NIVEL_MOVILIDAD = m.ID
-        LEFT JOIN SMY_TIPOS_DIETAS d ON r.ID_TIPO_DIETA = d.ID
-        ${whereClause}
+        FROM SMY_RESIDENTES r,
+             SMY_CENTROS c,
+             SMY_ESTADOS_RESIDENTES e,
+             SMY_NIVELES_MOVILIDAD m,
+             SMY_TIPOS_DIETAS d
+        WHERE r.ID_CENTRO = c.ID
+          AND r.ID_ESTADO_RESIDENTE = e.ID
+          AND r.ID_NIVEL_MOVILIDAD = m.ID(+)
+          AND r.ID_TIPO_DIETA = d.ID(+)
+          ${extraWhere}
         ORDER BY r.HABITACION, r.CAMA
       `;
 
@@ -99,7 +104,7 @@ export class ResidentesService {
 
       const rows = (result.rows || []) as any[];
 
-      // Consultar todos los acudientes vinculados
+      // Consultar todos los acudientes vinculados sin sintaxis JOIN
       const acudientesSql = `
         SELECT 
           ra.ID_RESIDENTE,
@@ -107,16 +112,18 @@ export class ResidentesService {
           p.NOMBRE_PARENTESCO AS PARENTESCO,
           a.TELEFONO_PRINCIPAL,
           a.EMAIL
-        FROM SMY_RESIDENTE_ACUDIENTE ra
-        JOIN SMY_ACUDIENTES a ON a.ID = ra.ID_ACUDIENTE
-        JOIN SMY_PARENTESCOS p ON p.ID = ra.ID_PARENTESCO
+        FROM SMY_RESIDENTE_ACUDIENTE ra,
+             SMY_ACUDIENTES a,
+             SMY_PARENTESCOS p
+        WHERE ra.ID_ACUDIENTE = a.ID
+          AND ra.ID_PARENTESCO = p.ID
       `;
       const acudientesResult = await connection.execute(acudientesSql, [], {
         outFormat: oracledb.OUT_FORMAT_OBJECT
       });
       const acudientesRows = (acudientesResult.rows || []) as any[];
 
-      // Consultar medicamentos prescritos
+      // Consultar medicamentos prescritos sin sintaxis JOIN
       const medsSql = `
         SELECT 
           m.ID,
@@ -126,9 +133,10 @@ export class ResidentesService {
           m.HORARIOS_FIJOS,
           m.FRECUENCIA_HORAS,
           v.NOMBRE_VIA_ADMINISTRACION
-        FROM SMY_MEDICAMENTOS_PRESCRITOS m
-        LEFT JOIN SMY_VIAS_ADMINISTRACION v ON v.ID = m.ID_VIA_ADMINISTRACION
-        WHERE m.ID_ESTADO_MEDICAMENTO = 1
+        FROM SMY_MEDICAMENTOS_PRESCRITOS m,
+             SMY_VIAS_ADMINISTRACION v
+        WHERE m.ID_VIA_ADMINISTRACION = v.ID(+)
+          AND m.ID_ESTADO_MEDICAMENTO = 1
       `;
       const medsResult = await connection.execute(medsSql, [], {
         outFormat: oracledb.OUT_FORMAT_OBJECT
@@ -212,11 +220,14 @@ export class ResidentesService {
           r.ALERTAS_CLINICAS,
           e.NOMBRE_ESTADO_RESIDENTE AS ESTADO,
           TO_CHAR(r.FECHA_INGRESO, 'YYYY-MM-DD') AS FECHA_INGRESO
-        FROM SMY_RESIDENTES r
-        INNER JOIN SMY_ESTADOS_RESIDENTES e ON r.ID_ESTADO_RESIDENTE = e.ID
-        LEFT JOIN SMY_NIVELES_MOVILIDAD m ON r.ID_NIVEL_MOVILIDAD = m.ID
-        LEFT JOIN SMY_TIPOS_DIETAS d ON r.ID_TIPO_DIETA = d.ID
-        WHERE r.ID = :idResidente
+        FROM SMY_RESIDENTES r,
+             SMY_ESTADOS_RESIDENTES e,
+             SMY_NIVELES_MOVILIDAD m,
+             SMY_TIPOS_DIETAS d
+        WHERE r.ID_ESTADO_RESIDENTE = e.ID
+          AND r.ID_NIVEL_MOVILIDAD = m.ID(+)
+          AND r.ID_TIPO_DIETA = d.ID(+)
+          AND r.ID = :idResidente
       `;
 
       const result = await connection.execute(sql, { idResidente }, {
@@ -256,11 +267,14 @@ export class ResidentesService {
           b.AUDIO_URL,
           b.FOTO_ADJUNTA_URL,
           u.NOMBRE_COMPLETO AS AUTOR
-        FROM SMY_BITACORA_RESIDENTE b
-        LEFT JOIN SMY_RESIDENTES r ON b.ID_RESIDENTE = r.ID
-        LEFT JOIN SMY_CATEGORIAS_BITACORA c ON b.ID_CATEGORIA_BITACORA = c.ID
-        LEFT JOIN SMY_USUARIOS u ON b.ID_USUARIO = u.ID
-        ${whereClause}
+        FROM SMY_BITACORA_RESIDENTE b,
+             SMY_RESIDENTES r,
+             SMY_CATEGORIAS_BITACORA c,
+             SMY_USUARIOS u
+        WHERE b.ID_RESIDENTE = r.ID(+)
+          AND b.ID_CATEGORIA_BITACORA = c.ID(+)
+          AND b.ID_USUARIO = u.ID(+)
+          ${whereClause ? `AND ${whereClause.replace(/^WHERE\s+/i, '')}` : ''}
         ORDER BY b.FECHA DESC, b.HORA DESC
       `;
 
@@ -373,10 +387,12 @@ export class ResidentesService {
           sv.OBSERVACIONES,
           sv.ES_ALERTA_RANGO,
           u.NOMBRE_COMPLETO AS REGISTRADO_POR
-        FROM SMY_SIGNOS_VITALES sv
-        JOIN SMY_RESIDENTES r ON r.ID = sv.ID_RESIDENTE
-        JOIN SMY_USUARIOS u ON u.ID = sv.ID_USUARIO_REGISTRO
-        ${whereClause}
+        FROM SMY_SIGNOS_VITALES sv,
+             SMY_RESIDENTES r,
+             SMY_USUARIOS u
+        WHERE r.ID = sv.ID_RESIDENTE
+          AND u.ID = sv.ID_USUARIO_REGISTRO
+          ${whereClause ? `AND ${whereClause.replace(/^WHERE\s+/i, '')}` : ''}
         ORDER BY sv.FECHA DESC, sv.HORA DESC
       `;
 
